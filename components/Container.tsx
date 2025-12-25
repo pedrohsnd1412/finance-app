@@ -1,24 +1,37 @@
-import { View, StyleSheet, Platform, ViewStyle, SafeAreaView } from 'react-native';
-import { useThemeColor } from '@/components/Themed';
+import { useColorScheme } from '@/components/useColorScheme';
+import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from 'react-native';
+import React from 'react';
+import { SafeAreaView, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface ContainerProps {
     children: React.ReactNode;
     style?: ViewStyle;
     useSafeArea?: boolean;
+    maxWidth?: number;
 }
 
-export function Container({ children, style, useSafeArea = true }: ContainerProps) {
+export function Container({ children, style, useSafeArea = true, maxWidth = 1200 }: ContainerProps) {
     const colorScheme = useColorScheme();
     const theme = colorScheme ?? 'light';
     const backgroundColor = Colors[theme].background;
+    const { isDesktop } = useResponsive();
 
     const Wrapper = useSafeArea ? SafeAreaView : View;
 
     return (
         <Wrapper style={[{ flex: 1, backgroundColor }, styles.wrapper]}>
-            <View style={[styles.container, style]}>
+            <View
+                style={[
+                    styles.container,
+                    {
+                        maxWidth: isDesktop ? maxWidth : undefined,
+                        paddingHorizontal: isDesktop ? 32 : 16,
+                        paddingVertical: isDesktop ? 32 : 16,
+                    },
+                    style
+                ]}
+            >
                 {children}
             </View>
         </Wrapper>
@@ -32,8 +45,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         width: '100%',
-        maxWidth: 800, // Responsive web constraint
         alignSelf: 'center',
-        paddingHorizontal: 16,
     },
 });
