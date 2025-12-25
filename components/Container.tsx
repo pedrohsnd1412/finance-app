@@ -22,7 +22,7 @@ export function Container({ children, style, useSafeArea = true, maxWidth = 1200
     return (
         <Wrapper style={[{ flex: 1, backgroundColor }, styles.wrapper]}>
             <View
-                style={[
+                style={StyleSheet.flatten([
                     styles.container,
                     {
                         maxWidth: isDesktop ? maxWidth : undefined,
@@ -30,7 +30,7 @@ export function Container({ children, style, useSafeArea = true, maxWidth = 1200
                         paddingVertical: isDesktop ? 32 : 16,
                     },
                     style
-                ]}
+                ])}
             >
                 {children}
             </View>
