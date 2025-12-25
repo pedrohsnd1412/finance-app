@@ -20,7 +20,7 @@ export function Sidebar() {
     ];
 
     return (
-        <View style={[
+        <View style={StyleSheet.flatten([
             styles.container,
             {
                 backgroundColor: theme.card,
@@ -28,10 +28,10 @@ export function Sidebar() {
                 paddingTop: insets.top + 20,
                 paddingBottom: insets.bottom + 20,
             }
-        ]}>
+        ])}>
             <View style={styles.logoContainer}>
                 <FontAwesome name="dollar" size={32} color={theme.tint} />
-                <Text style={[styles.logoText, { color: theme.text }]}>Finance<Text style={{ color: theme.tint }}>App</Text></Text>
+                <Text style={StyleSheet.flatten([styles.logoText, { color: theme.text }])}>Finance<Text style={{ color: theme.tint }}>App</Text></Text>
             </View>
 
             <ScrollView style={styles.menuContainer}>
@@ -39,21 +39,21 @@ export function Sidebar() {
                     const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
                     return (
                         <Link key={item.path} href={item.path} asChild>
-                            <Pressable style={[
+                            <Pressable style={StyleSheet.flatten([
                                 styles.menuItem,
                                 isActive ? { backgroundColor: theme.tint + '15' } : undefined
-                            ]}>
+                            ])}>
                                 <FontAwesome
                                     name={item.icon}
                                     size={20}
                                     color={isActive ? theme.tint : theme.tabIconDefault}
                                     style={{ width: 24, textAlign: 'center' }}
                                 />
-                                <Text style={[
+                                <Text style={StyleSheet.flatten([
                                     styles.menuText,
                                     { color: isActive ? theme.tint : theme.text },
                                     isActive ? { fontWeight: '600' } : undefined
-                                ]}>
+                                ])}>
                                     {item.name}
                                 </Text>
                             </Pressable>
@@ -63,7 +63,7 @@ export function Sidebar() {
             </ScrollView>
 
             <View style={styles.footer}>
-                <Text style={[styles.version, { color: theme.tabIconDefault }]}>v1.0.0</Text>
+                <Text style={StyleSheet.flatten([styles.version, { color: theme.tabIconDefault }])}>v1.0.0</Text>
             </View>
         </View>
     );
