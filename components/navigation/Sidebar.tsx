@@ -41,7 +41,7 @@ export function Sidebar() {
                         <Link key={item.path} href={item.path} asChild>
                             <Pressable style={[
                                 styles.menuItem,
-                                isActive && { backgroundColor: theme.tint + '15' }
+                                isActive ? { backgroundColor: theme.tint + '15' } : undefined
                             ]}>
                                 <FontAwesome
                                     name={item.icon}
@@ -52,7 +52,7 @@ export function Sidebar() {
                                 <Text style={[
                                     styles.menuText,
                                     { color: isActive ? theme.tint : theme.text },
-                                    isActive && { fontWeight: '600' }
+                                    isActive ? { fontWeight: '600' } : undefined
                                 ]}>
                                     {item.name}
                                 </Text>
