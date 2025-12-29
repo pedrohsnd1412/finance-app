@@ -11,12 +11,9 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period } from '@/types/home.types';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
-    Pressable,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -43,11 +40,10 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function HomeScreen() {
     const [period, setPeriod] = useState<Period>('month');
-    const { summary, isLoading, isConnected, refetch } = useFinanceData(period);
+    const { summary, isLoading, refetch } = useFinanceData(period);
     const { isDesktop, isTablet } = useResponsive();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
-    const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = async () => {
@@ -105,27 +101,6 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
-                {/* Connection Banner */}
-                {!isConnected && !isLoading && (
-                    <Pressable
-                        style={StyleSheet.flatten([styles.connectBanner, { backgroundColor: theme.tint + '15' }])}
-                        onPress={() => router.push('/connect')}
-                    >
-                        <View style={styles.connectBannerContent}>
-                            <Ionicons name="link" size={24} color={theme.tint} />
-                            <View style={styles.connectBannerText}>
-                                <Text style={StyleSheet.flatten([styles.connectTitle, { color: theme.text }])}>
-                                    Conectar conta bancária
-                                </Text>
-                                <Text style={StyleSheet.flatten([styles.connectSubtitle, { color: theme.text, opacity: 0.7 }])}>
-                                    Exibindo dados de demonstração
-                                </Text>
-                            </View>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.tint} />
-                    </Pressable>
-                )}
-
                 {/* Period Filter - Mobile/Tablet */}
                 {filterPosition === 'content' && (
                     <PeriodFilter
@@ -263,30 +238,6 @@ const styles = StyleSheet.create({
     },
     filterMobile: {
         marginBottom: 20,
-    },
-    // Connect Banner
-    connectBanner: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 20,
-    },
-    connectBannerContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    connectBannerText: {
-        gap: 2,
-    },
-    connectTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    connectSubtitle: {
-        fontSize: 13,
     },
     // Loading
     loadingContainer: {
