@@ -172,35 +172,67 @@ serve(async (req) => {
                 const item = await fetchPluggyItem(apiKey, payload.itemId);
                 console.log("Item status:", item.status);
 
-                // Update connection status
-                const { error: connError } = await supabase
-                    .from("connections")
-                    .update({
-                        status: item.status === "UPDATED" ? "UPDATED" : item.status,
-                        last_synced_at: new Date().toISOString(),
-                        connector_name: item.connector?.name || null,
-                    })
-                    .eq("pluggy_item_id", payload.itemId);
-
-                if (connError) {
-                    console.error("Error updating connection:", connError);
-                }
-
-                // Fetch and save accounts
-                const accounts = await fetchPluggyAccounts(apiKey, payload.itemId);
-                console.log(`Found ${accounts.length} accounts`);
-
-                // Get connection ID
-                const { data: connection } = await supabase
+                // Check if connection exists
+                let { data: connection } = await supabase
                     .from("connections")
                     .select("id")
                     .eq("pluggy_item_id", payload.itemId)
                     .single();
 
+                // If connection doesn't exist, create it (along with a system user)
                 if (!connection) {
-                    console.error("Connection not found for item:", payload.itemId);
-                    break;
+                    console.log("Connection not found, creating...");
+
+                    // Create or get default system user (for demo purposes)
+                    const systemUserId = "00000000-0000-0000-0000-000000000001";
+                    const { error: userError } = await supabase
+                        .from("users")
+                        .upsert({
+                            id: systemUserId,
+                            email: "system@finance-app.local",
+                        }, { onConflict: "id" });
+
+                    if (userError) {
+                        console.error("Error creating system user:", userError);
+                    }
+
+                    // Create the connection
+                    const { data: newConnection, error: createError } = await supabase
+                        .from("connections")
+                        .insert({
+                            user_id: systemUserId,
+                            pluggy_item_id: payload.itemId,
+                            connector_name: item.connector?.name || null,
+                            status: item.status,
+                        })
+                        .select("id")
+                        .single();
+
+                    if (createError) {
+                        console.error("Error creating connection:", createError);
+                        break;
+                    }
+                    connection = newConnection;
+                    console.log("Connection created:", connection.id);
+                } else {
+                    // Update existing connection status
+                    const { error: connError } = await supabase
+                        .from("connections")
+                        .update({
+                            status: item.status === "UPDATED" ? "UPDATED" : item.status,
+                            last_synced_at: new Date().toISOString(),
+                            connector_name: item.connector?.name || null,
+                        })
+                        .eq("pluggy_item_id", payload.itemId);
+
+                    if (connError) {
+                        console.error("Error updating connection:", connError);
+                    }
                 }
+
+                // Fetch and save accounts
+                const accounts = await fetchPluggyAccounts(apiKey, payload.itemId);
+                console.log(`Found ${accounts.length} accounts`);
 
                 // Upsert accounts
                 for (const account of accounts) {
