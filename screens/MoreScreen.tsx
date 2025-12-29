@@ -2,13 +2,17 @@ import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
     ActivityIndicator,
+    Alert,
+    Platform,
     Pressable,
+    RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
@@ -39,6 +43,7 @@ interface Account {
 
 interface Connection {
     id: string;
+    pluggy_item_id: string;
     connector_name: string | null;
     status: string;
     last_synced_at: string | null;
@@ -53,7 +58,7 @@ const formatCurrency = (value: number): string => {
 };
 
 const formatDate = (dateStr: string | null): string => {
-    if (!dateStr) return 'Nunca';
+    if (!dateStr) return 'Sincronizando...';
     const date = new Date(dateStr);
     return date.toLocaleDateString('pt-BR', {
         day: '2-digit',
@@ -86,24 +91,27 @@ export default function MoreScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
     const router = useRouter();
+    const { user, signOut } = useAuth();
+
     const [connections, setConnections] = useState<Connection[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
     const [transactionCount, setTransactionCount] = useState(0);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (activeTab === 'connections') {
-            loadConnections();
+    const loadConnections = useCallback(async () => {
+        if (!user) {
+            setIsLoading(false);
+            return;
         }
-    }, [activeTab]);
 
-    const loadConnections = async () => {
-        setIsLoading(true);
         try {
             // Fetch connections with their accounts
             const { data: connectionsData } = await supabase
                 .from('connections')
                 .select(`
                     id,
+                    pluggy_item_id,
                     connector_name,
                     status,
                     last_synced_at,
@@ -115,19 +123,115 @@ export default function MoreScreen() {
                         currency
                     )
                 `)
+                .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
             // Count total transactions
-            const { count } = await supabase
-                .from('transactions')
-                .select('*', { count: 'exact', head: true });
+            if (connectionsData && connectionsData.length > 0) {
+                const accountIds = connectionsData.flatMap(c =>
+                    (c.accounts as Account[])?.map(a => a.id) || []
+                );
+
+                if (accountIds.length > 0) {
+                    const { count } = await supabase
+                        .from('transactions')
+                        .select('*', { count: 'exact', head: true })
+                        .in('account_id', accountIds);
+
+                    setTransactionCount(count || 0);
+                }
+            }
 
             setConnections((connectionsData as Connection[]) || []);
-            setTransactionCount(count || 0);
         } catch (error) {
             console.log('Error loading connections:', error);
         } finally {
             setIsLoading(false);
+            setRefreshing(false);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (activeTab === 'connections') {
+            loadConnections();
+        }
+    }, [activeTab, loadConnections]);
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        loadConnections();
+    };
+
+    const handleDisconnect = async (connection: Connection) => {
+        const confirmDelete = () => {
+            return new Promise<boolean>((resolve) => {
+                if (Platform.OS === 'web') {
+                    resolve(window.confirm(
+                        `Deseja desconectar ${connection.connector_name || 'esta conta'}? ` +
+                        `Isso removerá todos os dados associados.`
+                    ));
+                } else {
+                    Alert.alert(
+                        'Desconectar Conta',
+                        `Deseja desconectar ${connection.connector_name || 'esta conta'}? Isso removerá todos os dados associados.`,
+                        [
+                            { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
+                            { text: 'Desconectar', style: 'destructive', onPress: () => resolve(true) },
+                        ]
+                    );
+                }
+            });
+        };
+
+        const confirmed = await confirmDelete();
+        if (!confirmed) return;
+
+        setDeletingId(connection.id);
+
+        try {
+            // Delete connection (will cascade to accounts and transactions via FK)
+            const { error } = await supabase
+                .from('connections')
+                .delete()
+                .eq('id', connection.id);
+
+            if (error) throw error;
+
+            // Remove from local state
+            setConnections(prev => prev.filter(c => c.id !== connection.id));
+        } catch (error) {
+            console.error('Error disconnecting:', error);
+            if (Platform.OS === 'web') {
+                window.alert('Erro ao desconectar conta');
+            } else {
+                Alert.alert('Erro', 'Não foi possível desconectar a conta');
+            }
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    const handleLogout = async () => {
+        const confirmLogout = () => {
+            return new Promise<boolean>((resolve) => {
+                if (Platform.OS === 'web') {
+                    resolve(window.confirm('Deseja sair da conta?'));
+                } else {
+                    Alert.alert(
+                        'Sair',
+                        'Deseja sair da conta?',
+                        [
+                            { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
+                            { text: 'Sair', style: 'destructive', onPress: () => resolve(true) },
+                        ]
+                    );
+                }
+            });
+        };
+
+        const confirmed = await confirmLogout();
+        if (confirmed) {
+            await signOut();
         }
     };
 
@@ -166,7 +270,13 @@ export default function MoreScreen() {
     );
 
     const renderConnections = () => (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <ScrollView
+            style={styles.content}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+        >
             {isLoading ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.tint} />
@@ -260,6 +370,19 @@ export default function MoreScreen() {
                                         </Text>
                                     </View>
                                 </View>
+
+                                {/* Disconnect Button */}
+                                <Pressable
+                                    style={styles.disconnectButton}
+                                    onPress={() => handleDisconnect(connection)}
+                                    disabled={deletingId === connection.id}
+                                >
+                                    {deletingId === connection.id ? (
+                                        <ActivityIndicator size="small" color={theme.error} />
+                                    ) : (
+                                        <Ionicons name="trash-outline" size={20} color={theme.error} />
+                                    )}
+                                </Pressable>
                             </View>
 
                             {/* Accounts List */}
@@ -319,6 +442,23 @@ export default function MoreScreen() {
 
     const renderSettings = () => (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            {/* User Info */}
+            {user && (
+                <View style={StyleSheet.flatten([styles.userCard, { backgroundColor: theme.card }])}>
+                    <View style={StyleSheet.flatten([styles.userAvatar, { backgroundColor: theme.tint }])}>
+                        <Ionicons name="person" size={28} color="#fff" />
+                    </View>
+                    <View style={styles.userInfo}>
+                        <Text style={StyleSheet.flatten([styles.userEmail, { color: theme.text }])}>
+                            {user.email}
+                        </Text>
+                        <Text style={StyleSheet.flatten([styles.userLabel, { color: theme.text, opacity: 0.5 }])}>
+                            Conta ativa
+                        </Text>
+                    </View>
+                </View>
+            )}
+
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
                     Preferências
@@ -352,29 +492,34 @@ export default function MoreScreen() {
                 </Text>
 
                 {[
-                    { icon: 'person-outline', label: 'Meu Perfil' },
-                    { icon: 'shield-checkmark-outline', label: 'Segurança' },
-                    { icon: 'document-text-outline', label: 'Termos de Uso' },
-                    { icon: 'log-out-outline', label: 'Sair', danger: true },
+                    { icon: 'person-outline', label: 'Meu Perfil', action: undefined },
+                    { icon: 'shield-checkmark-outline', label: 'Segurança', action: undefined },
+                    { icon: 'document-text-outline', label: 'Termos de Uso', action: undefined },
                 ].map((item, index) => (
                     <Pressable
                         key={index}
                         style={StyleSheet.flatten([styles.settingsItem, { backgroundColor: theme.card }])}
+                        onPress={item.action}
                     >
-                        <Ionicons
-                            name={item.icon as any}
-                            size={22}
-                            color={item.danger ? theme.error : theme.tint}
-                        />
-                        <Text style={StyleSheet.flatten([
-                            styles.settingsLabel,
-                            { color: item.danger ? theme.error : theme.text }
-                        ])}>
+                        <Ionicons name={item.icon as any} size={22} color={theme.tint} />
+                        <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.text }])}>
                             {item.label}
                         </Text>
                         <Ionicons name="chevron-forward" size={18} color={theme.text} style={{ opacity: 0.3 }} />
                     </Pressable>
                 ))}
+
+                {/* Logout Button */}
+                <Pressable
+                    style={StyleSheet.flatten([styles.settingsItem, styles.logoutButton, { backgroundColor: theme.error + '10' }])}
+                    onPress={handleLogout}
+                >
+                    <Ionicons name="log-out-outline" size={22} color={theme.error} />
+                    <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.error }])}>
+                        Sair
+                    </Text>
+                    <Ionicons name="chevron-forward" size={18} color={theme.error} style={{ opacity: 0.3 }} />
+                </Pressable>
             </View>
         </ScrollView>
     );
@@ -550,6 +695,9 @@ const styles = StyleSheet.create({
     syncTime: {
         fontSize: 12,
     },
+    disconnectButton: {
+        padding: 8,
+    },
     // Accounts List
     accountsList: {
         marginTop: 8,
@@ -604,6 +752,33 @@ const styles = StyleSheet.create({
         letterSpacing: 0.5,
         opacity: 0.6,
     },
+    // User Card
+    userCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 12,
+        marginBottom: 24,
+        gap: 14,
+    },
+    userAvatar: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    userInfo: {
+        flex: 1,
+        gap: 2,
+    },
+    userEmail: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    userLabel: {
+        fontSize: 13,
+    },
     // Settings Items
     settingsItem: {
         flexDirection: 'row',
@@ -619,6 +794,9 @@ const styles = StyleSheet.create({
     },
     settingsValue: {
         fontSize: 14,
+    },
+    logoutButton: {
+        marginTop: 8,
     },
     // Empty State
     emptyState: {

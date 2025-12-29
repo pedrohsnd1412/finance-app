@@ -1,11 +1,10 @@
 /**
  * Custom hook for fetching financial data from Supabase
- * Shows real data only - no mock data fallback
+ * Queries data directly using authenticated user's ID
  */
 
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { dataApi } from '@/services/api';
-import { TransactionWithCategory } from '@/types/database.types';
 import { FinancialSummary, Period, Transaction } from '@/types/home.types';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -18,17 +17,39 @@ interface UseFinanceDataResult {
     refetch: () => Promise<void>;
 }
 
+interface DbTransaction {
+    id: string;
+    date: string;
+    amount: number;
+    description: string;
+    type: 'DEBIT' | 'CREDIT';
+    category_id: string | null;
+    merchant_name: string | null;
+    categories: {
+        description: string;
+        description_translated: string | null;
+    } | null;
+}
+
+interface DbAccount {
+    id: string;
+    name: string;
+    type: 'BANK' | 'CREDIT' | 'INVESTMENT';
+    balance: number;
+    currency: string;
+}
+
 /**
  * Convert database transaction to display format
  */
-function convertTransaction(tx: TransactionWithCategory): Transaction {
+function convertTransaction(tx: DbTransaction): Transaction {
     return {
         id: tx.id,
-        description: tx.ai_friendly_description || tx.description || 'Transação',
+        description: tx.merchant_name || tx.description || 'Transação',
         amount: Math.abs(tx.amount),
         date: tx.date,
         type: tx.amount < 0 || tx.type === 'DEBIT' ? 'expense' : 'income',
-        category: tx.category?.description_translated || tx.category?.description || 'Outros',
+        category: tx.categories?.description_translated || tx.categories?.description || 'Outros',
     };
 }
 
@@ -63,62 +84,108 @@ function filterByPeriod(transactions: Transaction[], period: Period): Transactio
     });
 }
 
-const emptyBalance = 0;
-
 export function useFinanceData(period: Period): UseFinanceDataResult {
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
     const [hasAccounts, setHasAccounts] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
-    const [totalBalance, setTotalBalance] = useState(emptyBalance);
+    const [totalBalance, setTotalBalance] = useState(0);
 
     const fetchData = useCallback(async () => {
+        if (!user) {
+            setIsLoading(false);
+            setIsConnected(false);
+            setHasAccounts(false);
+            setAllTransactions([]);
+            setTotalBalance(0);
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
 
         try {
-            // Check if user has a session
-            const { data: { session } } = await supabase.auth.getSession();
+            // Fetch user's connections
+            const { data: connections } = await supabase
+                .from('connections')
+                .select('id')
+                .eq('user_id', user.id);
 
-            if (!session) {
-                // No auth - show empty state
+            if (!connections || connections.length === 0) {
                 setIsConnected(false);
                 setHasAccounts(false);
                 setAllTransactions([]);
-                setTotalBalance(emptyBalance);
+                setTotalBalance(0);
+                setIsLoading(false);
                 return;
             }
 
-            // Fetch real data from Supabase
-            const [accountsData, transactionsData] = await Promise.all([
-                dataApi.getAccounts(),
-                dataApi.getTransactions({ per_page: 200 }),
-            ]);
+            const connectionIds = connections.map(c => c.id);
 
-            const hasAccountsNow = accountsData.accounts && accountsData.accounts.length > 0;
-            setHasAccounts(hasAccountsNow);
-            setTotalBalance(accountsData.total_balance || 0);
+            // Fetch accounts for these connections
+            const { data: accounts } = await supabase
+                .from('accounts')
+                .select('id, name, type, balance, currency')
+                .in('connection_id', connectionIds);
 
-            if (transactionsData.data.length > 0) {
+            const accountList = (accounts as DbAccount[]) || [];
+            setHasAccounts(accountList.length > 0);
+
+            // Calculate total balance (BANK accounts positive, CREDIT negative)
+            const balance = accountList.reduce((sum, acc) => {
+                if (acc.type === 'CREDIT') {
+                    return sum - Math.abs(acc.balance);
+                }
+                return sum + acc.balance;
+            }, 0);
+            setTotalBalance(balance);
+
+            if (accountList.length === 0) {
                 setIsConnected(true);
-                setAllTransactions(transactionsData.data.map(convertTransaction));
-            } else {
-                // Has accounts but no transactions yet
-                setIsConnected(hasAccountsNow);
                 setAllTransactions([]);
+                setIsLoading(false);
+                return;
             }
+
+            const accountIds = accountList.map(a => a.id);
+
+            // Fetch transactions with categories
+            const { data: transactions } = await supabase
+                .from('transactions')
+                .select(`
+                    id,
+                    date,
+                    amount,
+                    description,
+                    type,
+                    category_id,
+                    merchant_name,
+                    categories (
+                        description,
+                        description_translated
+                    )
+                `)
+                .in('account_id', accountIds)
+                .order('date', { ascending: false })
+                .limit(500);
+
+            const txList = (transactions as DbTransaction[]) || [];
+            setIsConnected(true);
+            setAllTransactions(txList.map(convertTransaction));
+
         } catch (err) {
             console.error('Error fetching financial data:', err);
             setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
             setIsConnected(false);
             setHasAccounts(false);
             setAllTransactions([]);
-            setTotalBalance(emptyBalance);
+            setTotalBalance(0);
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         fetchData();

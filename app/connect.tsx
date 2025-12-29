@@ -2,6 +2,8 @@ import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { pluggyApi } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -17,12 +19,20 @@ import {
 } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 
-type ConnectionStatus = 'idle' | 'loading' | 'connecting' | 'success' | 'error';
+type ConnectionStatus = 'idle' | 'loading' | 'connecting' | 'success' | 'syncing' | 'complete' | 'error';
+
+interface ConnectionResult {
+    connectorName: string;
+    itemId: string;
+}
 
 export default function ConnectScreen() {
     const [status, setStatus] = useState<ConnectionStatus>('idle');
     const [connectToken, setConnectToken] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [connectionResult, setConnectionResult] = useState<ConnectionResult | null>(null);
+
+    const { user } = useAuth();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
     const router = useRouter();
@@ -30,15 +40,69 @@ export default function ConnectScreen() {
 
     const handlePluggyMessage = async (itemId: string, connectorName?: string) => {
         setStatus('success');
+        setConnectionResult({
+            itemId,
+            connectorName: connectorName || 'Instituição Financeira',
+        });
+
+        // Save connection to database
         try {
-            await pluggyApi.saveConnection(itemId, connectorName);
-            // Navigate back after saving
-            setTimeout(() => {
-                router.back();
-            }, 1500);
+            if (user) {
+                // Create connection record directly
+                const { error } = await supabase
+                    .from('connections')
+                    .upsert({
+                        user_id: user.id,
+                        pluggy_item_id: itemId,
+                        connector_name: connectorName || null,
+                        status: 'PENDING',
+                    }, { onConflict: 'pluggy_item_id' });
+
+                if (error) {
+                    console.error('Error saving connection:', error);
+                }
+            }
         } catch (saveError) {
             console.error('Error saving connection:', saveError);
         }
+
+        // Show syncing state after a brief success display
+        setTimeout(() => {
+            setStatus('syncing');
+            // Check for data sync completion
+            checkSyncStatus(itemId);
+        }, 1500);
+    };
+
+    const checkSyncStatus = async (itemId: string) => {
+        // Poll for connection status update
+        let attempts = 0;
+        const maxAttempts = 30; // 30 seconds max
+
+        const checkInterval = setInterval(async () => {
+            attempts++;
+
+            try {
+                const { data: connection } = await supabase
+                    .from('connections')
+                    .select('status, last_synced_at')
+                    .eq('pluggy_item_id', itemId)
+                    .single();
+
+                if (connection?.status === 'UPDATED' || connection?.last_synced_at) {
+                    clearInterval(checkInterval);
+                    setStatus('complete');
+                }
+            } catch (err) {
+                console.log('Checking sync status...');
+            }
+
+            if (attempts >= maxAttempts) {
+                clearInterval(checkInterval);
+                // Even if timeout, show complete (webhook might still process)
+                setStatus('complete');
+            }
+        }, 1000);
     };
 
     // Handler for WebView messages (mobile)
@@ -55,7 +119,7 @@ export default function ConnectScreen() {
                 setStatus('error');
                 setErrorMessage(data.error?.message || 'Erro ao conectar');
             } else if (data.event === 'onClose' || data.type === 'onClose') {
-                if (status !== 'success') {
+                if (status !== 'success' && status !== 'syncing' && status !== 'complete') {
                     setStatus('idle');
                     setConnectToken(null);
                 }
@@ -82,8 +146,8 @@ export default function ConnectScreen() {
         setErrorMessage('');
 
         try {
-            // Generate a temporary user ID for demo purposes
-            const userId = 'demo-user-' + Date.now();
+            // Use authenticated user's ID
+            const userId = user?.id || 'anonymous-' + Date.now();
             const tokenData = await pluggyApi.getConnectToken(userId);
             setConnectToken(tokenData.accessToken);
             setStatus('connecting');
@@ -106,8 +170,10 @@ export default function ConnectScreen() {
                             setStatus('error');
                             setErrorMessage(data.error?.message || 'Erro ao conectar');
                         } else if (data.event === 'onClose' || data.type === 'onClose') {
-                            setStatus('idle');
-                            setConnectToken(null);
+                            if (status !== 'success' && status !== 'syncing' && status !== 'complete') {
+                                setStatus('idle');
+                                setConnectToken(null);
+                            }
                         }
                     } catch {
                         // Not a JSON message, ignore
@@ -129,6 +195,14 @@ export default function ConnectScreen() {
         } else {
             router.back();
         }
+    };
+
+    const goToHome = () => {
+        router.replace('/(tabs)');
+    };
+
+    const goToConnections = () => {
+        router.replace('/(tabs)/more');
     };
 
     const renderPluggyWidget = () => {
@@ -271,8 +345,72 @@ export default function ConnectScreen() {
                             Conta conectada!
                         </Text>
                         <Text style={StyleSheet.flatten([styles.successSubtitle, { color: theme.text, opacity: 0.6 }])}>
-                            Seus dados estão sendo sincronizados...
+                            {connectionResult?.connectorName}
                         </Text>
+                    </View>
+                );
+
+            case 'syncing':
+                return (
+                    <View style={styles.centeredContainer}>
+                        <View style={StyleSheet.flatten([styles.syncIcon, { backgroundColor: theme.tint + '15' }])}>
+                            <ActivityIndicator size="large" color={theme.tint} />
+                        </View>
+                        <Text style={StyleSheet.flatten([styles.successTitle, { color: theme.text }])}>
+                            Sincronizando dados...
+                        </Text>
+                        <Text style={StyleSheet.flatten([styles.successSubtitle, { color: theme.text, opacity: 0.6 }])}>
+                            Estamos importando suas transações do {connectionResult?.connectorName}
+                        </Text>
+                        <View style={styles.syncFeatures}>
+                            {[
+                                { icon: 'wallet-outline', text: 'Contas bancárias' },
+                                { icon: 'card-outline', text: 'Cartões de crédito' },
+                                { icon: 'receipt-outline', text: 'Transações' },
+                            ].map((item, index) => (
+                                <View key={index} style={styles.syncFeatureItem}>
+                                    <Ionicons name={item.icon as any} size={18} color={theme.tint} />
+                                    <Text style={StyleSheet.flatten([styles.syncFeatureText, { color: theme.text }])}>
+                                        {item.text}
+                                    </Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+                );
+
+            case 'complete':
+                return (
+                    <View style={styles.centeredContainer}>
+                        <View style={StyleSheet.flatten([styles.successIcon, { backgroundColor: theme.success + '20' }])}>
+                            <Ionicons name="checkmark-done-circle" size={64} color={theme.success} />
+                        </View>
+                        <Text style={StyleSheet.flatten([styles.successTitle, { color: theme.text }])}>
+                            Tudo pronto!
+                        </Text>
+                        <Text style={StyleSheet.flatten([styles.successSubtitle, { color: theme.text, opacity: 0.6 }])}>
+                            Sua conta {connectionResult?.connectorName} foi conectada com sucesso.
+                        </Text>
+
+                        <View style={styles.completeActions}>
+                            <Pressable
+                                style={StyleSheet.flatten([styles.primaryButton, { backgroundColor: theme.tint }])}
+                                onPress={goToHome}
+                            >
+                                <Ionicons name="home-outline" size={20} color="#fff" />
+                                <Text style={styles.primaryButtonText}>Ver Meus Dados</Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={StyleSheet.flatten([styles.secondaryButton, { borderColor: theme.tint }])}
+                                onPress={goToConnections}
+                            >
+                                <Ionicons name="settings-outline" size={20} color={theme.tint} />
+                                <Text style={StyleSheet.flatten([styles.secondaryButtonText, { color: theme.tint }])}>
+                                    Gerenciar Conexões
+                                </Text>
+                            </Pressable>
+                        </View>
                     </View>
                 );
 
@@ -299,13 +437,17 @@ export default function ConnectScreen() {
         }
     };
 
+    const showBackButton = status === 'idle' || status === 'connecting' || status === 'error';
+
     return (
         <Container>
-            <Header
-                title={status === 'connecting' ? 'Selecione seu banco' : 'Conectar Conta'}
-                showBack
-                onBack={handleBack}
-            />
+            {showBackButton && (
+                <Header
+                    title={status === 'connecting' ? 'Selecione seu banco' : 'Conectar Conta'}
+                    showBack
+                    onBack={handleBack}
+                />
+            )}
             {renderContent()}
         </Container>
     );
@@ -375,7 +517,7 @@ const styles = StyleSheet.create({
     featureDesc: {
         fontSize: 14,
     },
-    // Button
+    // Buttons
     primaryButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -384,11 +526,25 @@ const styles = StyleSheet.create({
         marginHorizontal: 16,
         paddingVertical: 16,
         borderRadius: 12,
-        marginBottom: 16,
+        marginBottom: 12,
     },
     primaryButtonText: {
         color: '#fff',
         fontSize: 17,
+        fontWeight: '600',
+    },
+    secondaryButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        marginHorizontal: 16,
+        paddingVertical: 14,
+        borderRadius: 12,
+        borderWidth: 2,
+    },
+    secondaryButtonText: {
+        fontSize: 16,
         fontWeight: '600',
     },
     disclaimer: {
@@ -445,6 +601,33 @@ const styles = StyleSheet.create({
     successSubtitle: {
         fontSize: 16,
         textAlign: 'center',
+    },
+    // Syncing
+    syncIcon: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 24,
+    },
+    syncFeatures: {
+        marginTop: 32,
+        gap: 16,
+    },
+    syncFeatureItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    syncFeatureText: {
+        fontSize: 15,
+    },
+    // Complete
+    completeActions: {
+        marginTop: 32,
+        width: '100%',
+        gap: 12,
     },
     // Error
     errorIcon: {
