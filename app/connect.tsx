@@ -5,7 +5,7 @@ import { Colors } from '@/constants/Colors';
 import { pluggyApi } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Platform,
@@ -15,6 +15,7 @@ import {
     Text,
     View,
 } from 'react-native';
+import { WebView, WebViewMessageEvent } from 'react-native-webview';
 
 type ConnectionStatus = 'idle' | 'loading' | 'connecting' | 'success' | 'error';
 
@@ -25,50 +26,56 @@ export default function ConnectScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
     const router = useRouter();
-    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const webViewRef = useRef<WebView>(null);
 
-    // Listen for messages from Pluggy Connect widget
-    useEffect(() => {
-        if (Platform.OS !== 'web') return;
+    const handlePluggyMessage = async (itemId: string, connectorName?: string) => {
+        setStatus('success');
+        try {
+            await pluggyApi.saveConnection(itemId, connectorName);
+            // Navigate back after saving
+            setTimeout(() => {
+                router.back();
+            }, 1500);
+        } catch (saveError) {
+            console.error('Error saving connection:', saveError);
+        }
+    };
 
-        const handleMessage = async (event: MessageEvent) => {
-            // Only accept messages from Pluggy
-            if (!event.origin.includes('pluggy.ai')) return;
+    // Handler for WebView messages (mobile)
+    const onWebViewMessage = async (event: WebViewMessageEvent) => {
+        try {
+            const data = JSON.parse(event.nativeEvent.data);
 
-            try {
-                const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
-
-                if (data.event === 'onSuccess' || data.type === 'onSuccess') {
-                    const itemId = data.item?.id || data.itemId;
-                    if (itemId) {
-                        setStatus('success');
-                        try {
-                            await pluggyApi.saveConnection(itemId, data.item?.connector?.name);
-                            // Navigate back after saving
-                            setTimeout(() => {
-                                router.back();
-                            }, 1500);
-                        } catch (saveError) {
-                            console.error('Error saving connection:', saveError);
-                        }
-                    }
-                } else if (data.event === 'onError' || data.type === 'onError') {
-                    setStatus('error');
-                    setErrorMessage(data.error?.message || 'Erro ao conectar');
-                } else if (data.event === 'onClose' || data.type === 'onClose') {
-                    if (status !== 'success') {
-                        setStatus('idle');
-                        setConnectToken(null);
-                    }
+            if (data.event === 'onSuccess' || data.type === 'onSuccess') {
+                const itemId = data.item?.id || data.itemId;
+                if (itemId) {
+                    await handlePluggyMessage(itemId, data.item?.connector?.name);
                 }
-            } catch {
-                // Not a JSON message, ignore
+            } else if (data.event === 'onError' || data.type === 'onError') {
+                setStatus('error');
+                setErrorMessage(data.error?.message || 'Erro ao conectar');
+            } else if (data.event === 'onClose' || data.type === 'onClose') {
+                if (status !== 'success') {
+                    setStatus('idle');
+                    setConnectToken(null);
+                }
             }
-        };
+        } catch {
+            // Not a valid message, ignore
+        }
+    };
 
-        window.addEventListener('message', handleMessage);
-        return () => window.removeEventListener('message', handleMessage);
-    }, [status, router]);
+    // Injected JS to capture Pluggy events and send to React Native
+    const injectedJS = `
+        (function() {
+            window.addEventListener('message', function(event) {
+                if (window.ReactNativeWebView) {
+                    window.ReactNativeWebView.postMessage(JSON.stringify(event.data));
+                }
+            });
+            true;
+        })();
+    `;
 
     const startConnection = async () => {
         setStatus('loading');
@@ -80,6 +87,35 @@ export default function ConnectScreen() {
             const tokenData = await pluggyApi.getConnectToken(userId);
             setConnectToken(tokenData.accessToken);
             setStatus('connecting');
+
+            // For web, set up message listener
+            if (Platform.OS === 'web') {
+                const handleMessage = async (event: MessageEvent) => {
+                    if (!event.origin.includes('pluggy.ai')) return;
+
+                    try {
+                        const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+
+                        if (data.event === 'onSuccess' || data.type === 'onSuccess') {
+                            const itemId = data.item?.id || data.itemId;
+                            if (itemId) {
+                                window.removeEventListener('message', handleMessage);
+                                await handlePluggyMessage(itemId, data.item?.connector?.name);
+                            }
+                        } else if (data.event === 'onError' || data.type === 'onError') {
+                            setStatus('error');
+                            setErrorMessage(data.error?.message || 'Erro ao conectar');
+                        } else if (data.event === 'onClose' || data.type === 'onClose') {
+                            setStatus('idle');
+                            setConnectToken(null);
+                        }
+                    } catch {
+                        // Not a JSON message, ignore
+                    }
+                };
+
+                window.addEventListener('message', handleMessage);
+            }
         } catch (error) {
             setStatus('error');
             setErrorMessage(error instanceof Error ? error.message : 'Erro ao iniciar conexão');
@@ -93,6 +129,59 @@ export default function ConnectScreen() {
         } else {
             router.back();
         }
+    };
+
+    const renderPluggyWidget = () => {
+        if (!connectToken) return null;
+
+        const widgetUrl = `https://connect.pluggy.ai/?connect_token=${connectToken}`;
+
+        if (Platform.OS === 'web') {
+            // Web: use iframe
+            return (
+                <View style={styles.widgetContainer}>
+                    <iframe
+                        src={widgetUrl}
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            border: 'none',
+                            borderRadius: 12,
+                        }}
+                        allow="camera"
+                    />
+                </View>
+            );
+        }
+
+        // Mobile: use WebView
+        return (
+            <View style={styles.widgetContainer}>
+                <WebView
+                    ref={webViewRef}
+                    source={{ uri: widgetUrl }}
+                    style={styles.webView}
+                    onMessage={onWebViewMessage}
+                    injectedJavaScript={injectedJS}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                    startInLoadingState={true}
+                    renderLoading={() => (
+                        <View style={styles.webViewLoading}>
+                            <ActivityIndicator size="large" color={theme.tint} />
+                        </View>
+                    )}
+                    onError={(syntheticEvent) => {
+                        const { nativeEvent } = syntheticEvent;
+                        console.error('WebView error:', nativeEvent);
+                        setStatus('error');
+                        setErrorMessage('Erro ao carregar o widget');
+                    }}
+                    allowsInlineMediaPlayback={true}
+                    mediaPlaybackRequiresUserAction={false}
+                />
+            </View>
+        );
     };
 
     const renderContent = () => {
@@ -170,23 +259,7 @@ export default function ConnectScreen() {
                 );
 
             case 'connecting':
-                return (
-                    <View style={styles.widgetContainer}>
-                        {Platform.OS === 'web' && connectToken && (
-                            <iframe
-                                ref={iframeRef}
-                                src={`https://connect.pluggy.ai/?connect_token=${connectToken}`}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    border: 'none',
-                                    borderRadius: 12,
-                                }}
-                                allow="camera"
-                            />
-                        )}
-                    </View>
-                );
+                return renderPluggyWidget();
 
             case 'success':
                 return (
@@ -341,6 +414,19 @@ const styles = StyleSheet.create({
         margin: 16,
         borderRadius: 12,
         overflow: 'hidden',
+    },
+    webView: {
+        flex: 1,
+        borderRadius: 12,
+    },
+    webViewLoading: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     // Success
     successIcon: {
