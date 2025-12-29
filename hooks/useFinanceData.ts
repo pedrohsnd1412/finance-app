@@ -1,11 +1,10 @@
 /**
  * Custom hook for fetching financial data from Supabase
- * Falls back to mock data if not authenticated or on error
+ * Shows real data only - no mock data fallback
  */
 
 import { supabase } from '@/lib/supabase';
 import { dataApi } from '@/services/api';
-import { baseBalance, mockTransactions } from '@/services/mockData';
 import { TransactionWithCategory } from '@/types/database.types';
 import { FinancialSummary, Period, Transaction } from '@/types/home.types';
 import { useCallback, useEffect, useState } from 'react';
@@ -14,6 +13,7 @@ interface UseFinanceDataResult {
     summary: FinancialSummary;
     isLoading: boolean;
     isConnected: boolean;
+    hasAccounts: boolean;
     error: string | null;
     refetch: () => Promise<void>;
 }
@@ -37,20 +37,23 @@ function convertTransaction(tx: TransactionWithCategory): Transaction {
  */
 function filterByPeriod(transactions: Transaction[], period: Period): Transaction[] {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(23, 59, 59, 999);
 
     let startDate: Date;
     switch (period) {
         case 'today':
-            startDate = today;
+            startDate = new Date(today);
+            startDate.setHours(0, 0, 0, 0);
             break;
         case 'week':
             startDate = new Date(today);
             startDate.setDate(startDate.getDate() - 7);
+            startDate.setHours(0, 0, 0, 0);
             break;
         case 'month':
             startDate = new Date(today);
             startDate.setDate(startDate.getDate() - 30);
+            startDate.setHours(0, 0, 0, 0);
             break;
     }
 
@@ -60,12 +63,15 @@ function filterByPeriod(transactions: Transaction[], period: Period): Transactio
     });
 }
 
+const emptyBalance = 0;
+
 export function useFinanceData(period: Period): UseFinanceDataResult {
     const [isLoading, setIsLoading] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
+    const [hasAccounts, setHasAccounts] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
-    const [totalBalance, setTotalBalance] = useState(baseBalance);
+    const [totalBalance, setTotalBalance] = useState(emptyBalance);
 
     const fetchData = useCallback(async () => {
         setIsLoading(true);
@@ -76,34 +82,39 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
             const { data: { session } } = await supabase.auth.getSession();
 
             if (!session) {
-                // No auth - use mock data
+                // No auth - show empty state
                 setIsConnected(false);
-                setAllTransactions(mockTransactions);
-                setTotalBalance(baseBalance);
+                setHasAccounts(false);
+                setAllTransactions([]);
+                setTotalBalance(emptyBalance);
                 return;
             }
 
-            // Try to fetch real data
+            // Fetch real data from Supabase
             const [accountsData, transactionsData] = await Promise.all([
                 dataApi.getAccounts(),
-                dataApi.getTransactions({ per_page: 100 }),
+                dataApi.getTransactions({ per_page: 200 }),
             ]);
+
+            const hasAccountsNow = accountsData.accounts && accountsData.accounts.length > 0;
+            setHasAccounts(hasAccountsNow);
+            setTotalBalance(accountsData.total_balance || 0);
 
             if (transactionsData.data.length > 0) {
                 setIsConnected(true);
-                setTotalBalance(accountsData.total_balance);
                 setAllTransactions(transactionsData.data.map(convertTransaction));
             } else {
-                // No transactions yet - might still be syncing
-                setIsConnected(false);
-                setAllTransactions(mockTransactions);
-                setTotalBalance(baseBalance);
+                // Has accounts but no transactions yet
+                setIsConnected(hasAccountsNow);
+                setAllTransactions([]);
             }
         } catch (err) {
-            console.log('Using mock data due to:', err);
+            console.error('Error fetching financial data:', err);
+            setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
             setIsConnected(false);
-            setAllTransactions(mockTransactions);
-            setTotalBalance(baseBalance);
+            setHasAccounts(false);
+            setAllTransactions([]);
+            setTotalBalance(emptyBalance);
         } finally {
             setIsLoading(false);
         }
@@ -137,6 +148,7 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
         },
         isLoading,
         isConnected,
+        hasAccounts,
         error,
         refetch: fetchData,
     };

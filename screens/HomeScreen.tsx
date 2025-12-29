@@ -11,9 +11,12 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period } from '@/types/home.types';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
+    Pressable,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -40,10 +43,11 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default function HomeScreen() {
     const [period, setPeriod] = useState<Period>('month');
-    const { summary, isLoading, refetch } = useFinanceData(period);
+    const { summary, isLoading, isConnected, hasAccounts, refetch } = useFinanceData(period);
     const { isDesktop, isTablet } = useResponsive();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
+    const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = async () => {
@@ -116,6 +120,26 @@ export default function HomeScreen() {
                         <Text style={StyleSheet.flatten([styles.loadingText, { color: theme.text }])}>
                             Carregando dados...
                         </Text>
+                    </View>
+                ) : !hasAccounts ? (
+                    /* Empty State - No accounts connected */
+                    <View style={styles.emptyStateContainer}>
+                        <View style={StyleSheet.flatten([styles.emptyStateIcon, { backgroundColor: theme.tint + '15' }])}>
+                            <Ionicons name="wallet-outline" size={64} color={theme.tint} />
+                        </View>
+                        <Text style={StyleSheet.flatten([styles.emptyStateTitle, { color: theme.text }])}>
+                            Nenhuma conta conectada
+                        </Text>
+                        <Text style={StyleSheet.flatten([styles.emptyStateSubtitle, { color: theme.text, opacity: 0.6 }])}>
+                            Conecte sua conta bancária para visualizar seus dados financeiros em tempo real.
+                        </Text>
+                        <Pressable
+                            style={StyleSheet.flatten([styles.connectButton, { backgroundColor: theme.tint }])}
+                            onPress={() => router.push('/connect')}
+                        >
+                            <Ionicons name="add-circle-outline" size={22} color="#fff" />
+                            <Text style={styles.connectButtonText}>Conectar Conta</Text>
+                        </Pressable>
                     </View>
                 ) : (
                     <>
@@ -338,5 +362,47 @@ const styles = StyleSheet.create({
     statLabel: {
         fontSize: 12,
         fontWeight: '500',
+    },
+    // Empty State
+    emptyStateContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 80,
+        paddingHorizontal: 32,
+    },
+    emptyStateIcon: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 24,
+    },
+    emptyStateTitle: {
+        fontSize: 22,
+        fontWeight: '700',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    emptyStateSubtitle: {
+        fontSize: 15,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: 32,
+    },
+    connectButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 14,
+        paddingHorizontal: 28,
+        borderRadius: 12,
+    },
+    connectButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });
