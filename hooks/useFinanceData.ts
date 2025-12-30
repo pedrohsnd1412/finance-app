@@ -103,21 +103,40 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
         setIsLoading(true);
         setError(null);
-        console.log('[useFinanceData] Fetching data for user:', user.id);
+        console.log('[useFinanceData] ===== STARTING DATA FETCH =====');
+        console.log('[useFinanceData] User ID:', user.id);
+        console.log('[useFinanceData] User Email:', user.email);
 
         try {
-            // Step 1: Fetch user's connections
+            // Verify session is valid
+            const { data: sessionData } = await supabase.auth.getSession();
+            console.log('[useFinanceData] Session valid:', !!sessionData.session);
+            console.log('[useFinanceData] Session user ID:', sessionData.session?.user?.id);
+
+            // Step 1: Fetch user's connections (without RLS filter to debug)
             const { data: connections, error: connError } = await supabase
                 .from('connections')
-                .select('id, connector_name, status')
+                .select('id, connector_name, status, user_id, pluggy_item_id')
                 .eq('user_id', user.id);
 
-            console.log('[useFinanceData] Connections:', connections, 'Error:', connError);
+            console.log('[useFinanceData] Connections query for user_id:', user.id);
+            console.log('[useFinanceData] Connections found:', connections?.length || 0);
+            console.log('[useFinanceData] Connections data:', JSON.stringify(connections, null, 2));
+            console.log('[useFinanceData] Connections error:', connError);
 
             if (connError) throw connError;
 
             if (!connections || connections.length === 0) {
-                console.log('[useFinanceData] No connections found');
+                console.log('[useFinanceData] No connections found for this user');
+
+                // Debug: Check if there are ANY connections in the database
+                const { data: allConns, error: allErr } = await supabase
+                    .from('connections')
+                    .select('id, user_id, connector_name')
+                    .limit(5);
+                console.log('[useFinanceData] DEBUG - Sample connections in DB:', allConns);
+                console.log('[useFinanceData] DEBUG - Sample connections error:', allErr);
+
                 setIsConnected(false);
                 setHasAccounts(false);
                 setAllTransactions([]);

@@ -1,4 +1,5 @@
 import { useColorScheme } from '@/components/useColorScheme';
+import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,7 +29,10 @@ export default function RegisterScreen() {
     const { signUp } = useAuth();
     const router = useRouter();
     const colorScheme = useColorScheme();
+    const { isDesktop, isTablet } = useResponsive();
     const theme = Colors[colorScheme ?? 'light'];
+
+    const isWideScreen = isDesktop || isTablet;
 
     const handleRegister = async () => {
         if (!email || !password || !confirmPassword) {
@@ -67,21 +71,27 @@ export default function RegisterScreen() {
     if (success) {
         return (
             <View style={StyleSheet.flatten([styles.container, styles.successContainer, { backgroundColor: theme.background }])}>
-                <View style={StyleSheet.flatten([styles.successIcon, { backgroundColor: theme.success + '20' }])}>
-                    <Ionicons name="checkmark-circle" size={64} color={theme.success} />
+                <View style={StyleSheet.flatten([
+                    styles.successCard,
+                    isWideScreen && styles.successCardWide,
+                    isWideScreen && { backgroundColor: theme.card }
+                ])}>
+                    <View style={StyleSheet.flatten([styles.successIcon, { backgroundColor: theme.success + '20' }])}>
+                        <Ionicons name="checkmark-circle" size={64} color={theme.success} />
+                    </View>
+                    <Text style={StyleSheet.flatten([styles.successTitle, { color: theme.text }])}>
+                        Conta criada!
+                    </Text>
+                    <Text style={StyleSheet.flatten([styles.successText, { color: theme.text, opacity: 0.6 }])}>
+                        Verifique seu email para confirmar o cadastro, depois você pode fazer login.
+                    </Text>
+                    <Pressable
+                        style={StyleSheet.flatten([styles.button, { backgroundColor: theme.tint }])}
+                        onPress={() => router.replace('/auth/login')}
+                    >
+                        <Text style={styles.buttonText}>Ir para Login</Text>
+                    </Pressable>
                 </View>
-                <Text style={StyleSheet.flatten([styles.successTitle, { color: theme.text }])}>
-                    Conta criada!
-                </Text>
-                <Text style={StyleSheet.flatten([styles.successText, { color: theme.text, opacity: 0.6 }])}>
-                    Verifique seu email para confirmar o cadastro, depois você pode fazer login.
-                </Text>
-                <Pressable
-                    style={StyleSheet.flatten([styles.button, { backgroundColor: theme.tint }])}
-                    onPress={() => router.replace('/auth/login')}
-                >
-                    <Text style={styles.buttonText}>Ir para Login</Text>
-                </Pressable>
             </View>
         );
     }
@@ -92,128 +102,137 @@ export default function RegisterScreen() {
             style={StyleSheet.flatten([styles.container, { backgroundColor: theme.background }])}
         >
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                contentContainerStyle={StyleSheet.flatten([
+                    styles.scrollContent,
+                    isWideScreen && styles.scrollContentWide
+                ])}
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={StyleSheet.flatten([styles.logoContainer, { backgroundColor: theme.tint }])}>
-                        <Ionicons name="person-add" size={36} color="#fff" />
-                    </View>
-                    <Text style={StyleSheet.flatten([styles.title, { color: theme.text }])}>
-                        Criar Conta
-                    </Text>
-                    <Text style={StyleSheet.flatten([styles.subtitle, { color: theme.text, opacity: 0.6 }])}>
-                        Crie sua conta para começar
-                    </Text>
-                </View>
-
-                {/* Form */}
-                <View style={styles.form}>
-                    {/* Email */}
-                    <View style={styles.inputContainer}>
-                        <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
-                            Email
-                        </Text>
-                        <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
-                            <Ionicons name="mail-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
-                            <TextInput
-                                style={StyleSheet.flatten([styles.input, { color: theme.text }])}
-                                placeholder="seu@email.com"
-                                placeholderTextColor={theme.text + '50'}
-                                value={email}
-                                onChangeText={setEmail}
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                autoCorrect={false}
-                            />
+                <View style={StyleSheet.flatten([
+                    styles.formContainer,
+                    isWideScreen && styles.formContainerWide,
+                    isWideScreen && { backgroundColor: theme.card }
+                ])}>
+                    {/* Header */}
+                    <View style={styles.header}>
+                        <View style={StyleSheet.flatten([styles.logoContainer, { backgroundColor: theme.tint }])}>
+                            <Ionicons name="person-add" size={36} color="#fff" />
                         </View>
-                    </View>
-
-                    {/* Password */}
-                    <View style={styles.inputContainer}>
-                        <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
-                            Senha
+                        <Text style={StyleSheet.flatten([styles.title, { color: theme.text }])}>
+                            Criar Conta
                         </Text>
-                        <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
-                            <Ionicons name="lock-closed-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
-                            <TextInput
-                                style={StyleSheet.flatten([styles.input, { color: theme.text }])}
-                                placeholder="Mínimo 6 caracteres"
-                                placeholderTextColor={theme.text + '50'}
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry={!showPassword}
-                            />
-                            <Pressable onPress={() => setShowPassword(!showPassword)}>
-                                <Ionicons
-                                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                                    size={20}
-                                    color={theme.text}
-                                    style={{ opacity: 0.5 }}
-                                />
-                            </Pressable>
-                        </View>
-                    </View>
-
-                    {/* Confirm Password */}
-                    <View style={styles.inputContainer}>
-                        <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
-                            Confirmar Senha
+                        <Text style={StyleSheet.flatten([styles.subtitle, { color: theme.text, opacity: 0.6 }])}>
+                            Crie sua conta para começar
                         </Text>
-                        <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
-                            <Ionicons name="lock-closed-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
-                            <TextInput
-                                style={StyleSheet.flatten([styles.input, { color: theme.text }])}
-                                placeholder="Digite a senha novamente"
-                                placeholderTextColor={theme.text + '50'}
-                                value={confirmPassword}
-                                onChangeText={setConfirmPassword}
-                                secureTextEntry={!showPassword}
-                            />
-                        </View>
                     </View>
 
-                    {/* Error */}
-                    {error && (
-                        <View style={StyleSheet.flatten([styles.errorContainer, { backgroundColor: theme.error + '15' }])}>
-                            <Ionicons name="alert-circle" size={18} color={theme.error} />
-                            <Text style={StyleSheet.flatten([styles.errorText, { color: theme.error }])}>
-                                {error}
+                    {/* Form */}
+                    <View style={styles.form}>
+                        {/* Email */}
+                        <View style={styles.inputContainer}>
+                            <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
+                                Email
                             </Text>
+                            <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
+                                <Ionicons name="mail-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
+                                <TextInput
+                                    style={StyleSheet.flatten([styles.input, { color: theme.text }])}
+                                    placeholder="seu@email.com"
+                                    placeholderTextColor={theme.text + '50'}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                    autoCorrect={false}
+                                />
+                            </View>
                         </View>
-                    )}
 
-                    {/* Register Button */}
-                    <Pressable
-                        style={StyleSheet.flatten([
-                            styles.button,
-                            { backgroundColor: theme.tint },
-                            isLoading && styles.buttonDisabled
-                        ])}
-                        onPress={handleRegister}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.buttonText}>Criar Conta</Text>
-                        )}
-                    </Pressable>
+                        {/* Password */}
+                        <View style={styles.inputContainer}>
+                            <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
+                                Senha
+                            </Text>
+                            <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
+                                <TextInput
+                                    style={StyleSheet.flatten([styles.input, { color: theme.text }])}
+                                    placeholder="Mínimo 6 caracteres"
+                                    placeholderTextColor={theme.text + '50'}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                />
+                                <Pressable onPress={() => setShowPassword(!showPassword)}>
+                                    <Ionicons
+                                        name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                                        size={20}
+                                        color={theme.text}
+                                        style={{ opacity: 0.5 }}
+                                    />
+                                </Pressable>
+                            </View>
+                        </View>
 
-                    {/* Login Link */}
-                    <View style={styles.loginContainer}>
-                        <Text style={StyleSheet.flatten([styles.loginText, { color: theme.text, opacity: 0.6 }])}>
-                            Já tem uma conta?{' '}
-                        </Text>
-                        <Link href="/auth/login" asChild>
-                            <Pressable>
-                                <Text style={StyleSheet.flatten([styles.loginLink, { color: theme.tint }])}>
-                                    Entrar
+                        {/* Confirm Password */}
+                        <View style={styles.inputContainer}>
+                            <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
+                                Confirmar Senha
+                            </Text>
+                            <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
+                                <Ionicons name="lock-closed-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
+                                <TextInput
+                                    style={StyleSheet.flatten([styles.input, { color: theme.text }])}
+                                    placeholder="Digite a senha novamente"
+                                    placeholderTextColor={theme.text + '50'}
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    secureTextEntry={!showPassword}
+                                />
+                            </View>
+                        </View>
+
+                        {/* Error */}
+                        {error && (
+                            <View style={StyleSheet.flatten([styles.errorContainer, { backgroundColor: theme.error + '15' }])}>
+                                <Ionicons name="alert-circle" size={18} color={theme.error} />
+                                <Text style={StyleSheet.flatten([styles.errorText, { color: theme.error }])}>
+                                    {error}
                                 </Text>
-                            </Pressable>
-                        </Link>
+                            </View>
+                        )}
+
+                        {/* Register Button */}
+                        <Pressable
+                            style={StyleSheet.flatten([
+                                styles.button,
+                                { backgroundColor: theme.tint },
+                                isLoading && styles.buttonDisabled
+                            ])}
+                            onPress={handleRegister}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.buttonText}>Criar Conta</Text>
+                            )}
+                        </Pressable>
+
+                        {/* Login Link */}
+                        <View style={styles.loginContainer}>
+                            <Text style={StyleSheet.flatten([styles.loginText, { color: theme.text, opacity: 0.6 }])}>
+                                Já tem uma conta?{' '}
+                            </Text>
+                            <Link href="/auth/login" asChild>
+                                <Pressable>
+                                    <Text style={StyleSheet.flatten([styles.loginLink, { color: theme.tint }])}>
+                                        Entrar
+                                    </Text>
+                                </Pressable>
+                            </Link>
+                        </View>
                     </View>
                 </View>
             </ScrollView>
@@ -229,6 +248,23 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         padding: 24,
+    },
+    scrollContentWide: {
+        alignItems: 'center',
+        paddingVertical: 48,
+    },
+    formContainer: {
+        width: '100%',
+    },
+    formContainerWide: {
+        maxWidth: 420,
+        padding: 40,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
     },
     header: {
         alignItems: 'center',
@@ -315,6 +351,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 32,
+    },
+    successCard: {
+        alignItems: 'center',
+        width: '100%',
+    },
+    successCardWide: {
+        maxWidth: 420,
+        padding: 40,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
     },
     successIcon: {
         width: 120,
