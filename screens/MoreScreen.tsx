@@ -240,37 +240,35 @@ export default function MoreScreen() {
             ) : (
                 <>
                     {/* Stats Summary */}
-                    {connections.length > 0 && (
-                        <View style={styles.statsRow}>
-                            <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                <Ionicons name="business" size={24} color={theme.tint} />
-                                <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                    {connections.length}
-                                </Text>
-                                <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                    {connections.length === 1 ? 'Banco' : 'Bancos'}
-                                </Text>
-                            </View>
-                            <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                <Ionicons name="wallet" size={24} color={theme.success} />
-                                <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                    {connections.reduce((sum, c) => sum + (c.accounts?.length || 0), 0)}
-                                </Text>
-                                <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                    Contas
-                                </Text>
-                            </View>
-                            <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                <Ionicons name="receipt" size={24} color={theme.warning} />
-                                <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                    {transactionCount}
-                                </Text>
-                                <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                    Transações
-                                </Text>
-                            </View>
+                    <View style={styles.statsRow}>
+                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
+                            <Ionicons name="business" size={24} color={theme.tint} />
+                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
+                                {connections.length}
+                            </Text>
+                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
+                                {connections.length === 1 ? 'Banco' : 'Bancos'}
+                            </Text>
                         </View>
-                    )}
+                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
+                            <Ionicons name="wallet" size={24} color={theme.success} />
+                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
+                                {connections.reduce((sum, c) => sum + (c.accounts?.length || 0), 0)}
+                            </Text>
+                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
+                                Contas
+                            </Text>
+                        </View>
+                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
+                            <Ionicons name="receipt" size={24} color={theme.warning} />
+                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
+                                {transactionCount}
+                            </Text>
+                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
+                                Transações
+                            </Text>
+                        </View>
+                    </View>
 
                     {/* Add New Connection Card */}
                     <Pressable
@@ -314,6 +312,9 @@ export default function MoreScreen() {
                     <View style={styles.userInfo}>
                         <Text style={StyleSheet.flatten([styles.userEmail, { color: theme.text }])}>
                             {user.email}
+                        </Text>
+                        <Text style={{ fontSize: 10, color: theme.text, opacity: 0.4, marginTop: 2 }}>
+                            ID: {user.id}
                         </Text>
                         <Text style={StyleSheet.flatten([styles.userLabel, { color: theme.text, opacity: 0.5 }])}>
                             Conta ativa

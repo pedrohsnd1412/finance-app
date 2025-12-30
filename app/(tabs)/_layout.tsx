@@ -4,6 +4,7 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
+// @ts-ignore - unstable-native-tabs might not have types in all versions or is missing in local defs
 import { Icon, Label, NativeTabs, VectorIcon } from 'expo-router/unstable-native-tabs';
 import React from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
@@ -20,8 +21,7 @@ export default function TabLayout() {
   const { isDesktop } = useResponsive();
   const theme = Colors[colorScheme ?? 'light'];
 
-  // WEB IMPLEMENTATION (Standard JS Tabs)
-  // NativeTabs is not fully supported on web and causes renderToImageAsync errors with VectorIcons
+  // WEB & DESKTOP: Use standard Tabs (Sidebar on Desktop)
   if (Platform.OS === 'web') {
     return (
       <View style={styles.container}>
@@ -31,7 +31,8 @@ export default function TabLayout() {
             screenOptions={{
               tabBarActiveTintColor: theme.tint,
               headerShown: false,
-              // On Desktop/Large screens, hide the mobile bottom tab bar
+              // Hide tab bar on desktop, show standard on mobile web (or floating if desired, but user deprecated floating)
+              // Let's use standard bottom tab bar for mobile web
               tabBarStyle: isDesktop ? { display: 'none' } : undefined,
             }}>
             <Tabs.Screen
@@ -75,60 +76,49 @@ export default function TabLayout() {
     );
   }
 
-  // NATIVE IMPLEMENTATION (iOS/Android NativeTabs)
+  // NATIVE MOBILE (iOS/Android): Use NativeTabs
   return (
-    <View style={styles.container}>
-      {/* Sidebar usually not needed on mobile native apps, but keeping logic consistent just in case */}
-      {isDesktop && <Sidebar />}
-      <View style={styles.content}>
-        <NativeTabs>
-          <NativeTabs.Trigger name="index">
-            <Label>Home</Label>
-            {Platform.select({
-              ios: <Icon sf="house.fill" />,
-              android: <Icon src={<VectorIcon family={FontAwesome} name="home" />} />,
-              default: <Icon sf="house.fill" />,
-            })}
-          </NativeTabs.Trigger>
+    <NativeTabs>
+      <NativeTabs.Trigger name="index">
+        <Label>Home</Label>
+        {Platform.select({
+          ios: <Icon sf="house.fill" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="home" />} />,
+        })}
+      </NativeTabs.Trigger>
 
-          <NativeTabs.Trigger name="expenses">
-            <Label>Despesas</Label>
-            {Platform.select({
-              ios: <Icon sf="chart.pie.fill" />,
-              android: <Icon src={<VectorIcon family={FontAwesome} name="money" />} />,
-              default: <Icon sf="chart.pie.fill" />,
-            })}
-          </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="expenses">
+        <Label>Despesas</Label>
+        {Platform.select({
+          ios: <Icon sf="banknote.fill" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="money" />} />,
+        })}
+      </NativeTabs.Trigger>
 
-          <NativeTabs.Trigger name="cards">
-            <Label>Cartões</Label>
-            {Platform.select({
-              ios: <Icon sf="creditcard.fill" />,
-              android: <Icon src={<VectorIcon family={FontAwesome} name="credit-card" />} />,
-              default: <Icon sf="creditcard.fill" />,
-            })}
-          </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="cards">
+        <Label>Cartões</Label>
+        {Platform.select({
+          ios: <Icon sf="creditcard.fill" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="credit-card" />} />,
+        })}
+      </NativeTabs.Trigger>
 
-          <NativeTabs.Trigger name="banks">
-            <Label>Bancos</Label>
-            {Platform.select({
-              ios: <Icon sf="building.columns.fill" />,
-              android: <Icon src={<VectorIcon family={FontAwesome} name="bank" />} />,
-              default: <Icon sf="building.columns.fill" />,
-            })}
-          </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="banks">
+        <Label>Bancos</Label>
+        {Platform.select({
+          ios: <Icon sf="building.columns.fill" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="bank" />} />,
+        })}
+      </NativeTabs.Trigger>
 
-          <NativeTabs.Trigger name="more">
-            <Label>Mais</Label>
-            {Platform.select({
-              ios: <Icon sf="ellipsis" />,
-              android: <Icon src={<VectorIcon family={FontAwesome} name="bars" />} />,
-              default: <Icon sf="ellipsis" />,
-            })}
-          </NativeTabs.Trigger>
-        </NativeTabs>
-      </View>
-    </View>
+      <NativeTabs.Trigger name="more">
+        <Label>Mais</Label>
+        {Platform.select({
+          ios: <Icon sf="line.3.horizontal" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="bars" />} />,
+        })}
+      </NativeTabs.Trigger>
+    </NativeTabs>
   );
 }
 
