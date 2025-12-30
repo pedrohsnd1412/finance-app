@@ -9,18 +9,19 @@ interface SummaryCardProps {
     style?: ViewStyle;
 }
 
-export function SummaryCard({ income, expense, style }: SummaryCardProps) {
+export function SummaryCard({ income = 0, expense = 0, style }: SummaryCardProps) {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     const formatCurrency = (value: number): string => {
-        return value.toLocaleString('pt-BR', {
+        const safeValue = value ?? 0;
+        return safeValue.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
         });
     };
 
-    const difference = income - expense;
+    const difference = (income ?? 0) - (expense ?? 0);
     const isPositive = difference >= 0;
 
     return (

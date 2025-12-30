@@ -75,11 +75,8 @@ export default function ExpensesScreen() {
             {/* Total Summary */}
             <View style={styles.summaryContainer}>
                 <SummaryCard
-                    title="Total de Despesas"
-                    amount={summary.expenseTotal}
-                    type="expense"
-                    icon="trending-down"
-                    trend={0} // TODO: Calculate trend
+                    income={summary.incomeTotal}
+                    expense={summary.expenseTotal}
                 />
             </View>
 
