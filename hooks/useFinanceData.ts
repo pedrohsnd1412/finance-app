@@ -22,19 +22,15 @@ interface DbTransaction {
     date: string;
     amount: number;
     description: string;
-    type: 'DEBIT' | 'CREDIT';
+    type: string;
     category_id: string | null;
     merchant_name: string | null;
-    categories: {
-        description: string;
-        description_translated: string | null;
-    } | null;
 }
 
 interface DbAccount {
     id: string;
     name: string;
-    type: 'BANK' | 'CREDIT' | 'INVESTMENT';
+    type: string;
     balance: number;
     currency: string;
 }
@@ -43,13 +39,14 @@ interface DbAccount {
  * Convert database transaction to display format
  */
 function convertTransaction(tx: DbTransaction): Transaction {
+    const isExpense = tx.amount < 0 || tx.type === 'DEBIT';
     return {
         id: tx.id,
         description: tx.merchant_name || tx.description || 'Transação',
         amount: Math.abs(tx.amount),
         date: tx.date,
-        type: tx.amount < 0 || tx.type === 'DEBIT' ? 'expense' : 'income',
-        category: tx.categories?.description_translated || tx.categories?.description || 'Outros',
+        type: isExpense ? 'expense' : 'income',
+        category: 'Outros', // Simplified - categories can be added later
     };
 }
 
@@ -73,7 +70,7 @@ function filterByPeriod(transactions: Transaction[], period: Period): Transactio
             break;
         case 'month':
             startDate = new Date(today);
-            startDate.setDate(startDate.getDate() - 30);
+            startDate.setMonth(startDate.getMonth() - 1);
             startDate.setHours(0, 0, 0, 0);
             break;
     }
@@ -95,6 +92,7 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
     const fetchData = useCallback(async () => {
         if (!user) {
+            console.log('[useFinanceData] No user, returning empty state');
             setIsLoading(false);
             setIsConnected(false);
             setHasAccounts(false);
@@ -105,15 +103,21 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
         setIsLoading(true);
         setError(null);
+        console.log('[useFinanceData] Fetching data for user:', user.id);
 
         try {
-            // Fetch user's connections
-            const { data: connections } = await supabase
+            // Step 1: Fetch user's connections
+            const { data: connections, error: connError } = await supabase
                 .from('connections')
-                .select('id')
+                .select('id, connector_name, status')
                 .eq('user_id', user.id);
 
+            console.log('[useFinanceData] Connections:', connections, 'Error:', connError);
+
+            if (connError) throw connError;
+
             if (!connections || connections.length === 0) {
+                console.log('[useFinanceData] No connections found');
                 setIsConnected(false);
                 setHasAccounts(false);
                 setAllTransactions([]);
@@ -122,18 +126,24 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
                 return;
             }
 
+            setIsConnected(true);
             const connectionIds = connections.map(c => c.id);
+            console.log('[useFinanceData] Connection IDs:', connectionIds);
 
-            // Fetch accounts for these connections
-            const { data: accounts } = await supabase
+            // Step 2: Fetch accounts for these connections
+            const { data: accounts, error: accError } = await supabase
                 .from('accounts')
                 .select('id, name, type, balance, currency')
                 .in('connection_id', connectionIds);
 
+            console.log('[useFinanceData] Accounts:', accounts, 'Error:', accError);
+
+            if (accError) throw accError;
+
             const accountList = (accounts as DbAccount[]) || [];
             setHasAccounts(accountList.length > 0);
 
-            // Calculate total balance (BANK accounts positive, CREDIT negative)
+            // Calculate total balance
             const balance = accountList.reduce((sum, acc) => {
                 if (acc.type === 'CREDIT') {
                     return sum - Math.abs(acc.balance);
@@ -141,42 +151,37 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
                 return sum + acc.balance;
             }, 0);
             setTotalBalance(balance);
+            console.log('[useFinanceData] Total balance:', balance);
 
             if (accountList.length === 0) {
-                setIsConnected(true);
+                console.log('[useFinanceData] No accounts found');
                 setAllTransactions([]);
                 setIsLoading(false);
                 return;
             }
 
             const accountIds = accountList.map(a => a.id);
+            console.log('[useFinanceData] Account IDs:', accountIds);
 
-            // Fetch transactions with categories
-            const { data: transactions } = await supabase
+            // Step 3: Fetch transactions (simplified - no join)
+            const { data: transactions, error: txError } = await supabase
                 .from('transactions')
-                .select(`
-                    id,
-                    date,
-                    amount,
-                    description,
-                    type,
-                    category_id,
-                    merchant_name,
-                    categories (
-                        description,
-                        description_translated
-                    )
-                `)
+                .select('id, date, amount, description, type, category_id, merchant_name')
                 .in('account_id', accountIds)
                 .order('date', { ascending: false })
                 .limit(500);
 
+            console.log('[useFinanceData] Transactions count:', transactions?.length, 'Error:', txError);
+
+            if (txError) throw txError;
+
             const txList = (transactions as DbTransaction[]) || [];
-            setIsConnected(true);
+            console.log('[useFinanceData] First 3 transactions:', txList.slice(0, 3));
+
             setAllTransactions(txList.map(convertTransaction));
 
         } catch (err) {
-            console.error('Error fetching financial data:', err);
+            console.error('[useFinanceData] Error:', err);
             setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
             setIsConnected(false);
             setHasAccounts(false);
