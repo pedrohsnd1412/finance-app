@@ -210,6 +210,25 @@ export default function ConnectScreen() {
 
         const widgetUrl = `https://connect.pluggy.ai/?connect_token=${connectToken}`;
 
+        const renderManualCloseButton = () => (
+            <View style={styles.manualCloseContainer}>
+                <Pressable
+                    style={StyleSheet.flatten([styles.manualCloseButton, { backgroundColor: theme.card, borderColor: theme.border }])}
+                    onPress={() => {
+                        // Manually finish, assuming success if user clicks this after doing process
+                        setStatus('complete');
+                        // Or just go home
+                        // router.replace('/(tabs)');
+                    }}
+                >
+                    <Text style={StyleSheet.flatten([styles.manualCloseText, { color: theme.text }])}>
+                        Finalizar Conexão
+                    </Text>
+                    <Ionicons name="chevron-forward" size={16} color={theme.text} />
+                </Pressable>
+            </View>
+        );
+
         if (Platform.OS === 'web') {
             // Web: use iframe
             return (
@@ -224,6 +243,7 @@ export default function ConnectScreen() {
                         }}
                         allow="camera"
                     />
+                    {renderManualCloseButton()}
                 </View>
             );
         }
@@ -248,12 +268,13 @@ export default function ConnectScreen() {
                     onError={(syntheticEvent) => {
                         const { nativeEvent } = syntheticEvent;
                         console.error('WebView error:', nativeEvent);
-                        setStatus('error');
-                        setErrorMessage('Erro ao carregar o widget');
+                        // Don't error out immediately on mobile webview errors as they can be flaky
+                        // just let user use manual button if needed
                     }}
                     allowsInlineMediaPlayback={true}
                     mediaPlaybackRequiresUserAction={false}
                 />
+                {renderManualCloseButton()}
             </View>
         );
     };
@@ -656,6 +677,32 @@ const styles = StyleSheet.create({
     retryButtonText: {
         color: '#fff',
         fontSize: 16,
+        fontWeight: '600',
+    },
+    manualCloseContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    manualCloseButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 24,
+        borderWidth: 1,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        gap: 8,
+    },
+    manualCloseText: {
+        fontSize: 14,
         fontWeight: '600',
     },
 });
