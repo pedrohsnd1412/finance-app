@@ -45,11 +45,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signIn = async (email: string, password: string) => {
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
             if (error) throw error;
+
+            // Ensure user record exists in public.users table
+            if (data.user) {
+                await supabase
+                    .from('users')
+                    .upsert({
+                        id: data.user.id,
+                        email: data.user.email || email,
+                    } as any, { onConflict: 'id' });
+            }
+
             return { error: null };
         } catch (error) {
             return { error: error as Error };
@@ -58,11 +69,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signUp = async (email: string, password: string) => {
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
             });
             if (error) throw error;
+
+            // Create user record in public.users table
+            // This is required for foreign key constraints
+            if (data.user) {
+                const { error: userError } = await supabase
+                    .from('users')
+                    .upsert({
+                        id: data.user.id,
+                        email: data.user.email || email,
+                    } as any, { onConflict: 'id' });
+
+                if (userError) {
+                    console.error('Error creating user record:', userError);
+                    // Don't fail signup if user record creation fails
+                    // The trigger or next login can fix this
+                }
+            }
+
             return { error: null };
         } catch (error) {
             return { error: error as Error };
