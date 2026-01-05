@@ -160,9 +160,7 @@ serve(async (req) => {
         // Handle different event types
         switch (payload.event) {
             case "item/created":
-            case "item/updated":
-            case "transactions/created":
-            case "transactions/deleted": {
+            case "item/updated": {
                 if (!payload.itemId) {
                     console.error("No itemId in payload");
                     break;
@@ -313,7 +311,11 @@ serve(async (req) => {
                 break;
             }
 
-
+            case "transactions/created": {
+                // Similar to item/updated but only for new transactions
+                console.log("New transactions created, will be handled by item/updated");
+                break;
+            }
 
             case "item/error": {
                 if (payload.itemId) {
