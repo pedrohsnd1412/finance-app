@@ -262,24 +262,40 @@ serve(async (req) => {
 
                     if (!dbAccount) continue;
 
+                    // Fetch all valid category IDs first to prevent FK errors
+                    const { data: validCategories } = await supabase
+                        .from("categories")
+                        .select("id");
+
+                    const validCategoryIds = new Set(validCategories?.map(c => c.id) || []);
+
                     // Batch upsert transactions (without description_raw, with category_id)
-                    const transactionRecords = transactions.map((t) => ({
-                        account_id: dbAccount.id,
-                        pluggy_transaction_id: t.id,
-                        date: t.date.split("T")[0],
-                        amount: t.amount,
-                        description: t.description,
-                        type: t.type === "DEBIT" ? "DEBIT" : "CREDIT",
-                        category_id: t.category?.id || null, // Use Pluggy category ID directly
-                        merchant_name: t.merchant?.name || null,
-                        payment_data: t.paymentData,
-                        metadata: {
-                            providerCode: t.providerCode,
-                            status: t.status,
-                            currencyCode: t.currencyCode,
-                            descriptionRaw: t.descriptionRaw, // Store raw description in metadata
-                        },
-                    }));
+                    const transactionRecords = transactions.map((t) => {
+                        // Validate category ID
+                        let categoryId = t.category?.id || null;
+                        if (categoryId && !validCategoryIds.has(categoryId)) {
+                            console.warn(`Category ID ${categoryId} not found in DB, setting to null`);
+                            categoryId = null; // Or '99' for Others if strictly required, but Schema allows null
+                        }
+
+                        return {
+                            account_id: dbAccount.id,
+                            pluggy_transaction_id: t.id,
+                            date: t.date.split("T")[0],
+                            amount: t.amount,
+                            description: t.description,
+                            type: t.type === "DEBIT" ? "DEBIT" : "CREDIT",
+                            category_id: categoryId,
+                            merchant_name: t.merchant?.name || null,
+                            payment_data: t.paymentData,
+                            metadata: {
+                                providerCode: t.providerCode,
+                                status: t.status,
+                                currencyCode: t.currencyCode,
+                                descriptionRaw: t.descriptionRaw, // Store raw description in metadata
+                            },
+                        };
+                    });
 
                     // Upsert in batches of 100
                     for (let i = 0; i < transactionRecords.length; i += 100) {
