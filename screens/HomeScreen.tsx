@@ -23,7 +23,6 @@ import {
 } from 'react-native';
 
 // Category colors for chart
-// Category colors for chart (Refined Palette)
 const CATEGORY_COLORS: Record<string, string> = {
     'Alimentação': '#F87171',
     'Transporte': '#60A5FA',
@@ -105,11 +104,6 @@ export default function HomeScreen() {
                             onChange={setPeriod}
                             style={styles.headerFilter}
                         />
-                        <TransactionTypeSelector
-                            selected={typeFilter}
-                            onChange={setTypeFilter}
-                            style={styles.headerFilter}
-                        />
                     </View>
                 )}
             </View>
@@ -122,16 +116,12 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
-                {/* Filters - Mobile/Tablet */}
+                {/* Period Filter - Mobile/Tablet */}
                 {filterPosition === 'content' && (
                     <View style={styles.filtersMobile}>
                         <PeriodFilter
                             selected={period}
                             onChange={setPeriod}
-                        />
-                        <TransactionTypeSelector
-                            selected={typeFilter}
-                            onChange={setTypeFilter}
                         />
                     </View>
                 )}
@@ -158,7 +148,7 @@ export default function HomeScreen() {
                             />
                         </View>
 
-                        {/* Desktop: Side-by-side chart and transactions */}
+                        {/* Desktop/Tablet/Mobile Content */}
                         {isDesktop ? (
                             <View style={styles.desktopContent}>
                                 {/* Category Chart */}
@@ -169,8 +159,15 @@ export default function HomeScreen() {
                                     <DonutChart data={categoryData} size={180} />
                                 </View>
 
-                                {/* Transactions */}
+                                {/* Transactions Column */}
                                 <View style={styles.transactionsDesktop}>
+                                    {/* Type Filter on Top of Transactions */}
+                                    <View style={styles.typeSelectorContainer}>
+                                        <TransactionTypeSelector
+                                            selected={typeFilter}
+                                            onChange={setTypeFilter}
+                                        />
+                                    </View>
                                     <Section title="Movimentações">
                                         {renderTransactions()}
                                     </Section>
@@ -186,6 +183,14 @@ export default function HomeScreen() {
                                         </View>
                                     </Section>
                                 )}
+
+                                {/* Type Filter Above Transactions */}
+                                <View style={styles.typeSelectorContainer}>
+                                    <TransactionTypeSelector
+                                        selected={typeFilter}
+                                        onChange={setTypeFilter}
+                                    />
+                                </View>
 
                                 {/* Transactions */}
                                 <Section title="Movimentações">
@@ -285,8 +290,10 @@ const styles = StyleSheet.create({
         minWidth: 200,
     },
     filtersMobile: {
-        gap: 12,
         marginBottom: 20,
+    },
+    typeSelectorContainer: {
+        marginBottom: 16,
     },
     // Loading
     loadingContainer: {
