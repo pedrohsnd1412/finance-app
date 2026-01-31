@@ -39,7 +39,7 @@ export default function BanksScreen() {
 
         try {
             // Fetch connections with their accounts
-            const { data: connectionsData } = await supabase
+            const { data: connectionsData, error: connError } = await supabase
                 .from('connections')
                 .select(`
                     id,
@@ -58,9 +58,15 @@ export default function BanksScreen() {
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            setConnections((connectionsData as Connection[]) || []);
+            if (connError) throw connError;
+
+            setConnections((connectionsData as any[]) || []);
         } catch (error) {
-            console.log('Error loading connections:', error);
+            console.error('[BanksScreen] Error loading connections:', error);
+            if (connections.length === 0) {
+                // Only alert if we don't have cached data
+                // Alert.alert('Erro', 'Não foi possível carregar as conexões');
+            }
         } finally {
             setIsLoading(false);
             setRefreshing(false);

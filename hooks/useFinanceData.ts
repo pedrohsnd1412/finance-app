@@ -103,40 +103,19 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
         setIsLoading(true);
         setError(null);
-        console.log('[useFinanceData] ===== STARTING DATA FETCH =====');
-        console.log('[useFinanceData] User ID:', user.id);
-        console.log('[useFinanceData] User Email:', user.email);
 
         try {
-            // Verify session is valid
-            const { data: sessionData } = await supabase.auth.getSession();
-            console.log('[useFinanceData] Session valid:', !!sessionData.session);
-            console.log('[useFinanceData] Session user ID:', sessionData.session?.user?.id);
-
-            // Step 1: Fetch user's connections (without RLS filter to debug)
-            const { data: connections, error: connError } = await supabase
+            // Step 1: Fetch user's connections
+            const { data: connectionsData, error: connError } = await supabase
                 .from('connections')
                 .select('id, connector_name, status, user_id, pluggy_item_id')
                 .eq('user_id', user.id);
 
-            console.log('[useFinanceData] Connections query for user_id:', user.id);
-            console.log('[useFinanceData] Connections found:', connections?.length || 0);
-            console.log('[useFinanceData] Connections data:', JSON.stringify(connections, null, 2));
-            console.log('[useFinanceData] Connections error:', connError);
-
             if (connError) throw connError;
 
-            if (!connections || connections.length === 0) {
-                console.log('[useFinanceData] No connections found for this user');
+            const connections = (connectionsData as any[]) || [];
 
-                // Debug: Check if there are ANY connections in the database
-                const { data: allConns, error: allErr } = await supabase
-                    .from('connections')
-                    .select('id, user_id, connector_name')
-                    .limit(5);
-                console.log('[useFinanceData] DEBUG - Sample connections in DB:', allConns);
-                console.log('[useFinanceData] DEBUG - Sample connections error:', allErr);
-
+            if (connections.length === 0) {
                 setIsConnected(false);
                 setHasAccounts(false);
                 setAllTransactions([]);
@@ -147,65 +126,52 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
             setIsConnected(true);
             const connectionIds = connections.map(c => c.id);
-            console.log('[useFinanceData] Connection IDs:', connectionIds);
 
             // Step 2: Fetch accounts for these connections
-            const { data: accounts, error: accError } = await supabase
+            const { data: accountsData, error: accError } = await supabase
                 .from('accounts')
                 .select('id, name, type, balance, currency')
                 .in('connection_id', connectionIds);
 
-            console.log('[useFinanceData] Accounts:', accounts, 'Error:', accError);
-
             if (accError) throw accError;
 
-            const accountList = (accounts as DbAccount[]) || [];
+            const accountList = (accountsData as DbAccount[]) || [];
             setHasAccounts(accountList.length > 0);
 
             // Calculate total balance
             const balance = accountList.reduce((sum, acc) => {
                 if (acc.type === 'CREDIT') {
+                    // Credit card balance is usually negative or needs to be subtracted from total
                     return sum - Math.abs(acc.balance);
                 }
                 return sum + acc.balance;
             }, 0);
             setTotalBalance(balance);
-            console.log('[useFinanceData] Total balance:', balance);
 
             if (accountList.length === 0) {
-                console.log('[useFinanceData] No accounts found');
                 setAllTransactions([]);
                 setIsLoading(false);
                 return;
             }
 
             const accountIds = accountList.map(a => a.id);
-            console.log('[useFinanceData] Account IDs:', accountIds);
 
-            // Step 3: Fetch transactions (simplified - no join)
-            const { data: transactions, error: txError } = await supabase
+            // Step 3: Fetch transactions
+            const { data: transactionsData, error: txError } = await supabase
                 .from('transactions')
                 .select('id, date, amount, description, type, category_id, merchant_name')
                 .in('account_id', accountIds)
                 .order('date', { ascending: false })
                 .limit(500);
 
-            console.log('[useFinanceData] Transactions count:', transactions?.length, 'Error:', txError);
-
             if (txError) throw txError;
 
-            const txList = (transactions as DbTransaction[]) || [];
-            console.log('[useFinanceData] First 3 transactions:', txList.slice(0, 3));
-
+            const txList = (transactionsData as DbTransaction[]) || [];
             setAllTransactions(txList.map(convertTransaction));
 
         } catch (err) {
-            console.error('[useFinanceData] Error:', err);
+            console.error('[useFinanceData] Fetch error:', err);
             setError(err instanceof Error ? err.message : 'Erro ao carregar dados');
-            setIsConnected(false);
-            setHasAccounts(false);
-            setAllTransactions([]);
-            setTotalBalance(0);
         } finally {
             setIsLoading(false);
         }

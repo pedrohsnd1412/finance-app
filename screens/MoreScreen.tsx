@@ -62,8 +62,8 @@ export default function MoreScreen() {
         }
 
         try {
-            // Fetch connections with their accounts
-            const { data: connectionsData } = await supabase
+            // Step 1: Fetch connections with their accounts
+            const { data: connectionsData, error: connError } = await supabase
                 .from('connections')
                 .select(`
                     id,
@@ -82,25 +82,29 @@ export default function MoreScreen() {
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            // Count total transactions
-            if (connectionsData && connectionsData.length > 0) {
-                const accountIds = connectionsData.flatMap(c =>
-                    (c.accounts as Account[])?.map(a => a.id) || []
+            if (connError) throw connError;
+
+            const connections = (connectionsData as any[]) || [];
+            setConnections(connections);
+
+            // Step 2: Parallel fetch of transaction count if connections exist
+            if (connections.length > 0) {
+                const accountIds = connections.flatMap(c =>
+                    (c.accounts as any[])?.map(a => a.id) || []
                 );
 
                 if (accountIds.length > 0) {
-                    const { count } = await supabase
+                    supabase
                         .from('transactions')
                         .select('*', { count: 'exact', head: true })
-                        .in('account_id', accountIds);
-
-                    setTransactionCount(count || 0);
+                        .in('account_id', accountIds)
+                        .then(({ count }) => {
+                            setTransactionCount(count || 0);
+                        });
                 }
             }
-
-            setConnections((connectionsData as Connection[]) || []);
         } catch (error) {
-            console.log('Error loading connections:', error);
+            console.error('[MoreScreen] Error loading connections:', error);
         } finally {
             setIsLoading(false);
             setRefreshing(false);
