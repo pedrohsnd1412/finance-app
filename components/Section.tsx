@@ -31,25 +31,21 @@ export function Section({ title, children, style, action }: SectionProps) {
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 20,
+        marginBottom: 24,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 16,
     },
     title: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 20,
+        fontWeight: '700',
+        letterSpacing: -0.5,
     },
     content: {
-        borderRadius: 16,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
+        borderRadius: 24,
+        padding: 4, // TransactionItems have their own padding
     },
 });

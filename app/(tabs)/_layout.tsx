@@ -57,13 +57,6 @@ export default function TabLayout() {
               }}
             />
             <Tabs.Screen
-              name="banks"
-              options={{
-                title: 'Bancos',
-                tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
-              }}
-            />
-            <Tabs.Screen
               name="more"
               options={{
                 title: 'Mais',
@@ -100,14 +93,6 @@ export default function TabLayout() {
         {Platform.select({
           ios: <Icon sf="creditcard.fill" />,
           android: <Icon src={<VectorIcon family={FontAwesome} name="credit-card" />} />,
-        })}
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="banks">
-        <Label>Bancos</Label>
-        {Platform.select({
-          ios: <Icon sf="building.columns.fill" />,
-          android: <Icon src={<VectorIcon family={FontAwesome} name="bank" />} />,
         })}
       </NativeTabs.Trigger>
 

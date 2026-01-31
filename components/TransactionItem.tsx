@@ -1,6 +1,7 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { Transaction } from '@/types/home.types';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
@@ -37,33 +38,39 @@ export function TransactionItem({ transaction, style }: TransactionItemProps) {
         return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
     };
 
+    const getIcon = () => {
+        if (isIncome) return 'add-outline';
+        const category = transaction.category?.toLowerCase() || '';
+        if (category.includes('alimentação') || category.includes('restaurante')) return 'restaurant-outline';
+        if (category.includes('transporte') || category.includes('uber')) return 'car-outline';
+        if (category.includes('saúde') || category.includes('farmácia')) return 'medkit-outline';
+        if (category.includes('moradia') || category.includes('aluguel')) return 'home-outline';
+        if (category.includes('entretenimento')) return 'film-outline';
+        if (category.includes('contas')) return 'receipt-outline';
+        return 'cart-outline';
+    };
+
     return (
         <View style={StyleSheet.flatten([styles.container, { borderBottomColor: theme.border }, style])}>
-            <View style={styles.iconContainer}>
-                <View style={StyleSheet.flatten([
-                    styles.iconCircle,
-                    { backgroundColor: isIncome ? `${theme.success}20` : `${theme.error}20` }
-                ])}>
-                    <Text style={StyleSheet.flatten([
-                        styles.iconText,
-                        { color: isIncome ? theme.success : theme.error }
-                    ])}>
-                        {isIncome ? '↓' : '↑'}
-                    </Text>
-                </View>
+            <View style={[styles.iconContainer, { backgroundColor: isIncome ? theme.success + '10' : theme.background }]}>
+                <Ionicons
+                    name={getIcon() as any}
+                    size={20}
+                    color={isIncome ? theme.success : theme.muted}
+                />
             </View>
             <View style={styles.content}>
-                <Text style={StyleSheet.flatten([styles.description, { color: theme.text }])} numberOfLines={1}>
+                <Text style={[styles.description, { color: theme.text }]} numberOfLines={1}>
                     {transaction.description}
                 </Text>
-                <Text style={StyleSheet.flatten([styles.category, { color: theme.text, opacity: 0.5 }])}>
+                <Text style={[styles.category, { color: theme.muted }]}>
                     {transaction.category || 'Outros'} • {formatDate(transaction.date)}
                 </Text>
             </View>
-            <Text style={StyleSheet.flatten([
+            <Text style={[
                 styles.amount,
-                { color: isIncome ? theme.success : theme.error }
-            ])}>
+                { color: isIncome ? theme.success : theme.text }
+            ]}>
                 {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
             </Text>
         </View>
@@ -74,37 +81,32 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 14,
+        paddingVertical: 16,
         borderBottomWidth: 1,
     },
     iconContainer: {
-        marginRight: 12,
-    },
-    iconCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    iconText: {
-        fontSize: 18,
-        fontWeight: '600',
+        marginRight: 14,
     },
     content: {
         flex: 1,
+        gap: 2,
     },
     description: {
         fontSize: 15,
-        fontWeight: '500',
-        marginBottom: 2,
+        fontWeight: '600',
     },
     category: {
-        fontSize: 12,
+        fontSize: 13,
+        fontWeight: '400',
     },
     amount: {
         fontSize: 15,
-        fontWeight: '600',
-        marginLeft: 8,
+        fontWeight: '700',
+        marginLeft: 12,
     },
 });

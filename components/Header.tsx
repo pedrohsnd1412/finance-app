@@ -2,7 +2,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface HeaderProps {
     title: string;
@@ -32,27 +32,30 @@ export function Header({ title, rightElement, showBack, onBack }: HeaderProps) {
 
 const styles = StyleSheet.create({
     container: {
-        height: 60,
+        height: 72,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 0, // Container handles padding
-        marginBottom: 16,
-        borderBottomWidth: Platform.select({ web: 1, default: 0 }),
+        paddingHorizontal: 0,
+        marginBottom: 8,
     },
     leftSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 16,
     },
     backButton: {
-        padding: 8,
-        marginLeft: -8,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginLeft: -10,
     },
     title: {
-        fontSize: 24,
-        fontWeight: '700',
-        letterSpacing: -0.5,
+        fontSize: 28,
+        fontWeight: '800',
+        letterSpacing: -1,
     },
     right: {
         justifyContent: 'center',

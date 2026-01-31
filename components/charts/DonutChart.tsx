@@ -138,6 +138,7 @@ export function DonutChart({ data, size = 160, strokeWidth = 24 }: DonutChartPro
 const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
+        paddingVertical: 10,
     },
     chartContainer: {
         position: 'relative',
@@ -164,34 +165,45 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     totalValue: {
-        fontSize: 20,
-        fontWeight: '700',
+        fontSize: 22,
+        fontWeight: '800',
+        letterSpacing: -0.5,
     },
     totalLabel: {
-        fontSize: 12,
-        fontWeight: '500',
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginTop: 2,
     },
     legend: {
-        marginTop: 20,
+        marginTop: 24,
         width: '100%',
-        gap: 8,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 12,
     },
     legendItem: {
         flexDirection: 'row',
         alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.02)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
         gap: 8,
     },
     legendDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
     },
     legendText: {
-        flex: 1,
-        fontSize: 13,
+        fontSize: 12,
+        fontWeight: '600',
     },
     legendValue: {
-        fontSize: 13,
-        fontWeight: '500',
+        fontSize: 12,
+        fontWeight: '700',
     },
 });

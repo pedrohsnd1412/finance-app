@@ -196,36 +196,37 @@ export default function MoreScreen() {
     };
 
     const renderTabBar = () => (
-        <View style={StyleSheet.flatten([styles.tabBar, { borderBottomColor: theme.border }])}>
-            {TABS.map((tab) => {
-                const isActive = activeTab === tab.key;
-                return (
-                    <Pressable
-                        key={tab.key}
-                        style={StyleSheet.flatten([
-                            styles.tab,
-                            isActive && { borderBottomColor: theme.tint, borderBottomWidth: 2 },
-                        ])}
-                        onPress={() => setActiveTab(tab.key)}
-                    >
-                        <Ionicons
-                            name={tab.icon}
-                            size={20}
-                            color={isActive ? theme.tint : theme.text}
-                            style={{ opacity: isActive ? 1 : 0.5 }}
-                        />
-                        <Text
-                            style={StyleSheet.flatten([
-                                styles.tabLabel,
-                                { color: isActive ? theme.tint : theme.text },
-                                !isActive && { opacity: 0.5 },
-                            ])}
+        <View style={styles.tabContainer}>
+            <View style={[styles.tabBar, { backgroundColor: 'rgba(0,0,0,0.03)' }]}>
+                {TABS.map((tab) => {
+                    const isActive = activeTab === tab.key;
+                    return (
+                        <Pressable
+                            key={tab.key}
+                            style={[
+                                styles.tab,
+                                isActive && styles.tabActive,
+                                isActive && { backgroundColor: theme.card }
+                            ]}
+                            onPress={() => setActiveTab(tab.key)}
                         >
-                            {tab.label}
-                        </Text>
-                    </Pressable>
-                );
-            })}
+                            <Ionicons
+                                name={tab.icon}
+                                size={18}
+                                color={isActive ? theme.tint : theme.muted}
+                            />
+                            <Text
+                                style={[
+                                    styles.tabLabel,
+                                    { color: isActive ? theme.tint : theme.muted },
+                                ]}
+                            >
+                                {tab.label}
+                            </Text>
+                        </Pressable>
+                    );
+                })}
+            </View>
         </View>
     );
 
@@ -438,22 +439,33 @@ export default function MoreScreen() {
 }
 
 const styles = StyleSheet.create({
+    tabContainer: {
+        marginBottom: 24,
+    },
     tabBar: {
         flexDirection: 'row',
-        borderBottomWidth: 1,
-        marginBottom: 16,
+        borderRadius: 16,
+        padding: 5,
     },
     tab: {
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 6,
-        paddingVertical: 12,
+        gap: 8,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    tabActive: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     tabLabel: {
-        fontSize: 14,
-        fontWeight: '600',
+        fontSize: 13,
+        fontWeight: '700',
     },
     content: {
         flex: 1,
@@ -465,117 +477,131 @@ const styles = StyleSheet.create({
     // Stats Row
     statsRow: {
         flexDirection: 'row',
-        gap: 12,
-        marginBottom: 20,
+        gap: 16,
+        marginBottom: 24,
     },
     statCard: {
         flex: 1,
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        gap: 6,
+        padding: 20,
+        borderRadius: 24,
+        gap: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.03)',
     },
     statValue: {
-        fontSize: 24,
-        fontWeight: '700',
+        fontSize: 26,
+        fontWeight: '800',
+        letterSpacing: -1,
     },
     statLabel: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     // Add Connection Card
     addCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        borderWidth: 1,
+        padding: 20,
+        borderRadius: 24,
+        borderWidth: 2,
         borderStyle: 'dashed',
-        marginBottom: 20,
-        gap: 12,
+        marginBottom: 24,
+        gap: 16,
     },
     addIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
     },
     addCardText: {
         flex: 1,
-        gap: 2,
+        gap: 4,
     },
     addCardTitle: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '700',
     },
     addCardSubtitle: {
-        fontSize: 13,
-    },
-    // Sections
-    section: {
-        marginBottom: 24,
-    },
-    sectionTitle: {
         fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 12,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-        opacity: 0.6,
+        lineHeight: 18,
     },
     // User Card
     userCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
+        padding: 20,
+        borderRadius: 24,
         marginBottom: 24,
-        gap: 14,
+        gap: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.05)',
     },
     userAvatar: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 64,
+        height: 64,
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
     userInfo: {
         flex: 1,
-        gap: 2,
+        gap: 4,
     },
     userEmail: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '700',
     },
     userLabel: {
         fontSize: 13,
+        fontWeight: '500',
+    },
+    // Sections
+    section: {
+        marginBottom: 32,
+    },
+    sectionTitle: {
+        fontSize: 13,
+        fontWeight: '700',
+        marginBottom: 16,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     // Settings Items
     settingsItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 8,
-        gap: 12,
+        padding: 18,
+        borderRadius: 20,
+        marginBottom: 10,
+        gap: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.03)',
     },
     settingsLabel: {
         flex: 1,
         fontSize: 16,
+        fontWeight: '600',
     },
     settingsValue: {
         fontSize: 14,
+        fontWeight: '500',
     },
     logoutButton: {
-        marginTop: 8,
+        marginTop: 16,
+        borderWidth: 0,
     },
     // Version
     version: {
         alignItems: 'center',
-        paddingVertical: 24,
+        paddingVertical: 32,
     },
     versionText: {
         fontSize: 12,
+        fontWeight: '500',
     },
 });

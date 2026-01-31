@@ -1,5 +1,6 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
@@ -25,31 +26,38 @@ export function SummaryCard({ income = 0, expense = 0, style }: SummaryCardProps
     const isPositive = difference >= 0;
 
     return (
-        <View style={StyleSheet.flatten([styles.card, { backgroundColor: theme.card }, style])}>
+        <View style={StyleSheet.flatten([styles.card, { backgroundColor: theme.card, borderColor: theme.border }, style])}>
             <View style={styles.row}>
-                <View style={styles.column}>
-                    <Text style={StyleSheet.flatten([styles.label, { color: theme.text, opacity: 0.7 }])}>
-                        Receitas
-                    </Text>
-                    <Text style={StyleSheet.flatten([styles.value, { color: theme.success }])}>
-                        +{formatCurrency(income)}
-                    </Text>
+                <View style={styles.item}>
+                    <View style={[styles.iconContainer, { backgroundColor: theme.success + '15' }]}>
+                        <Ionicons name="arrow-down" size={16} color={theme.success} />
+                    </View>
+                    <View>
+                        <Text style={[styles.label, { color: theme.muted }]}>Ganhos</Text>
+                        <Text style={[styles.value, { color: theme.text }]}>
+                            {formatCurrency(income)}
+                        </Text>
+                    </View>
                 </View>
+
                 <View style={styles.divider} />
-                <View style={styles.column}>
-                    <Text style={StyleSheet.flatten([styles.label, { color: theme.text, opacity: 0.7 }])}>
-                        Despesas
-                    </Text>
-                    <Text style={StyleSheet.flatten([styles.value, { color: theme.error }])}>
-                        -{formatCurrency(expense)}
-                    </Text>
+
+                <View style={styles.item}>
+                    <View style={[styles.iconContainer, { backgroundColor: theme.error + '15' }]}>
+                        <Ionicons name="arrow-up" size={16} color={theme.error} />
+                    </View>
+                    <View>
+                        <Text style={[styles.label, { color: theme.muted }]}>Gastos</Text>
+                        <Text style={[styles.value, { color: theme.text }]}>
+                            {formatCurrency(expense)}
+                        </Text>
+                    </View>
                 </View>
             </View>
-            <View style={StyleSheet.flatten([styles.footer, { borderTopColor: theme.border }])}>
-                <Text style={StyleSheet.flatten([styles.footerLabel, { color: theme.text, opacity: 0.6 }])}>
-                    Balanço do período
-                </Text>
-                <Text style={StyleSheet.flatten([styles.footerValue, { color: isPositive ? theme.success : theme.error }])}>
+
+            <View style={[styles.footer, { backgroundColor: theme.background + '50' }]}>
+                <Text style={[styles.footerLabel, { color: theme.muted }]}>Saldo do período</Text>
+                <Text style={[styles.footerValue, { color: isPositive ? theme.success : theme.error }]}>
                     {isPositive ? '+' : ''}{formatCurrency(difference)}
                 </Text>
             </View>
@@ -59,48 +67,62 @@ export function SummaryCard({ income = 0, expense = 0, style }: SummaryCardProps
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 16,
-        padding: 20,
+        borderRadius: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 8,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 10,
+        elevation: 2,
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        padding: 20,
+        alignItems: 'center',
     },
-    column: {
+    item: {
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    iconContainer: {
+        width: 32,
+        height: 32,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     divider: {
         width: 1,
-        backgroundColor: '#E0E0E0',
+        height: 30,
+        backgroundColor: '#E2E8F0',
         marginHorizontal: 16,
+        opacity: 0.5,
     },
     label: {
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: '500',
-        marginBottom: 6,
+        marginBottom: 2,
     },
     value: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontSize: 16,
+        fontWeight: '700',
     },
     footer: {
-        marginTop: 16,
-        paddingTop: 16,
-        borderTopWidth: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     footerLabel: {
-        fontSize: 13,
+        fontSize: 12,
+        fontWeight: '500',
     },
     footerValue: {
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 14,
+        fontWeight: '700',
     },
 });

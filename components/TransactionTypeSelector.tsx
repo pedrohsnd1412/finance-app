@@ -1,22 +1,22 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
-import { Period, PERIOD_OPTIONS } from '@/types/home.types';
+import { TransactionTypeFilter, TYPE_FILTER_OPTIONS } from '@/types/home.types';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
-interface PeriodFilterProps {
-    selected: Period;
-    onChange: (period: Period) => void;
+interface TransactionTypeFilterProps {
+    selected: TransactionTypeFilter;
+    onChange: (type: TransactionTypeFilter) => void;
     style?: ViewStyle;
 }
 
-export function PeriodFilter({ selected, onChange, style }: PeriodFilterProps) {
+export function TransactionTypeSelector({ selected, onChange, style }: TransactionTypeFilterProps) {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     return (
-        <View style={StyleSheet.flatten([styles.container, style])}>
-            {PERIOD_OPTIONS.map((option) => {
+        <View style={[styles.container, style]}>
+            {TYPE_FILTER_OPTIONS.map((option) => {
                 const isSelected = option.key === selected;
                 return (
                     <Pressable
@@ -29,10 +29,10 @@ export function PeriodFilter({ selected, onChange, style }: PeriodFilterProps) {
                         ]}
                     >
                         <Text
-                            style={StyleSheet.flatten([
+                            style={[
                                 styles.optionText,
                                 { color: isSelected ? theme.tint : theme.muted }
-                            ])}
+                            ]}
                         >
                             {option.label}
                         </Text>

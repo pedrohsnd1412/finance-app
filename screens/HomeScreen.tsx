@@ -2,48 +2,48 @@ import { BalanceCard } from '@/components/cards/BalanceCard';
 import { SummaryCard } from '@/components/cards/SummaryCard';
 import { DonutChart } from '@/components/charts/DonutChart';
 import { Container } from '@/components/Container';
-import { Header } from '@/components/Header';
 import { PeriodFilter } from '@/components/PeriodFilter';
 import { Section } from '@/components/Section';
 import { TransactionItem } from '@/components/TransactionItem';
+import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
-import { Period } from '@/types/home.types';
-import { Ionicons } from '@expo/vector-icons';
+import { Period, TransactionTypeFilter } from '@/types/home.types';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
     ActivityIndicator,
-    Pressable,
     RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
-    View,
+    View
 } from 'react-native';
 
 // Category colors for chart
+// Category colors for chart (Refined Palette)
 const CATEGORY_COLORS: Record<string, string> = {
-    'Alimentação': '#FF6B6B',
-    'Transporte': '#4ECDC4',
-    'Saúde': '#45B7D1',
-    'Educação': '#96CEB4',
-    'Entretenimento': '#DDA0DD',
-    'Contas': '#FFD93D',
-    'Compras': '#6BCB77',
-    'Viagem': '#4D96FF',
-    'Moradia': '#FF8B94',
-    'Trabalho': '#A8E6CF',
-    'Investimentos': '#88D8B0',
-    'Transferência': '#B4A7D6',
-    'Outros': '#9E9E9E',
+    'Alimentação': '#F87171',
+    'Transporte': '#60A5FA',
+    'Saúde': '#34D399',
+    'Educação': '#818CF8',
+    'Entretenimento': '#F472B6',
+    'Contas': '#FBBF24',
+    'Compras': '#A78BFA',
+    'Viagem': '#2DD4BF',
+    'Moradia': '#FB923C',
+    'Trabalho': '#94A3B8',
+    'Investimentos': '#4ADE80',
+    'Transferência': '#C084FC',
+    'Outros': '#94A3B8',
 };
 
 export default function HomeScreen() {
     const [period, setPeriod] = useState<Period>('month');
-    const { summary, isLoading, isConnected, hasAccounts, refetch } = useFinanceData(period);
+    const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
+    const { summary, isLoading, refetch } = useFinanceData(period, typeFilter);
     const { isDesktop, isTablet } = useResponsive();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
@@ -54,6 +54,13 @@ export default function HomeScreen() {
         setRefreshing(true);
         await refetch();
         setRefreshing(false);
+    };
+
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour < 12) return 'Bom dia';
+        if (hour < 18) return 'Boa tarde';
+        return 'Boa noite';
     };
 
     // Calculate category distribution for chart
@@ -86,16 +93,26 @@ export default function HomeScreen() {
 
     return (
         <Container>
-            <Header
-                title="Resumo"
-                rightElement={filterPosition === 'header' ? (
-                    <PeriodFilter
-                        selected={period}
-                        onChange={setPeriod}
-                        style={styles.headerFilter}
-                    />
-                ) : undefined}
-            />
+            <View style={styles.headerRow}>
+                <View>
+                    <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
+                    <Text style={[styles.headerTitle, { color: theme.text }]}>Visão Geral</Text>
+                </View>
+                {filterPosition === 'header' && (
+                    <View style={styles.headerFilters}>
+                        <PeriodFilter
+                            selected={period}
+                            onChange={setPeriod}
+                            style={styles.headerFilter}
+                        />
+                        <TransactionTypeSelector
+                            selected={typeFilter}
+                            onChange={setTypeFilter}
+                            style={styles.headerFilter}
+                        />
+                    </View>
+                )}
+            </View>
 
             <ScrollView
                 style={styles.scrollView}
@@ -105,13 +122,18 @@ export default function HomeScreen() {
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
             >
-                {/* Period Filter - Mobile/Tablet */}
+                {/* Filters - Mobile/Tablet */}
                 {filterPosition === 'content' && (
-                    <PeriodFilter
-                        selected={period}
-                        onChange={setPeriod}
-                        style={styles.filterMobile}
-                    />
+                    <View style={styles.filtersMobile}>
+                        <PeriodFilter
+                            selected={period}
+                            onChange={setPeriod}
+                        />
+                        <TransactionTypeSelector
+                            selected={typeFilter}
+                            onChange={setTypeFilter}
+                        />
+                    </View>
                 )}
 
                 {isLoading ? (
@@ -120,26 +142,6 @@ export default function HomeScreen() {
                         <Text style={StyleSheet.flatten([styles.loadingText, { color: theme.text }])}>
                             Carregando dados...
                         </Text>
-                    </View>
-                ) : !hasAccounts ? (
-                    /* Empty State - No accounts connected */
-                    <View style={styles.emptyStateContainer}>
-                        <View style={StyleSheet.flatten([styles.emptyStateIcon, { backgroundColor: theme.tint + '15' }])}>
-                            <Ionicons name="wallet-outline" size={64} color={theme.tint} />
-                        </View>
-                        <Text style={StyleSheet.flatten([styles.emptyStateTitle, { color: theme.text }])}>
-                            Nenhuma conta conectada
-                        </Text>
-                        <Text style={StyleSheet.flatten([styles.emptyStateSubtitle, { color: theme.text, opacity: 0.6 }])}>
-                            Conecte sua conta bancária para visualizar seus dados financeiros em tempo real.
-                        </Text>
-                        <Pressable
-                            style={StyleSheet.flatten([styles.connectButton, { backgroundColor: theme.tint }])}
-                            onPress={() => router.push('/connect')}
-                        >
-                            <Ionicons name="add-circle-outline" size={22} color="#fff" />
-                            <Text style={styles.connectButtonText}>Conectar Conta</Text>
-                        </Pressable>
                     </View>
                 ) : (
                     <>
@@ -160,7 +162,7 @@ export default function HomeScreen() {
                         {isDesktop ? (
                             <View style={styles.desktopContent}>
                                 {/* Category Chart */}
-                                <View style={StyleSheet.flatten([styles.chartCard, { backgroundColor: theme.card }])}>
+                                <View style={StyleSheet.flatten([styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
                                     <Text style={StyleSheet.flatten([styles.chartTitle, { color: theme.text }])}>
                                         Gastos por Categoria
                                     </Text>
@@ -169,7 +171,7 @@ export default function HomeScreen() {
 
                                 {/* Transactions */}
                                 <View style={styles.transactionsDesktop}>
-                                    <Section title="Movimentações Recentes">
+                                    <Section title="Movimentações">
                                         {renderTransactions()}
                                     </Section>
                                 </View>
@@ -179,14 +181,14 @@ export default function HomeScreen() {
                                 {/* Category Chart - Mobile/Tablet */}
                                 {categoryData.length > 0 && (
                                     <Section title="Gastos por Categoria">
-                                        <View style={StyleSheet.flatten([styles.chartContainer, { backgroundColor: theme.card }])}>
+                                        <View style={StyleSheet.flatten([styles.chartContainer, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
                                             <DonutChart data={categoryData} size={140} />
                                         </View>
                                     </Section>
                                 )}
 
                                 {/* Transactions */}
-                                <Section title="Movimentações Recentes">
+                                <Section title="Movimentações">
                                     {renderTransactions()}
                                 </Section>
                             </>
@@ -251,16 +253,39 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+    headerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+        paddingVertical: 16,
+        marginBottom: 8,
+    },
+    greeting: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 2,
+    },
+    headerTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        letterSpacing: -1,
+    },
     scrollView: {
         flex: 1,
     },
     scrollContent: {
         paddingBottom: 24,
     },
-    headerFilter: {
-        minWidth: 240,
+    headerFilters: {
+        flexDirection: 'row',
+        gap: 12,
+        alignItems: 'center',
     },
-    filterMobile: {
+    headerFilter: {
+        minWidth: 200,
+    },
+    filtersMobile: {
+        gap: 12,
         marginBottom: 20,
     },
     // Loading
@@ -362,47 +387,5 @@ const styles = StyleSheet.create({
     statLabel: {
         fontSize: 12,
         fontWeight: '500',
-    },
-    // Empty State
-    emptyStateContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 80,
-        paddingHorizontal: 32,
-    },
-    emptyStateIcon: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 24,
-    },
-    emptyStateTitle: {
-        fontSize: 22,
-        fontWeight: '700',
-        marginBottom: 12,
-        textAlign: 'center',
-    },
-    emptyStateSubtitle: {
-        fontSize: 15,
-        textAlign: 'center',
-        lineHeight: 22,
-        marginBottom: 32,
-    },
-    connectButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        paddingVertical: 14,
-        paddingHorizontal: 28,
-        borderRadius: 12,
-    },
-    connectButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: '600',
     },
 });

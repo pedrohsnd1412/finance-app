@@ -1,11 +1,6 @@
-/**
- * Custom hook for fetching financial data from Supabase
- * Queries data directly using authenticated user's ID
- */
-
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FinancialSummary, Period, Transaction } from '@/types/home.types';
+import { FinancialSummary, Period, Transaction, TransactionTypeFilter } from '@/types/home.types';
 import { useCallback, useEffect, useState } from 'react';
 
 interface UseFinanceDataResult {
@@ -23,6 +18,7 @@ interface DbTransaction {
     amount: number;
     description: string;
     type: string;
+    account_id: string;
     category_id: string | null;
     merchant_name: string | null;
 }
@@ -38,7 +34,7 @@ interface DbAccount {
 /**
  * Convert database transaction to display format
  */
-function convertTransaction(tx: DbTransaction): Transaction {
+function convertTransaction(tx: DbTransaction, accountType: string = 'BANK'): Transaction {
     const isExpense = tx.amount < 0 || tx.type === 'DEBIT';
     return {
         id: tx.id,
@@ -46,7 +42,8 @@ function convertTransaction(tx: DbTransaction): Transaction {
         amount: Math.abs(tx.amount),
         date: tx.date,
         type: isExpense ? 'expense' : 'income',
-        category: 'Outros', // Simplified - categories can be added later
+        paymentMethod: accountType === 'CREDIT' ? 'credit' : 'debit',
+        category: 'Outros',
     };
 }
 
@@ -81,7 +78,15 @@ function filterByPeriod(transactions: Transaction[], period: Period): Transactio
     });
 }
 
-export function useFinanceData(period: Period): UseFinanceDataResult {
+/**
+ * Filter transactions by payment method
+ */
+function filterByType(transactions: Transaction[], typeFilter: TransactionTypeFilter): Transaction[] {
+    if (typeFilter === 'all') return transactions;
+    return transactions.filter(t => t.paymentMethod === typeFilter);
+}
+
+export function useFinanceData(period: Period, typeFilter: TransactionTypeFilter = 'all'): UseFinanceDataResult {
     const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isConnected, setIsConnected] = useState(false);
@@ -92,12 +97,7 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
 
     const fetchData = useCallback(async () => {
         if (!user) {
-            console.log('[useFinanceData] No user, returning empty state');
             setIsLoading(false);
-            setIsConnected(false);
-            setHasAccounts(false);
-            setAllTransactions([]);
-            setTotalBalance(0);
             return;
         }
 
@@ -138,10 +138,12 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
             const accountList = (accountsData as DbAccount[]) || [];
             setHasAccounts(accountList.length > 0);
 
+            // Create a map for quick account type lookup
+            const accountTypeMap = new Map(accountList.map(a => [a.id, a.type]));
+
             // Calculate total balance
             const balance = accountList.reduce((sum, acc) => {
                 if (acc.type === 'CREDIT') {
-                    // Credit card balance is usually negative or needs to be subtracted from total
                     return sum - Math.abs(acc.balance);
                 }
                 return sum + acc.balance;
@@ -159,7 +161,7 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
             // Step 3: Fetch transactions
             const { data: transactionsData, error: txError } = await supabase
                 .from('transactions')
-                .select('id, date, amount, description, type, category_id, merchant_name')
+                .select('id, date, amount, description, type, account_id, category_id, merchant_name')
                 .in('account_id', accountIds)
                 .order('date', { ascending: false })
                 .limit(500);
@@ -167,7 +169,7 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
             if (txError) throw txError;
 
             const txList = (transactionsData as DbTransaction[]) || [];
-            setAllTransactions(txList.map(convertTransaction));
+            setAllTransactions(txList.map(tx => convertTransaction(tx, accountTypeMap.get(tx.account_id))));
 
         } catch (err) {
             console.error('[useFinanceData] Fetch error:', err);
@@ -181,8 +183,9 @@ export function useFinanceData(period: Period): UseFinanceDataResult {
         fetchData();
     }, [fetchData]);
 
-    // Calculate summary based on period
-    const filteredTransactions = filterByPeriod(allTransactions, period);
+    // Apply filtering
+    const periodFiltered = filterByPeriod(allTransactions, period);
+    const filteredTransactions = filterByType(periodFiltered, typeFilter);
 
     const incomeTotal = filteredTransactions
         .filter(t => t.type === 'income')
