@@ -24,47 +24,6 @@ async function getAuthHeaders(): Promise<HeadersInit> {
 }
 
 /**
- * Pluggy API
- */
-export const pluggyApi = {
-    /**
-     * Get a connect token to initialize Pluggy Connect widget
-     */
-    async getConnectToken(userId: string, itemId?: string): Promise<{ accessToken: string; expiresAt: string }> {
-        const response = await fetch(`${FUNCTIONS_URL}/pluggy-connect-token`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, item_id: itemId }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to get connect token');
-        }
-
-        return response.json();
-    },
-
-    /**
-     * Save a new connection after Pluggy Connect success
-     */
-    async saveConnection(itemId: string, connectorName?: string): Promise<void> {
-        const headers = await getAuthHeaders();
-
-        const response = await fetch(`${FUNCTIONS_URL}/save-connection`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ item_id: itemId, connector_name: connectorName }),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to save connection');
-        }
-    },
-};
-
-/**
  * Data API
  */
 export const dataApi = {

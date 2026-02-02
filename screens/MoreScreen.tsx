@@ -1,28 +1,23 @@
-import { Connection, ConnectionsList } from '@/components/ConnectionsList';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import i18n from '@/i18n';
-import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ActivityIndicator,
     Alert,
     Platform,
     Pressable,
-    RefreshControl,
     ScrollView,
     StyleSheet,
     Text,
     View,
 } from 'react-native';
 
-type TabKey = 'connections' | 'settings' | 'help';
+type TabKey = 'settings' | 'help';
 
 interface TabItem {
     key: TabKey;
@@ -31,148 +26,16 @@ interface TabItem {
 }
 
 const TABS: TabItem[] = [
-    { key: 'connections', label: 'tabs.connections', icon: 'link-outline' },
     { key: 'settings', label: 'tabs.settings', icon: 'settings-outline' },
     { key: 'help', label: 'tabs.help', icon: 'help-circle-outline' },
 ];
 
-interface Account {
-    id: string;
-    name: string;
-    type: 'BANK' | 'CREDIT' | 'INVESTMENT';
-    balance: number;
-    currency: string;
-}
-
 export default function MoreScreen() {
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<TabKey>('connections');
+    const [activeTab, setActiveTab] = useState<TabKey>('settings');
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
-    const router = useRouter();
     const { user, signOut } = useAuth();
-
-    const [connections, setConnections] = useState<Connection[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
-    const [transactionCount, setTransactionCount] = useState(0);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
-
-    const loadConnections = useCallback(async () => {
-        if (!user) {
-            setIsLoading(false);
-            return;
-        }
-
-        try {
-            // Step 1: Fetch connections with their accounts
-            const { data: connectionsData, error: connError } = await supabase
-                .from('connections')
-                .select(`
-                    id,
-                    pluggy_item_id,
-                    connector_name,
-                    status,
-                    last_synced_at,
-                    accounts (
-                        id,
-                        name,
-                        type,
-                        balance,
-                        currency
-                    )
-                `)
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (connError) throw connError;
-
-            const connections = (connectionsData as any[]) || [];
-            setConnections(connections);
-
-            // Step 2: Parallel fetch of transaction count if connections exist
-            if (connections.length > 0) {
-                const accountIds = connections.flatMap(c =>
-                    (c.accounts as any[])?.map(a => a.id) || []
-                );
-
-                if (accountIds.length > 0) {
-                    supabase
-                        .from('transactions')
-                        .select('*', { count: 'exact', head: true })
-                        .in('account_id', accountIds)
-                        .then(({ count }) => {
-                            setTransactionCount(count || 0);
-                        });
-                }
-            }
-        } catch (error) {
-            console.error('[MoreScreen] Error loading connections:', error);
-        } finally {
-            setIsLoading(false);
-            setRefreshing(false);
-        }
-    }, [user]);
-
-    useEffect(() => {
-        if (activeTab === 'connections') {
-            loadConnections();
-        }
-    }, [activeTab, loadConnections]);
-
-    const onRefresh = () => {
-        setRefreshing(true);
-        loadConnections();
-    };
-
-    const handleDisconnect = async (connection: Connection) => {
-        const confirmDelete = () => {
-            return new Promise<boolean>((resolve) => {
-                if (Platform.OS === 'web') {
-                    resolve(window.confirm(
-                        `Deseja desconectar ${connection.connector_name || 'esta conta'}? ` +
-                        `Isso removerá todos os dados associados.`
-                    ));
-                } else {
-                    Alert.alert(
-                        'Desconectar Conta',
-                        `Deseja desconectar ${connection.connector_name || 'esta conta'}? Isso removerá todos os dados associados.`,
-                        [
-                            { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
-                            { text: 'Desconectar', style: 'destructive', onPress: () => resolve(true) },
-                        ]
-                    );
-                }
-            });
-        };
-
-        const confirmed = await confirmDelete();
-        if (!confirmed) return;
-
-        setDeletingId(connection.id);
-
-        try {
-            // Delete connection (will cascade to accounts and transactions via FK)
-            const { error } = await supabase
-                .from('connections')
-                .delete()
-                .eq('id', connection.id);
-
-            if (error) throw error;
-
-            // Remove from local state
-            setConnections(prev => prev.filter(c => c.id !== connection.id));
-        } catch (error) {
-            console.error('Error disconnecting:', error);
-            if (Platform.OS === 'web') {
-                window.alert('Erro ao desconectar conta');
-            } else {
-                Alert.alert('Erro', 'Não foi possível desconectar a conta');
-            }
-        } finally {
-            setDeletingId(null);
-        }
-    };
 
     const handleLogout = async () => {
         const confirmLogout = () => {
@@ -236,82 +99,6 @@ export default function MoreScreen() {
                 })}
             </View>
         </View>
-    );
-
-    const renderConnections = () => (
-        <ScrollView
-            style={styles.content}
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-        >
-            {isLoading ? (
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.tint} />
-                </View>
-            ) : (
-                <>
-                    {/* Stats Summary */}
-                    <View style={styles.statsRow}>
-                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                            <Ionicons name="business" size={24} color={theme.tint} />
-                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                {connections.length}
-                            </Text>
-                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                {connections.length === 1 ? t('tabs.banks').slice(0, -1) : t('tabs.banks')}
-                            </Text>
-                        </View>
-                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                            <Ionicons name="wallet" size={24} color={theme.success} />
-                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                {connections.reduce((sum, c) => sum + (c.accounts?.length || 0), 0)}
-                            </Text>
-                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                {t('more.account')}s
-                            </Text>
-                        </View>
-                        <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                            <Ionicons name="receipt" size={24} color={theme.warning} />
-                            <Text style={StyleSheet.flatten([styles.statValue, { color: theme.text }])}>
-                                {transactionCount}
-                            </Text>
-                            <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                Transações
-                            </Text>
-                        </View>
-                    </View>
-
-                    {/* Add New Connection Card */}
-                    <Pressable
-                        style={StyleSheet.flatten([styles.addCard, { backgroundColor: theme.tint + '15', borderColor: theme.tint }])}
-                        onPress={() => router.push('/connect')}
-                    >
-                        <View style={StyleSheet.flatten([styles.addIconContainer, { backgroundColor: theme.tint }])}>
-                            <Ionicons name="add" size={24} color="#fff" />
-                        </View>
-                        <View style={styles.addCardText}>
-                            <Text style={StyleSheet.flatten([styles.addCardTitle, { color: theme.text }])}>
-                                Conectar Nova Conta
-                            </Text>
-                            <Text style={StyleSheet.flatten([styles.addCardSubtitle, { color: theme.text, opacity: 0.7 }])}>
-                                Vincule sua conta bancária via Open Finance
-                            </Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.tint} />
-                    </Pressable>
-
-                    {/* Reused Connections List */}
-                    <ConnectionsList
-                        connections={connections}
-                        onDisconnect={handleDisconnect}
-                        deletingId={deletingId}
-                    />
-
-                </>
-            )}
-        </ScrollView>
     );
 
     const renderSettings = () => (
@@ -440,7 +227,6 @@ export default function MoreScreen() {
         <Container>
             <Header title={t('tabs.more')} />
             {renderTabBar()}
-            {activeTab === 'connections' && renderConnections()}
             {activeTab === 'settings' && renderSettings()}
             {activeTab === 'help' && renderHelp()}
         </Container>
