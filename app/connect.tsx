@@ -43,27 +43,13 @@ export default function ConnectScreen() {
     const handlePluggyMessage = async (itemId: string, connectorName?: string) => {
         console.log('[ConnectScreen] Received itemId from Pluggy:', itemId);
 
-        // Save connection to database
+        // Save connection using our API service
         try {
             if (user) {
-                console.log('[ConnectScreen] Attempting to save connection to DB...');
-                const { error } = await (supabase as any)
-                    .from('connections')
-                    .upsert({
-                        user_id: user.id,
-                        pluggy_item_id: itemId,
-                        connector_name: connectorName || null,
-                        status: 'PENDING',
-                    }, { onConflict: 'pluggy_item_id' });
+                console.log('[ConnectScreen] Attempting to save connection via API...');
+                await pluggyApi.saveConnection(itemId, connectorName);
 
-                if (error) {
-                    console.error('[ConnectScreen] DB Upsert Error:', error);
-                    setStatus('error');
-                    setErrorMessage(t('more.error'));
-                    return; // Stop here if DB save fails
-                }
-
-                console.log('[ConnectScreen] DB Upsert Success');
+                console.log('[ConnectScreen] Connection save success');
                 setStatus('success');
                 setConnectionResult({
                     itemId,
@@ -227,8 +213,6 @@ export default function ConnectScreen() {
 
         const widgetUrl = `https://connect.pluggy.ai/?connect_token=${connectToken}`;
 
-
-
         if (Platform.OS === 'web') {
             // Web: use iframe
             return (
@@ -243,7 +227,15 @@ export default function ConnectScreen() {
                         }}
                         allow="camera"
                     />
-
+                    <Pressable
+                        style={StyleSheet.flatten([styles.closeButton, { backgroundColor: theme.card }])}
+                        onPress={() => {
+                            setStatus('idle');
+                            setConnectToken(null);
+                        }}
+                    >
+                        <Ionicons name="close" size={24} color={theme.text} />
+                    </Pressable>
                 </View>
             );
         }
@@ -268,13 +260,19 @@ export default function ConnectScreen() {
                     onError={(syntheticEvent) => {
                         const { nativeEvent } = syntheticEvent;
                         console.error('WebView error:', nativeEvent);
-                        // Don't error out immediately on mobile webview errors as they can be flaky
-                        // just let user use manual button if needed
                     }}
                     allowsInlineMediaPlayback={true}
                     mediaPlaybackRequiresUserAction={false}
                 />
-
+                <Pressable
+                    style={StyleSheet.flatten([styles.closeButton, { backgroundColor: theme.card }])}
+                    onPress={() => {
+                        setStatus('idle');
+                        setConnectToken(null);
+                    }}
+                >
+                    <Ionicons name="close" size={24} color={theme.text} />
+                </Pressable>
             </View>
         );
     };
@@ -679,5 +677,20 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-
+    closeButton: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 4,
+        elevation: 3,
+        zIndex: 10,
+    },
 });

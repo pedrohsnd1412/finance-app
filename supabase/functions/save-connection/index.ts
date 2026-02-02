@@ -84,6 +84,66 @@ serve(async (req) => {
             throw connError;
         }
 
+        // Trigger immediate sync
+        try {
+            console.log("Triggering immediate sync for connection:", connection.id);
+            const clientId = Deno.env.get("PLUGGY_CLIENT_ID");
+            const clientSecret = Deno.env.get("PLUGGY_CLIENT_SECRET");
+            const authResponse = await fetch("https://api.pluggy.ai/auth", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ clientId, clientSecret }),
+            });
+            const { apiKey } = await authResponse.json();
+
+            // 1. Sync Accounts
+            const accRes = await fetch(`https://api.pluggy.ai/accounts?itemId=${item_id}`, {
+                headers: { "X-API-KEY": apiKey }
+            });
+            const { results: accounts } = await accRes.json();
+
+            for (const acc of accounts) {
+                let type: "BANK" | "CREDIT" | "INVESTMENT" = "BANK";
+                if (acc.type.includes('CREDIT')) type = "CREDIT";
+                else if (acc.type.includes('INVESTMENT')) type = "INVESTMENT";
+
+                const { data: dbAcc } = await supabase.from("accounts").upsert({
+                    connection_id: connection.id,
+                    pluggy_account_id: acc.id,
+                    name: acc.name,
+                    type,
+                    balance: acc.balance,
+                    currency: acc.currencyCode
+                }, { onConflict: "pluggy_account_id" }).select("id").single();
+
+                if (dbAcc) {
+                    // 2. Sync Transactions
+                    const txRes = await fetch(`https://api.pluggy.ai/transactions?accountId=${acc.id}&pageSize=500`, {
+                        headers: { "X-API-KEY": apiKey }
+                    });
+                    const { results: transactions } = await txRes.json();
+
+                    const txBatch = transactions.map((tx: any) => ({
+                        account_id: dbAcc.id,
+                        pluggy_transaction_id: tx.id,
+                        date: tx.date.split('T')[0],
+                        amount: tx.amount,
+                        description: tx.description,
+                        category_id: tx.categoryId,
+                        type: tx.amount < 0 ? 'DEBIT' : 'CREDIT',
+                        merchant_name: tx.merchant?.name || null
+                    }));
+
+                    if (txBatch.length > 0) {
+                        await supabase.from("transactions").upsert(txBatch, { onConflict: "pluggy_transaction_id" });
+                    }
+                }
+            }
+            console.log("Immediate sync finished successfully");
+        } catch (syncError) {
+            console.error("Immediate sync error (non-fatal):", syncError);
+        }
+
         return new Response(
             JSON.stringify({
                 success: true,

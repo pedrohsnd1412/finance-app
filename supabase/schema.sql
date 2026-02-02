@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS public.transactions (
     amount DECIMAL(15, 2) NOT NULL,
     description TEXT,
     type transaction_type, -- DEBIT, CREDIT
-    category_id TEXT REFERENCES public.categories(id), -- TEXT FK to match categories.id
+    category_id TEXT, -- No references constraint to allow all Pluggy category IDs directly
     merchant_name TEXT,
     payment_data JSONB,
     ai_friendly_description TEXT,

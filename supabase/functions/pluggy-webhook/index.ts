@@ -150,7 +150,9 @@ serve(async (req) => {
 
                 if (txBatch.length > 0) {
                     const { error: txUpsertError } = await supabase.from("transactions").upsert(txBatch, { onConflict: "pluggy_transaction_id" });
-                    if (txUpsertError) console.error(`[Webhook] Transactions Upsert Error: ${txUpsertError.message}`);
+                    if (txUpsertError) {
+                        console.error(`[Webhook] Transactions Upsert Error: ${txUpsertError.message}`);
+                    }
                 }
             }
         }
