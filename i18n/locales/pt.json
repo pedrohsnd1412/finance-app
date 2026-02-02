@@ -1,0 +1,66 @@
+{
+    "common": {
+        "loading": "Carregando...",
+        "cancel": "Cancelar",
+        "save": "Salvar",
+        "delete": "Excluir",
+        "logout": "Sair",
+        "version": "Versão",
+        "back": "Voltar"
+    },
+    "auth": {
+        "login": "Entrar",
+        "email": "Email",
+        "password": "Senha",
+        "noAccount": "Não tem uma conta?",
+        "createAccount": "Criar conta",
+        "enterToAccess": "Entre para acessar suas finanças"
+    },
+    "tabs": {
+        "home": "Home",
+        "expenses": "Despesas",
+        "cards": "Cartões",
+        "banks": "Bancos",
+        "more": "Mais"
+    },
+    "home": {
+        "overview": "Visão Geral",
+        "greetings": {
+            "morning": "Bom dia",
+            "afternoon": "Boa tarde",
+            "evening": "Boa noite"
+        },
+        "categoryChart": "Gastos por Categoria",
+        "transactions": "Movimentações",
+        "emptyTransactions": "Nenhuma movimentação neste período.",
+        "stats": {
+            "transactions": "Transações",
+            "income": "Entradas",
+            "expense": "Saídas"
+        },
+        "loading": "Carregando dados..."
+    },
+    "more": {
+        "preferences": "Preferências",
+        "notifications": "Notificações",
+        "theme": "Tema",
+        "language": "Idioma",
+        "privacy": "Privacidade",
+        "account": "Conta",
+        "profile": "Meu Perfil",
+        "security": "Segurança",
+        "terms": "Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.",
+        "helpCenter": "Central de Ajuda",
+        "faq": "Perguntas Frequentes",
+        "contact": "Fale Conosco",
+        "tutorial": "Tutorial do App",
+        "about": "Sobre o App",
+        "connectNew": "Conectar Nova Conta",
+        "connectNewSubtitle": "Sincronize seus dados bancários de forma segura através do Open Finance.",
+        "error": "Erro ao conectar. Tente novamente."
+    },
+    "languages": {
+        "pt": "Português",
+        "en": "Inglês"
+    }
+}

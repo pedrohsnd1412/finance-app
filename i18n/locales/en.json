@@ -1,0 +1,66 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "cancel": "Cancel",
+        "save": "Save",
+        "delete": "Delete",
+        "logout": "Logout",
+        "version": "Version",
+        "back": "Back"
+    },
+    "auth": {
+        "login": "Login",
+        "email": "Email",
+        "password": "Password",
+        "noAccount": "Don't have an account?",
+        "createAccount": "Create account",
+        "enterToAccess": "Login to access your finances"
+    },
+    "tabs": {
+        "home": "Home",
+        "expenses": "Expenses",
+        "cards": "Cards",
+        "banks": "Banks",
+        "more": "More"
+    },
+    "home": {
+        "overview": "Overview",
+        "greetings": {
+            "morning": "Good morning",
+            "afternoon": "Good afternoon",
+            "evening": "Good evening"
+        },
+        "categoryChart": "Spending by Category",
+        "transactions": "Transactions",
+        "emptyTransactions": "No transactions in this period.",
+        "stats": {
+            "transactions": "Transactions",
+            "income": "Income",
+            "expense": "Expense"
+        },
+        "loading": "Loading data..."
+    },
+    "more": {
+        "preferences": "Preferences",
+        "notifications": "Notifications",
+        "theme": "Theme",
+        "language": "Language",
+        "privacy": "Privacy",
+        "account": "Account",
+        "profile": "Profile",
+        "security": "Security",
+        "terms": "By continuing, you agree to our Terms of Use and Privacy Policy.",
+        "helpCenter": "Help Center",
+        "faq": "FAQ",
+        "contact": "Contact Us",
+        "tutorial": "App Tutorial",
+        "about": "About App",
+        "connectNew": "Connect New Account",
+        "connectNewSubtitle": "Securely sync your bank data via Open Finance.",
+        "error": "Error connecting. Please try again."
+    },
+    "languages": {
+        "pt": "Portuguese",
+        "en": "English"
+    }
+}

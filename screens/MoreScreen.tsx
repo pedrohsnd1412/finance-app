@@ -4,10 +4,12 @@ import { Header } from '@/components/Header';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
+import i18n from '@/i18n';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Alert,
@@ -29,9 +31,9 @@ interface TabItem {
 }
 
 const TABS: TabItem[] = [
-    { key: 'connections', label: 'Conexões', icon: 'link-outline' },
-    { key: 'settings', label: 'Configurações', icon: 'settings-outline' },
-    { key: 'help', label: 'Ajuda', icon: 'help-circle-outline' },
+    { key: 'connections', label: 'tabs.connections', icon: 'link-outline' },
+    { key: 'settings', label: 'tabs.settings', icon: 'settings-outline' },
+    { key: 'help', label: 'tabs.help', icon: 'help-circle-outline' },
 ];
 
 interface Account {
@@ -43,6 +45,7 @@ interface Account {
 }
 
 export default function MoreScreen() {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<TabKey>('connections');
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
@@ -175,14 +178,14 @@ export default function MoreScreen() {
         const confirmLogout = () => {
             return new Promise<boolean>((resolve) => {
                 if (Platform.OS === 'web') {
-                    resolve(window.confirm('Deseja sair da conta?'));
+                    resolve(window.confirm(t('common.logout') + '?'));
                 } else {
                     Alert.alert(
-                        'Sair',
-                        'Deseja sair da conta?',
+                        t('common.logout'),
+                        t('common.logout') + '?',
                         [
-                            { text: 'Cancelar', style: 'cancel', onPress: () => resolve(false) },
-                            { text: 'Sair', style: 'destructive', onPress: () => resolve(true) },
+                            { text: t('common.cancel'), style: 'cancel', onPress: () => resolve(false) },
+                            { text: t('common.logout'), style: 'destructive', onPress: () => resolve(true) },
                         ]
                     );
                 }
@@ -193,6 +196,11 @@ export default function MoreScreen() {
         if (confirmed) {
             await signOut();
         }
+    };
+
+    const toggleLanguage = () => {
+        const nextLang = i18n.language === 'pt' ? 'en' : 'pt';
+        i18n.changeLanguage(nextLang);
     };
 
     const renderTabBar = () => (
@@ -221,7 +229,7 @@ export default function MoreScreen() {
                                     { color: isActive ? theme.tint : theme.muted },
                                 ]}
                             >
-                                {tab.label}
+                                {t(tab.label)}
                             </Text>
                         </Pressable>
                     );
@@ -252,7 +260,7 @@ export default function MoreScreen() {
                                 {connections.length}
                             </Text>
                             <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                {connections.length === 1 ? 'Banco' : 'Bancos'}
+                                {connections.length === 1 ? t('tabs.banks').slice(0, -1) : t('tabs.banks')}
                             </Text>
                         </View>
                         <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
@@ -261,7 +269,7 @@ export default function MoreScreen() {
                                 {connections.reduce((sum, c) => sum + (c.accounts?.length || 0), 0)}
                             </Text>
                             <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                Contas
+                                {t('more.account')}s
                             </Text>
                         </View>
                         <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
@@ -330,18 +338,19 @@ export default function MoreScreen() {
 
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
-                    Preferências
+                    {t('more.preferences')}
                 </Text>
 
                 {[
-                    { icon: 'notifications-outline', label: 'Notificações', value: 'Ativadas' },
-                    { icon: 'moon-outline', label: 'Tema', value: colorScheme === 'dark' ? 'Escuro' : 'Claro' },
-                    { icon: 'language-outline', label: 'Idioma', value: 'Português' },
-                    { icon: 'lock-closed-outline', label: 'Privacidade', value: '' },
+                    { icon: 'notifications-outline', label: t('more.notifications'), value: 'Ativadas', action: undefined },
+                    { icon: 'moon-outline', label: t('more.theme'), value: colorScheme === 'dark' ? 'Escuro' : 'Claro', action: undefined },
+                    { icon: 'language-outline', label: t('more.language'), value: i18n.language === 'pt' ? 'Português' : 'English', action: toggleLanguage },
+                    { icon: 'lock-closed-outline', label: t('more.privacy'), value: '', action: undefined },
                 ].map((item, index) => (
                     <Pressable
                         key={index}
                         style={StyleSheet.flatten([styles.settingsItem, { backgroundColor: theme.card }])}
+                        onPress={item.action}
                     >
                         <Ionicons name={item.icon as any} size={22} color={theme.tint} />
                         <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.text }])}>
@@ -357,13 +366,13 @@ export default function MoreScreen() {
 
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
-                    Conta
+                    {t('more.account')}
                 </Text>
 
                 {[
-                    { icon: 'person-outline', label: 'Meu Perfil', action: undefined },
-                    { icon: 'shield-checkmark-outline', label: 'Segurança', action: undefined },
-                    { icon: 'document-text-outline', label: 'Termos de Uso', action: undefined },
+                    { icon: 'person-outline', label: t('more.profile'), action: undefined },
+                    { icon: 'shield-checkmark-outline', label: t('more.security'), action: undefined },
+                    { icon: 'document-text-outline', label: t('more.terms'), action: undefined },
                 ].map((item, index) => (
                     <Pressable
                         key={index}
@@ -385,7 +394,7 @@ export default function MoreScreen() {
                 >
                     <Ionicons name="log-out-outline" size={22} color={theme.error} />
                     <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.error }])}>
-                        Sair
+                        {t('common.logout')}
                     </Text>
                     <Ionicons name="chevron-forward" size={18} color={theme.error} style={{ opacity: 0.3 }} />
                 </Pressable>
@@ -397,14 +406,14 @@ export default function MoreScreen() {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
-                    Central de Ajuda
+                    {t('more.helpCenter')}
                 </Text>
 
                 {[
-                    { icon: 'help-circle-outline', label: 'Perguntas Frequentes' },
-                    { icon: 'chatbubble-outline', label: 'Fale Conosco' },
-                    { icon: 'book-outline', label: 'Tutorial do App' },
-                    { icon: 'information-circle-outline', label: 'Sobre o App' },
+                    { icon: 'help-circle-outline', label: t('more.faq') },
+                    { icon: 'chatbubble-outline', label: t('more.contact') },
+                    { icon: 'book-outline', label: t('more.tutorial') },
+                    { icon: 'information-circle-outline', label: t('more.about') },
                 ].map((item, index) => (
                     <Pressable
                         key={index}
@@ -421,7 +430,7 @@ export default function MoreScreen() {
 
             <View style={styles.version}>
                 <Text style={StyleSheet.flatten([styles.versionText, { color: theme.text, opacity: 0.3 }])}>
-                    Finance App v1.0.0
+                    DignusAI v1.0.0
                 </Text>
             </View>
         </ScrollView>
@@ -429,7 +438,7 @@ export default function MoreScreen() {
 
     return (
         <Container>
-            <Header title="Mais" />
+            <Header title={t('tabs.more')} />
             {renderTabBar()}
             {activeTab === 'connections' && renderConnections()}
             {activeTab === 'settings' && renderSettings()}

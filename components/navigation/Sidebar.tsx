@@ -2,7 +2,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, usePathname } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function Sidebar() {
@@ -10,13 +11,14 @@ export function Sidebar() {
     const theme = Colors[colorScheme ?? 'light'];
     const pathname = usePathname();
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation();
 
     const menuItems = [
-        { name: 'Home', icon: 'home' as const, path: '/' },
-        { name: 'Despesas', icon: 'money' as const, path: '/expenses' },
-        { name: 'Cartões', icon: 'credit-card' as const, path: '/cards' },
-        { name: 'Bancos', icon: 'bank' as const, path: '/banks' },
-        { name: 'Mais', icon: 'bars' as const, path: '/more' },
+        { name: t('tabs.home'), icon: 'home' as const, path: '/' },
+        { name: t('tabs.expenses'), icon: 'money' as const, path: '/expenses' },
+        { name: t('tabs.cards'), icon: 'credit-card' as const, path: '/cards' },
+        { name: t('tabs.banks'), icon: 'bank' as const, path: '/banks' },
+        { name: t('tabs.more'), icon: 'bars' as const, path: '/more' },
     ];
 
     return (
@@ -30,8 +32,12 @@ export function Sidebar() {
             }
         ])}>
             <View style={styles.logoContainer}>
-                <FontAwesome name="dollar" size={32} color={theme.tint} />
-                <Text style={StyleSheet.flatten([styles.logoText, { color: theme.text }])}>Finance<Text style={{ color: theme.tint }}>App</Text></Text>
+                <Image
+                    source={require('@/assets/images/logo.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                />
+                <Text style={StyleSheet.flatten([styles.logoText, { color: theme.text }])}>Dignus<Text style={{ color: theme.tint }}>AI</Text></Text>
             </View>
 
             <ScrollView style={styles.menuContainer}>

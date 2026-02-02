@@ -181,6 +181,51 @@ export function useFinanceData(period: Period, typeFilter: TransactionTypeFilter
 
     useEffect(() => {
         fetchData();
+
+        // Subscribe to real-time changes
+        const channel = supabase
+            .channel('db-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*', // Listen to INSERT, UPDATE, DELETE
+                    schema: 'public',
+                    table: 'transactions',
+                },
+                (payload) => {
+                    console.log('[useFinanceData] Real-time change detected in transactions:', payload.eventType);
+                    fetchData(); // Refetch data when any change occurs
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'accounts',
+                },
+                (payload) => {
+                    console.log('[useFinanceData] Real-time change detected in accounts:', payload.eventType);
+                    fetchData();
+                }
+            )
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'connections',
+                },
+                (payload) => {
+                    console.log('[useFinanceData] Real-time change detected in connections:', payload.eventType);
+                    fetchData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [fetchData]);
 
     // Apply filtering

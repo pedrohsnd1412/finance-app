@@ -59,7 +59,9 @@ serve(async (req) => {
 
         // Step 2: Generate Connect Token
         console.log("Generating connect token...");
-        const connectTokenBody: Record<string, unknown> = {};
+        const connectTokenBody: Record<string, unknown> = {
+            clientUserId: user_id // Link this connection to our user ID
+        };
 
         // If item_id provided, it's for updating an existing connection
         if (item_id) {

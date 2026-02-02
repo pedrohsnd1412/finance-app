@@ -13,6 +13,7 @@ import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period, TransactionTypeFilter } from '@/types/home.types';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     RefreshControl,
@@ -40,6 +41,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function HomeScreen() {
+    const { t } = useTranslation();
     const [period, setPeriod] = useState<Period>('month');
     const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
     const { summary, isLoading, refetch } = useFinanceData(period, typeFilter);
@@ -57,9 +59,9 @@ export default function HomeScreen() {
 
     const getGreeting = () => {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Bom dia';
-        if (hour < 18) return 'Boa tarde';
-        return 'Boa noite';
+        if (hour < 12) return t('home.greetings.morning');
+        if (hour < 18) return t('home.greetings.afternoon');
+        return t('home.greetings.evening');
     };
 
     // Calculate category distribution for chart
@@ -95,7 +97,7 @@ export default function HomeScreen() {
             <View style={styles.headerRow}>
                 <View>
                     <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Visão Geral</Text>
+                    <Text style={[styles.headerTitle, { color: theme.text }]}>{t('home.overview')}</Text>
                 </View>
                 {filterPosition === 'header' && (
                     <View style={styles.headerFilters}>
@@ -130,7 +132,7 @@ export default function HomeScreen() {
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={theme.tint} />
                         <Text style={StyleSheet.flatten([styles.loadingText, { color: theme.text }])}>
-                            Carregando dados...
+                            {t('home.loading')}
                         </Text>
                     </View>
                 ) : (
@@ -154,7 +156,7 @@ export default function HomeScreen() {
                                 {/* Category Chart */}
                                 <View style={StyleSheet.flatten([styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
                                     <Text style={StyleSheet.flatten([styles.chartTitle, { color: theme.text }])}>
-                                        Gastos por Categoria
+                                        {t('home.categoryChart')}
                                     </Text>
                                     <DonutChart data={categoryData} size={180} />
                                 </View>
@@ -168,7 +170,7 @@ export default function HomeScreen() {
                                             onChange={setTypeFilter}
                                         />
                                     </View>
-                                    <Section title="Movimentações">
+                                    <Section title={t('home.transactions')}>
                                         {renderTransactions()}
                                     </Section>
                                 </View>
@@ -177,7 +179,7 @@ export default function HomeScreen() {
                             <>
                                 {/* Category Chart - Mobile/Tablet */}
                                 {categoryData.length > 0 && (
-                                    <Section title="Gastos por Categoria">
+                                    <Section title={t('home.categoryChart')}>
                                         <View style={StyleSheet.flatten([styles.chartContainer, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
                                             <DonutChart data={categoryData} size={140} />
                                         </View>
@@ -193,7 +195,7 @@ export default function HomeScreen() {
                                 </View>
 
                                 {/* Transactions */}
-                                <Section title="Movimentações">
+                                <Section title={t('home.transactions')}>
                                     {renderTransactions()}
                                 </Section>
                             </>
@@ -207,7 +209,7 @@ export default function HomeScreen() {
                                         {summary.transactions.length}
                                     </Text>
                                     <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        Transações
+                                        {t('home.stats.transactions')}
                                     </Text>
                                 </View>
                                 <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
@@ -215,7 +217,7 @@ export default function HomeScreen() {
                                         {summary.transactions.filter(t => t.type === 'income').length}
                                     </Text>
                                     <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        Entradas
+                                        {t('home.stats.income')}
                                     </Text>
                                 </View>
                                 <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
@@ -223,7 +225,7 @@ export default function HomeScreen() {
                                         {summary.transactions.filter(t => t.type === 'expense').length}
                                     </Text>
                                     <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        Saídas
+                                        {t('home.stats.expense')}
                                     </Text>
                                 </View>
                             </View>
@@ -239,7 +241,7 @@ export default function HomeScreen() {
             return (
                 <View style={styles.emptyState}>
                     <Text style={StyleSheet.flatten([styles.emptyText, { color: theme.text, opacity: 0.5 }])}>
-                        Nenhuma movimentação neste período.
+                        {t('home.emptyTransactions')}
                     </Text>
                 </View>
             );

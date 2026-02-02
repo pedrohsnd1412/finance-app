@@ -6,6 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { ActivityIndicator, LogBox, View } from 'react-native';
 import 'react-native-reanimated';
+import './../i18n';
 
 // Suppress deprecated warning from react-native-web/dependencies
 LogBox.ignoreLogs(['props.pointerEvents is deprecated']);

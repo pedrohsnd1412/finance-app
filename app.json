@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "finance-app",
-    "slug": "finance-app",
+    "name": "DignusAI",
+    "slug": "dignus-ai",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "financeapp",
+    "scheme": "dignusai",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {

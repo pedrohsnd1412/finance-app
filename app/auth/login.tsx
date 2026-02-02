@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
@@ -14,10 +15,11 @@ import {
     StyleSheet,
     Text,
     TextInput,
-    View,
+    View
 } from 'react-native';
 
 export default function LoginScreen() {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -74,13 +76,13 @@ export default function LoginScreen() {
                     {/* Logo/Header */}
                     <View style={styles.header}>
                         <View style={StyleSheet.flatten([styles.logoContainer, { backgroundColor: theme.tint }])}>
-                            <Ionicons name="wallet" size={40} color="#fff" />
+                            <Ionicons name="cube" size={40} color="#fff" />
                         </View>
                         <Text style={StyleSheet.flatten([styles.title, { color: theme.text }])}>
-                            Finance App
+                            DignusAI
                         </Text>
                         <Text style={StyleSheet.flatten([styles.subtitle, { color: theme.text, opacity: 0.6 }])}>
-                            Entre para acessar suas finanças
+                            {t('auth.enterToAccess')}
                         </Text>
                     </View>
 
@@ -89,7 +91,7 @@ export default function LoginScreen() {
                         {/* Email */}
                         <View style={styles.inputContainer}>
                             <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
-                                Email
+                                {t('auth.email')}
                             </Text>
                             <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
                                 <Ionicons name="mail-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
@@ -109,7 +111,7 @@ export default function LoginScreen() {
                         {/* Password */}
                         <View style={styles.inputContainer}>
                             <Text style={StyleSheet.flatten([styles.label, { color: theme.text }])}>
-                                Senha
+                                {t('auth.password')}
                             </Text>
                             <View style={StyleSheet.flatten([styles.inputWrapper, { backgroundColor: theme.card, borderColor: theme.border }])}>
                                 <Ionicons name="lock-closed-outline" size={20} color={theme.text} style={{ opacity: 0.5 }} />
@@ -155,19 +157,19 @@ export default function LoginScreen() {
                             {isLoading ? (
                                 <ActivityIndicator color="#fff" />
                             ) : (
-                                <Text style={styles.buttonText}>Entrar</Text>
+                                <Text style={styles.buttonText}>{t('auth.login')}</Text>
                             )}
                         </Pressable>
 
                         {/* Register Link */}
                         <View style={styles.registerContainer}>
                             <Text style={StyleSheet.flatten([styles.registerText, { color: theme.text, opacity: 0.6 }])}>
-                                Não tem uma conta?{' '}
+                                {t('auth.noAccount')}{' '}
                             </Text>
                             <Link href="/auth/register" asChild>
                                 <Pressable>
                                     <Text style={StyleSheet.flatten([styles.registerLink, { color: theme.tint }])}>
-                                        Criar conta
+                                        {t('auth.createAccount')}
                                     </Text>
                                 </Pressable>
                             </Link>

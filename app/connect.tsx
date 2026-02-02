@@ -8,6 +8,7 @@ import { pluggyApi } from '@/services/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     Platform,
@@ -15,7 +16,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View,
+    View
 } from 'react-native';
 import { WebView, WebViewMessageEvent } from 'react-native-webview';
 
@@ -27,6 +28,7 @@ interface ConnectionResult {
 }
 
 export default function ConnectScreen() {
+    const { t } = useTranslation();
     const [status, setStatus] = useState<ConnectionStatus>('idle');
     const [connectToken, setConnectToken] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
@@ -39,17 +41,13 @@ export default function ConnectScreen() {
     const webViewRef = useRef<WebView>(null);
 
     const handlePluggyMessage = async (itemId: string, connectorName?: string) => {
-        setStatus('success');
-        setConnectionResult({
-            itemId,
-            connectorName: connectorName || 'Instituição Financeira',
-        });
+        console.log('[ConnectScreen] Received itemId from Pluggy:', itemId);
 
         // Save connection to database
         try {
             if (user) {
-                // Create connection record directly
-                const { error } = await supabase
+                console.log('[ConnectScreen] Attempting to save connection to DB...');
+                const { error } = await (supabase as any)
                     .from('connections')
                     .upsert({
                         user_id: user.id,
@@ -59,19 +57,35 @@ export default function ConnectScreen() {
                     }, { onConflict: 'pluggy_item_id' });
 
                 if (error) {
-                    console.error('Error saving connection:', error);
+                    console.error('[ConnectScreen] DB Upsert Error:', error);
+                    setStatus('error');
+                    setErrorMessage(t('more.error'));
+                    return; // Stop here if DB save fails
                 }
+
+                console.log('[ConnectScreen] DB Upsert Success');
+                setStatus('success');
+                setConnectionResult({
+                    itemId,
+                    connectorName: connectorName || t('common.loading'),
+                });
+
+                // Show syncing state after a brief success display
+                setTimeout(() => {
+                    console.log('[ConnectScreen] Transitioning to syncing state...');
+                    setStatus('syncing');
+                    checkSyncStatus(itemId);
+                }, 1500);
+            } else {
+                console.error('[ConnectScreen] No authenticated user found');
+                setStatus('error');
+                setErrorMessage('Usuário não autenticado');
             }
         } catch (saveError) {
-            console.error('Error saving connection:', saveError);
+            console.error('[ConnectScreen] Exception during connection save:', saveError);
+            setStatus('error');
+            setErrorMessage(t('more.error'));
         }
-
-        // Show syncing state after a brief success display
-        setTimeout(() => {
-            setStatus('syncing');
-            // Check for data sync completion
-            checkSyncStatus(itemId);
-        }, 1500);
     };
 
     const checkSyncStatus = async (itemId: string) => {
@@ -83,18 +97,19 @@ export default function ConnectScreen() {
             attempts++;
 
             try {
-                const { data: connection } = await supabase
+                const { data: connection } = await (supabase as any)
                     .from('connections')
                     .select('status, last_synced_at')
                     .eq('pluggy_item_id', itemId)
                     .single();
 
                 if (connection?.status === 'UPDATED' || connection?.last_synced_at) {
+                    console.log('[ConnectScreen] Sync complete detected');
                     clearInterval(checkInterval);
                     setStatus('complete');
                 }
             } catch (err) {
-                console.log('Checking sync status...');
+                // Ignore errors during polling
             }
 
             if (attempts >= maxAttempts) {
@@ -112,12 +127,14 @@ export default function ConnectScreen() {
 
             if (data.event === 'onSuccess' || data.type === 'onSuccess') {
                 const itemId = data.item?.id || data.itemId;
+                console.log('[ConnectScreen] WebView onSuccess:', itemId);
                 if (itemId) {
                     await handlePluggyMessage(itemId, data.item?.connector?.name);
                 }
             } else if (data.event === 'onError' || data.type === 'onError') {
+                console.error('[ConnectScreen] WebView onError:', data.error);
                 setStatus('error');
-                setErrorMessage(data.error?.message || 'Erro ao conectar');
+                setErrorMessage(data.error?.message || t('more.error'));
             } else if (data.event === 'onClose' || data.type === 'onClose') {
                 if (status !== 'success' && status !== 'syncing' && status !== 'complete') {
                     setStatus('idle');
@@ -277,10 +294,10 @@ export default function ConnectScreen() {
                                 <Ionicons name="shield-checkmark" size={48} color={theme.tint} />
                             </View>
                             <Text style={StyleSheet.flatten([styles.heroTitle, { color: theme.text }])}>
-                                Conecte sua conta
+                                {t('more.connectNew')}
                             </Text>
                             <Text style={StyleSheet.flatten([styles.heroSubtitle, { color: theme.text, opacity: 0.6 }])}>
-                                Sincronize seus dados bancários de forma segura através do Open Finance.
+                                {t('more.connectNewSubtitle')}
                             </Text>
                         </View>
 
@@ -316,12 +333,12 @@ export default function ConnectScreen() {
                             onPress={startConnection}
                         >
                             <Ionicons name="link" size={22} color="#fff" />
-                            <Text style={styles.primaryButtonText}>Conectar Banco</Text>
+                            <Text style={styles.primaryButtonText}>{t('more.connectNew').split(' ')[0]} {t('tabs.banks').slice(0, -1)}</Text>
                         </Pressable>
 
                         {/* Disclaimer */}
                         <Text style={StyleSheet.flatten([styles.disclaimer, { color: theme.text, opacity: 0.4 }])}>
-                            Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade.
+                            {t('more.terms')}
                         </Text>
                     </ScrollView>
                 );
