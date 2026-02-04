@@ -42,10 +42,12 @@ serve(async (req) => {
 
         // Handle Relevant Events
         // We sync on CREATED (initial fetch), UPDATED (refresh), and TRANSACTIONS_SUCCESS (new transactions)
-        const SYNC_EVENTS = ["ITEM_CREATED", "ITEM_UPDATED", "TRANSACTIONS_SUCCESS", "ITEM_LOGIN_SUCCEEDED"];
+        const SYNC_EVENTS = ["item/created", "item/updated", "transactions/created", "item/login_succeeded"];
 
         if (SYNC_EVENTS.includes(event)) {
             await syncAccountData(pluggy, supabase, itemId);
+        } else {
+            console.log(`Event ${event} is not in SYNC_EVENTS: ${JSON.stringify(SYNC_EVENTS)}, skipping.`);
         }
 
         return new Response(
