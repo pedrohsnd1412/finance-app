@@ -12,7 +12,6 @@ serve(async (req) => {
     }
 
     try {
-        // Get authorization header
         const authHeader = req.headers.get("Authorization");
         if (!authHeader) {
             return new Response(
@@ -21,14 +20,12 @@ serve(async (req) => {
             );
         }
 
-        // Initialize Supabase client with user's token
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
         const supabase = createClient(supabaseUrl, supabaseAnonKey, {
             global: { headers: { Authorization: authHeader } },
         });
 
-        // Get user
         const { data: { user }, error: userError } = await supabase.auth.getUser();
         if (userError || !user) {
             return new Response(
@@ -37,16 +34,18 @@ serve(async (req) => {
             );
         }
 
-        // Fetch all accounts for this user (through connections via RLS)
+        // Fetch all accounts for this user (through connection_items via RLS)
+        // We select connection:connection_items because the foreign key is connection_item_id
         const { data: accounts, error: accountsError } = await supabase
             .from("accounts")
             .select(`
         id,
         name,
         type,
+        subtype,
         balance,
         currency,
-        connection:connections!inner(
+        connection:connection_items!inner(
           id,
           user_id,
           connector_name,
@@ -60,11 +59,9 @@ serve(async (req) => {
             throw accountsError;
         }
 
-        // Calculate total balance
-        const totalBalance = (accounts || []).reduce((sum, acc) => {
-            // Credit accounts typically show negative balances as debt
-            const balance = acc.type === "CREDIT" ? -Math.abs(acc.balance) : acc.balance;
-            return sum + balance;
+        const totalBalance = (accounts || []).reduce((sum: number, acc: any) => {
+            // Adjust balance logic if needed based on type
+            return sum + (Number(acc.balance) || 0);
         }, 0);
 
         return new Response(
@@ -77,7 +74,7 @@ serve(async (req) => {
     } catch (error) {
         console.error("Error:", error);
         return new Response(
-            JSON.stringify({ error: error.message }),
+            JSON.stringify({ error: (error as Error).message }),
             { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }

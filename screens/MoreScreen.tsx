@@ -1,5 +1,7 @@
+import AccountsList from '@/components/AccountsList';
 import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
+import PluggyConnect from '@/components/PluggyConnect';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,12 +11,14 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Alert,
+    Modal,
     Platform,
     Pressable,
     ScrollView,
     StyleSheet,
     Text,
-    View,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 type TabKey = 'settings' | 'help';
@@ -36,6 +40,16 @@ export default function MoreScreen() {
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
     const { user, signOut } = useAuth();
+    const [showConnectModal, setShowConnectModal] = useState(false);
+
+    const handleConnectSuccess = (itemData: any) => {
+        setShowConnectModal(false);
+        Alert.alert('Sucesso', 'Conta conectada com sucesso!');
+    };
+
+    const handleConnectError = (error: any) => {
+        console.error("Connect error:", error);
+    };
 
     const handleLogout = async () => {
         const confirmLogout = () => {
@@ -122,6 +136,32 @@ export default function MoreScreen() {
                     </View>
                 </View>
             )}
+
+            <View style={styles.section}>
+                <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
+                    Contas Conectadas
+                </Text>
+
+                {/* Connect Account Button */}
+                <Pressable
+                    style={StyleSheet.flatten([styles.addCard, { borderColor: theme.tint, backgroundColor: theme.tint + '10' }])}
+                    onPress={() => setShowConnectModal(true)}
+                >
+                    <View style={StyleSheet.flatten([styles.addIconContainer, { backgroundColor: theme.tint }])}>
+                        <Ionicons name="add" size={28} color="#fff" />
+                    </View>
+                    <View style={styles.addCardText}>
+                        <Text style={StyleSheet.flatten([styles.addCardTitle, { color: theme.text }])}>
+                            Conectar Nova Conta
+                        </Text>
+                        <Text style={StyleSheet.flatten([styles.addCardSubtitle, { color: theme.text, opacity: 0.6 }])}>
+                            Sincronize seus dados bancários
+                        </Text>
+                    </View>
+                </Pressable>
+
+                <AccountsList />
+            </View>
 
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
@@ -229,6 +269,43 @@ export default function MoreScreen() {
             {renderTabBar()}
             {activeTab === 'settings' && renderSettings()}
             {activeTab === 'help' && renderHelp()}
+
+            <Modal
+                visible={showConnectModal}
+                animationType="fade"
+                transparent={true}
+                onRequestClose={() => setShowConnectModal(false)}
+            >
+                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{
+                        width: Platform.OS === 'web' ? '50%' : '90%',
+                        height: Platform.OS === 'web' ? '70%' : '80%',
+                        backgroundColor: theme.card,
+                        borderRadius: 20,
+                        overflow: 'hidden',
+                        shadowColor: "#000",
+                        shadowOffset: {
+                            width: 0,
+                            height: 2,
+                        },
+                        shadowOpacity: 0.25,
+                        shadowRadius: 3.84,
+                        elevation: 5,
+                    }}>
+                        <View style={{ padding: 16, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.tint + '10' }}>
+                            <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: theme.text, marginLeft: 8 }}>Conectar Conta</Text>
+                            <TouchableOpacity onPress={() => setShowConnectModal(false)} style={{ padding: 4 }}>
+                                <Ionicons name="close-circle" size={24} color={theme.muted} />
+                            </TouchableOpacity>
+                        </View>
+                        <PluggyConnect
+                            onSuccess={handleConnectSuccess}
+                            onError={handleConnectError}
+                            onClose={() => setShowConnectModal(false)}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </Container>
     );
 }

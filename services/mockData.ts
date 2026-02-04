@@ -14,24 +14,24 @@ const getDateString = (daysAgo: number): string => {
 // All mock transactions
 export const mockTransactions: Transaction[] = [
     // Today
-    { id: '1', description: 'Café da manhã', amount: 25.90, date: getDateString(0), type: 'expense', category: 'Alimentação' },
-    { id: '2', description: 'Pix recebido - João', amount: 150.00, date: getDateString(0), type: 'income', category: 'Transferência' },
+    { id: '1', description: 'Café da manhã', amount: 25.90, date: getDateString(0), type: 'expense', category: 'Alimentação', paymentMethod: 'debit' },
+    { id: '2', description: 'Pix recebido - João', amount: 150.00, date: getDateString(0), type: 'income', category: 'Transferência', paymentMethod: 'debit' },
 
     // This week
-    { id: '3', description: 'Supermercado', amount: 387.45, date: getDateString(2), type: 'expense', category: 'Alimentação' },
-    { id: '4', description: 'Uber', amount: 32.50, date: getDateString(3), type: 'expense', category: 'Transporte' },
-    { id: '5', description: 'Freelance - Design', amount: 800.00, date: getDateString(4), type: 'income', category: 'Trabalho' },
-    { id: '6', description: 'Farmácia', amount: 89.90, date: getDateString(5), type: 'expense', category: 'Saúde' },
+    { id: '3', description: 'Supermercado', amount: 387.45, date: getDateString(2), type: 'expense', category: 'Alimentação', paymentMethod: 'credit' },
+    { id: '4', description: 'Uber', amount: 32.50, date: getDateString(3), type: 'expense', category: 'Transporte', paymentMethod: 'credit' },
+    { id: '5', description: 'Freelance - Design', amount: 800.00, date: getDateString(4), type: 'income', category: 'Trabalho', paymentMethod: 'debit' },
+    { id: '6', description: 'Farmácia', amount: 89.90, date: getDateString(5), type: 'expense', category: 'Saúde', paymentMethod: 'debit' },
 
     // This month
-    { id: '7', description: 'Salário', amount: 5500.00, date: getDateString(10), type: 'income', category: 'Trabalho' },
-    { id: '8', description: 'Aluguel', amount: 1800.00, date: getDateString(12), type: 'expense', category: 'Moradia' },
-    { id: '9', description: 'Internet', amount: 119.90, date: getDateString(15), type: 'expense', category: 'Contas' },
-    { id: '10', description: 'Energia', amount: 245.30, date: getDateString(16), type: 'expense', category: 'Contas' },
-    { id: '11', description: 'Academia', amount: 99.90, date: getDateString(18), type: 'expense', category: 'Saúde' },
-    { id: '12', description: 'Cashback cartão', amount: 45.00, date: getDateString(20), type: 'income', category: 'Outros' },
-    { id: '13', description: 'Restaurante', amount: 157.80, date: getDateString(22), type: 'expense', category: 'Alimentação' },
-    { id: '14', description: 'Streaming', amount: 55.90, date: getDateString(25), type: 'expense', category: 'Entretenimento' },
+    { id: '7', description: 'Salário', amount: 5500.00, date: getDateString(10), type: 'income', category: 'Trabalho', paymentMethod: 'debit' },
+    { id: '8', description: 'Aluguel', amount: 1800.00, date: getDateString(12), type: 'expense', category: 'Moradia', paymentMethod: 'debit' },
+    { id: '9', description: 'Internet', amount: 119.90, date: getDateString(15), type: 'expense', category: 'Contas', paymentMethod: 'debit' },
+    { id: '10', description: 'Energia', amount: 245.30, date: getDateString(16), type: 'expense', category: 'Contas', paymentMethod: 'debit' },
+    { id: '11', description: 'Academia', amount: 99.90, date: getDateString(18), type: 'expense', category: 'Saúde', paymentMethod: 'credit' },
+    { id: '12', description: 'Cashback cartão', amount: 45.00, date: getDateString(20), type: 'income', category: 'Outros', paymentMethod: 'credit' },
+    { id: '13', description: 'Restaurante', amount: 157.80, date: getDateString(22), type: 'expense', category: 'Alimentação', paymentMethod: 'credit' },
+    { id: '14', description: 'Streaming', amount: 55.90, date: getDateString(25), type: 'expense', category: 'Entretenimento', paymentMethod: 'credit' },
 ];
 
 // Base balance (simulating connected bank accounts)

@@ -1,3 +1,4 @@
+import AccountsList from '@/components/AccountsList';
 import { BalanceCard } from '@/components/cards/BalanceCard';
 import { SummaryCard } from '@/components/cards/SummaryCard';
 import { DonutChart } from '@/components/charts/DonutChart';
@@ -16,6 +17,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
+    Alert,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -50,11 +52,25 @@ export default function HomeScreen() {
     const theme = Colors[colorScheme ?? 'light'];
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
+    const [showConnectModal, setShowConnectModal] = useState(false);
 
     const onRefresh = async () => {
         setRefreshing(true);
         await refetch();
         setRefreshing(false);
+    };
+
+    const handleConnectSuccess = (itemData: any) => {
+        setShowConnectModal(false);
+        Alert.alert('Sucesso', 'Conta conectada com sucesso!');
+        refetch(); // Refresh dashboard data
+    };
+
+    const handleConnectError = (error: any) => {
+        // Modal handles alert, we just close or log
+        console.error("Connect error:", error);
+        // Don't close immediately so user can see error in widget if handled there, 
+        // but PluggyConnect calls onError then onClose usually.
     };
 
     const getGreeting = () => {
@@ -99,15 +115,17 @@ export default function HomeScreen() {
                     <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
                     <Text style={[styles.headerTitle, { color: theme.text }]}>{t('home.overview')}</Text>
                 </View>
-                {filterPosition === 'header' && (
-                    <View style={styles.headerFilters}>
-                        <PeriodFilter
-                            selected={period}
-                            onChange={setPeriod}
-                            style={styles.headerFilter}
-                        />
-                    </View>
-                )}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    {filterPosition === 'header' && (
+                        <View style={styles.headerFilters}>
+                            <PeriodFilter
+                                selected={period}
+                                onChange={setPeriod}
+                                style={styles.headerFilter}
+                            />
+                        </View>
+                    )}
+                </View>
             </View>
 
             <ScrollView
@@ -149,6 +167,11 @@ export default function HomeScreen() {
                                 style={isDesktop || isTablet ? styles.cardHalf : styles.cardFull}
                             />
                         </View>
+
+                        {/* Connected Accounts List */}
+                        <Section title="Minhas Contas">
+                            <AccountsList />
+                        </Section>
 
                         {/* Desktop/Tablet/Mobile Content */}
                         {isDesktop ? (
@@ -233,6 +256,8 @@ export default function HomeScreen() {
                     </>
                 )}
             </ScrollView>
+
+
         </Container>
     );
 
