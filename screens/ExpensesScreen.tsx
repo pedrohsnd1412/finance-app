@@ -5,12 +5,14 @@ import { Header } from '@/components/Header';
 import { PeriodFilter } from '@/components/PeriodFilter';
 import { TransactionItem } from '@/components/TransactionItem';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period } from '@/types/home.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
     FlatList,
@@ -65,8 +67,16 @@ export default function ExpensesScreen() {
             .sort((a, b) => b.value - a.value);
     }, [expensesList]);
 
+    const { isDesktop } = useResponsive();
+    const { t } = useTranslation();
+
     const renderHeader = () => (
         <View style={styles.headerContent}>
+            {isDesktop && (
+                <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                    {t('home.transactions')}
+                </Text>
+            )}
             {/* Period Filter */}
             <View style={styles.filterContainer}>
                 <PeriodFilter selected={period} onChange={setPeriod} />
@@ -178,5 +188,12 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         fontSize: 14,
+    },
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        marginHorizontal: 16,
+        marginBottom: 24,
+        marginTop: 8,
     },
 });

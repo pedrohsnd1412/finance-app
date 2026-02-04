@@ -6,7 +6,25 @@
         "delete": "Delete",
         "logout": "Logout",
         "version": "Version",
-        "back": "Back"
+        "back": "Back",
+        "success": "Success",
+        "connectSuccess": "Account connected successfully!",
+        "categories": {
+            "housing": "Housing",
+            "food": "Food",
+            "transportation": "Transportation",
+            "entertainment": "Entertainment",
+            "other": "Other"
+        },
+        "days": {
+            "sun": "Sun",
+            "mon": "Mon",
+            "tue": "Tue",
+            "wed": "Wed",
+            "thu": "Thu",
+            "fri": "Fri",
+            "sat": "Sat"
+        }
     },
     "auth": {
         "login": "Login",
@@ -25,6 +43,11 @@
     },
     "home": {
         "overview": "Overview",
+        "balance": "Balance",
+        "income": "Income",
+        "expense": "Expense",
+        "recentTransactions": "Recent Transactions",
+        "viewAll": "View All",
         "greetings": {
             "morning": "Good morning",
             "afternoon": "Good afternoon",
@@ -36,9 +59,55 @@
         "stats": {
             "transactions": "Transactions",
             "income": "Income",
-            "expense": "Expense"
+            "expense": "Expense",
+            "totalIncome": "Total Income",
+            "totalExpenses": "Total expenses",
+            "savedBalance": "Saved balance",
+            "fromLastMonth": "{{percentage}} from last month"
         },
-        "loading": "Loading data..."
+        "loading": "Loading data...",
+        "myCard": "My card",
+        "premiumTips": "Optimize your spending with ACRU Premium tools.",
+        "balanceOverview": "Balance overview",
+        "savings": "Savings"
+    },
+    "banks": {
+        "manageInfo": "Manage all your connected bank accounts and institutions in one place.",
+        "myAccounts": "My Accounts",
+        "empty": "No accounts connected.",
+        "bankFallback": "Bank"
+    },
+    "cashflow": {
+        "title": "Cashflow Analysis",
+        "projection": "Monthly Projection",
+        "onTrack": "Based on your current spending patterns, you are on track to save {{amount}} this month."
+    },
+    "budget": {
+        "title": "Budget Management",
+        "of": "of",
+        "overBudget": "Over budget",
+        "left": "left",
+        "createNew": "Create New Budget",
+        "categories": {
+            "housing": "Housing",
+            "food": "Food",
+            "transportation": "Transportation",
+            "entertainment": "Entertainment"
+        }
+    },
+    "cards": {
+        "description": "Credit and debit card management."
+    },
+    "settings": {
+        "langSubtitle": "System default language",
+        "themeSubtitle": "Dark mode is synced with system settings"
+    },
+    "sidebar": {
+        "collapse": "Collapse"
+    },
+    "header": {
+        "searchPlaceholder": "Quick search",
+        "addWidget": "Add widget"
     },
     "more": {
         "preferences": "Preferences",
@@ -56,8 +125,14 @@
         "tutorial": "App Tutorial",
         "about": "About App",
         "connectNew": "Connect New Account",
-        "connectNewSubtitle": "Securely sync your bank data via Open Finance.",
-        "error": "Error connecting. Please try again."
+        "connectNewSubtitle": "Sync your bank data",
+        "error": "Error connecting. Please try again.",
+        "accountActive": "Active account",
+        "connectedAccounts": "Connected Accounts",
+        "statusActive": "Enabled",
+        "statusDark": "Dark",
+        "statusLight": "Light",
+        "connectModalTitle": "Connect Account"
     },
     "languages": {
         "pt": "Portuguese",

@@ -3,6 +3,7 @@ import { Container } from '@/components/Container';
 import { Header } from '@/components/Header';
 import PluggyConnect from '@/components/PluggyConnect';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import i18n from '@/i18n';
@@ -39,12 +40,13 @@ export default function MoreScreen() {
     const [activeTab, setActiveTab] = useState<TabKey>('settings');
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
+    const { isDesktop } = useResponsive();
     const { user, signOut } = useAuth();
     const [showConnectModal, setShowConnectModal] = useState(false);
 
     const handleConnectSuccess = (itemData: any) => {
         setShowConnectModal(false);
-        Alert.alert('Sucesso', 'Conta conectada com sucesso!');
+        Alert.alert(t('common.success'), t('common.connectSuccess'));
     };
 
     const handleConnectError = (error: any) => {
@@ -131,7 +133,7 @@ export default function MoreScreen() {
                             ID: {user.id}
                         </Text>
                         <Text style={StyleSheet.flatten([styles.userLabel, { color: theme.text, opacity: 0.5 }])}>
-                            Conta ativa
+                            {t('more.accountActive')}
                         </Text>
                     </View>
                 </View>
@@ -139,7 +141,7 @@ export default function MoreScreen() {
 
             <View style={styles.section}>
                 <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
-                    Contas Conectadas
+                    {t('more.connectedAccounts')}
                 </Text>
 
                 {/* Connect Account Button */}
@@ -152,10 +154,10 @@ export default function MoreScreen() {
                     </View>
                     <View style={styles.addCardText}>
                         <Text style={StyleSheet.flatten([styles.addCardTitle, { color: theme.text }])}>
-                            Conectar Nova Conta
+                            {t('more.connectNew')}
                         </Text>
                         <Text style={StyleSheet.flatten([styles.addCardSubtitle, { color: theme.text, opacity: 0.6 }])}>
-                            Sincronize seus dados bancários
+                            {t('more.connectNewSubtitle')}
                         </Text>
                     </View>
                 </Pressable>
@@ -169,9 +171,9 @@ export default function MoreScreen() {
                 </Text>
 
                 {[
-                    { icon: 'notifications-outline', label: t('more.notifications'), value: 'Ativadas', action: undefined },
-                    { icon: 'moon-outline', label: t('more.theme'), value: colorScheme === 'dark' ? 'Escuro' : 'Claro', action: undefined },
-                    { icon: 'language-outline', label: t('more.language'), value: i18n.language === 'pt' ? 'Português' : 'English', action: toggleLanguage },
+                    { icon: 'notifications-outline', label: t('more.notifications'), value: t('more.statusActive'), action: undefined },
+                    { icon: 'moon-outline', label: t('more.theme'), value: colorScheme === 'dark' ? t('more.statusDark') : t('more.statusLight'), action: undefined },
+                    { icon: 'language-outline', label: t('more.language'), value: i18n.language === 'pt' ? t('languages.pt') : t('languages.en'), action: toggleLanguage },
                     { icon: 'lock-closed-outline', label: t('more.privacy'), value: '', action: undefined },
                 ].map((item, index) => (
                     <Pressable
@@ -266,6 +268,11 @@ export default function MoreScreen() {
     return (
         <Container>
             <Header title={t('tabs.more')} />
+            {isDesktop && (
+                <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                    {t('tabs.more')}
+                </Text>
+            )}
             {renderTabBar()}
             {activeTab === 'settings' && renderSettings()}
             {activeTab === 'help' && renderHelp()}
@@ -293,7 +300,7 @@ export default function MoreScreen() {
                         elevation: 5,
                     }}>
                         <View style={{ padding: 16, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.tint + '10' }}>
-                            <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: theme.text, marginLeft: 8 }}>Conectar Conta</Text>
+                            <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: theme.text, marginLeft: 8 }}>{t('more.connectModalTitle')}</Text>
                             <TouchableOpacity onPress={() => setShowConnectModal(false)} style={{ padding: 4 }}>
                                 <Ionicons name="close-circle" size={24} color={theme.muted} />
                             </TouchableOpacity>
@@ -475,5 +482,11 @@ const styles = StyleSheet.create({
     versionText: {
         fontSize: 12,
         fontWeight: '500',
+    },
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        marginBottom: 24,
+        marginTop: 8,
     },
 });

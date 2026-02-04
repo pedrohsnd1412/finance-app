@@ -11,6 +11,9 @@ export const Colors = {
     error: '#EF4444', // Red 500
     warning: '#F59E0B', // Amber 500
     muted: '#64748B', // Slate 500
+    premiumCard: '#1A1C1E',
+    incomeCard: '#EEF2FF',
+    expenseCard: '#FFFBEB',
   },
   dark: {
     text: '#F8FAFC', // Slate 50
@@ -24,5 +27,8 @@ export const Colors = {
     error: '#F87171', // Red 400
     warning: '#FBBF24', // Amber 400
     muted: '#94A3B8', // Slate 400
+    premiumCard: '#1A1C1E',
+    incomeCard: '#1E293B',
+    expenseCard: '#1E293B',
   },
 };

@@ -3,6 +3,7 @@ import { Colors } from '@/constants/Colors';
 import { Transaction } from '@/types/home.types';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 interface TransactionItemProps {
@@ -11,68 +12,59 @@ interface TransactionItemProps {
 }
 
 export function TransactionItem({ transaction, style }: TransactionItemProps) {
+    const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     const isIncome = transaction.type === 'income';
 
     const formatCurrency = (value: number): string => {
-        return value.toLocaleString('pt-BR', {
+        return value.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
             style: 'currency',
-            currency: 'BRL',
+            currency: i18n.language === 'pt' ? 'BRL' : 'USD',
         });
     };
 
     const formatDate = (dateString: string): string => {
         const date = new Date(dateString);
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-
-        if (date.toDateString() === today.toDateString()) {
-            return 'Hoje';
-        }
-        if (date.toDateString() === yesterday.toDateString()) {
-            return 'Ontem';
-        }
-        return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+        return date.toLocaleTimeString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
     };
 
     const getIcon = () => {
-        if (isIncome) return 'add-outline';
+        if (isIncome) return 'bag-outline';
         const category = transaction.category?.toLowerCase() || '';
-        if (category.includes('alimentação') || category.includes('restaurante')) return 'restaurant-outline';
-        if (category.includes('transporte') || category.includes('uber')) return 'car-outline';
-        if (category.includes('saúde') || category.includes('farmácia')) return 'medkit-outline';
-        if (category.includes('moradia') || category.includes('aluguel')) return 'home-outline';
-        if (category.includes('entretenimento')) return 'film-outline';
-        if (category.includes('contas')) return 'receipt-outline';
-        return 'cart-outline';
+        if (category.includes('alimentação') || category.includes('food')) return 'restaurant-outline';
+        return 'bag-outline';
     };
 
     return (
-        <View style={StyleSheet.flatten([styles.container, { borderBottomColor: theme.border }, style])}>
-            <View style={[styles.iconContainer, { backgroundColor: isIncome ? theme.success + '10' : theme.background }]}>
+        <View style={StyleSheet.flatten([styles.container, style])}>
+            <View style={[styles.iconBox, { backgroundColor: '#F1F5F9' }]}>
                 <Ionicons
                     name={getIcon() as any}
-                    size={20}
-                    color={isIncome ? theme.success : theme.muted}
+                    size={22}
+                    color="#6366F1"
                 />
             </View>
-            <View style={styles.content}>
-                <Text style={[styles.description, { color: theme.text }]} numberOfLines={1}>
+            <View style={styles.info}>
+                <Text style={[styles.desc, { color: '#0F172A' }]} numberOfLines={1}>
                     {transaction.description}
                 </Text>
-                <Text style={[styles.category, { color: theme.muted }]}>
-                    {transaction.category || 'Outros'} • {formatDate(transaction.date)}
+                <Text style={[styles.subText, { color: '#64748B' }]}>
+                    {transaction.category || t('common.categories.other')}
                 </Text>
             </View>
-            <Text style={[
-                styles.amount,
-                { color: isIncome ? theme.success : theme.text }
-            ]}>
-                {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
-            </Text>
+            <View style={styles.right}>
+                <Text style={[
+                    styles.val,
+                    { color: isIncome ? theme.success : '#EF4444' }
+                ]}>
+                    {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
+                </Text>
+                <Text style={[styles.subText, { textAlign: 'right', color: '#64748B' }]}>
+                    {formatDate(transaction.date)}
+                </Text>
+            </View>
         </View>
     );
 }
@@ -81,32 +73,33 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
-        borderBottomWidth: 1,
+        paddingVertical: 12,
     },
-    iconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
+    iconBox: {
+        width: 52,
+        height: 52,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 14,
+        marginRight: 16,
     },
-    content: {
+    info: {
         flex: 1,
         gap: 2,
     },
-    description: {
-        fontSize: 15,
-        fontWeight: '600',
-    },
-    category: {
-        fontSize: 13,
-        fontWeight: '400',
-    },
-    amount: {
-        fontSize: 15,
+    desc: {
+        fontSize: 16,
         fontWeight: '700',
-        marginLeft: 12,
+    },
+    subText: {
+        fontSize: 13,
+        fontWeight: '500',
+    },
+    right: {
+        gap: 2,
+    },
+    val: {
+        fontSize: 16,
+        fontWeight: '700',
     },
 });

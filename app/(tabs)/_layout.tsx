@@ -1,4 +1,5 @@
-import { Sidebar } from '@/components/navigation/Sidebar';
+import { Sidebar } from '@/components/desktop/Sidebar';
+import { TopHeader } from '@/components/desktop/TopHeader';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
@@ -24,15 +25,14 @@ export default function TabLayout() {
   // WEB & DESKTOP: Use standard Tabs (Sidebar on Desktop)
   if (Platform.OS === 'web') {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
         {isDesktop && <Sidebar />}
         <View style={styles.content}>
+          {isDesktop && <TopHeader />}
           <Tabs
             screenOptions={{
               tabBarActiveTintColor: theme.tint,
               headerShown: false,
-              // Hide tab bar on desktop, show standard on mobile web (or floating if desired, but user deprecated floating)
-              // Let's use standard bottom tab bar for mobile web
               tabBarStyle: isDesktop ? { display: 'none' } : undefined,
             }}>
             <Tabs.Screen
@@ -43,6 +43,14 @@ export default function TabLayout() {
               }}
             />
             <Tabs.Screen
+              name="banks"
+              options={{
+                title: 'Bancos',
+                tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
+                href: isDesktop ? undefined : null,
+              }}
+            />
+            <Tabs.Screen
               name="expenses"
               options={{
                 title: 'Despesas',
@@ -50,10 +58,34 @@ export default function TabLayout() {
               }}
             />
             <Tabs.Screen
+              name="cashflow"
+              options={{
+                title: 'Fluxo',
+                tabBarIcon: ({ color }) => <TabBarIcon name="line-chart" color={color} />,
+                href: isDesktop ? undefined : null,
+              }}
+            />
+            <Tabs.Screen
+              name="budget"
+              options={{
+                title: 'Metas',
+                tabBarIcon: ({ color }) => <TabBarIcon name="pie-chart" color={color} />,
+                href: isDesktop ? undefined : null,
+              }}
+            />
+            <Tabs.Screen
               name="cards"
               options={{
                 title: 'Cartões',
                 tabBarIcon: ({ color }) => <TabBarIcon name="credit-card" color={color} />,
+              }}
+            />
+            <Tabs.Screen
+              name="settings"
+              options={{
+                title: 'Ajustes',
+                tabBarIcon: ({ color }) => <TabBarIcon name="cog" color={color} />,
+                href: isDesktop ? undefined : null,
               }}
             />
             <Tabs.Screen

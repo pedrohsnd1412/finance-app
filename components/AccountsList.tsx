@@ -1,7 +1,11 @@
+import { useColorScheme } from '@/components/useColorScheme';
+import { getBankLogo } from '@/constants/Banks';
+import { Colors } from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
 interface Account {
     id: string;
@@ -15,16 +19,42 @@ interface Account {
     }
 }
 
-export default function AccountsList() {
+import { TransactionTypeFilter } from '@/types/home.types';
+
+interface AccountsListProps {
+    filter?: TransactionTypeFilter;
+}
+
+export default function AccountsList({ filter = 'all' }: AccountsListProps) {
+    const { t, i18n } = useTranslation();
+    const colorScheme = useColorScheme();
+    const theme = Colors[colorScheme ?? 'light'];
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
     const fetchAccounts = async () => {
         try {
-            const { data, error } = await supabase.functions.invoke('get-accounts');
+            const { data, error } = await supabase
+                .from('accounts')
+                .select(`
+                    id,
+                    name,
+                    balance,
+                    currency,
+                    type,
+                    subtype,
+                    connection:connection_items (
+                        connector_name
+                    )
+                `)
+                .order('balance', { ascending: false });
+
             if (error) throw error;
-            setAccounts(data.accounts || []);
+
+            // Map the data to Flatten the structure if needed or keep as is
+            // The existing render expects item.connection.connector_name which matches this query structure
+            setAccounts(data as any || []);
         } catch (error) {
             console.error('Error fetching accounts:', error);
         } finally {
@@ -42,17 +72,35 @@ export default function AccountsList() {
         fetchAccounts();
     };
 
+    const filteredAccounts = accounts.filter(acc => {
+        if (filter === 'all') return true;
+        if (filter === 'credit') return acc.type === 'CREDIT_CARD';
+        // 'debit' maps to 'Conta Corrente' label
+        if (filter === 'debit') return acc.type !== 'CREDIT_CARD';
+        return true;
+    });
+
     const renderItem = ({ item }: { item: Account }) => (
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <View style={styles.header}>
-                <Text style={styles.bankName}>{item.connection?.connector_name || 'Bank'}</Text>
-                <Ionicons name="wallet-outline" size={20} color="#666" />
+                <View style={styles.bankInfo}>
+                    <Image
+                        source={{ uri: getBankLogo(item.connection?.connector_name) }}
+                        style={styles.bankLogo}
+                        resizeMode="contain"
+                    />
+                    <Text style={[styles.bankName, { color: theme.muted }]}>{item.connection?.connector_name || t('banks.bankFallback')}</Text>
+                </View>
+                <Ionicons name="wallet-outline" size={20} color={theme.muted} />
             </View>
-            <Text style={styles.accountName}>{item.name}</Text>
-            <Text style={styles.balance}>
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: item.currency || 'BRL' }).format(item.balance)}
+            <Text style={[styles.accountName, { color: theme.text }]}>{item.name}</Text>
+            <Text style={[styles.balance, { color: theme.text }]}>
+                {new Intl.NumberFormat(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+                    style: 'currency',
+                    currency: item.currency || (i18n.language === 'pt' ? 'BRL' : 'USD')
+                }).format(item.balance)}
             </Text>
-            <Text style={styles.type}>{item.type} - {item.subtype}</Text>
+            <Text style={[styles.type, { color: theme.muted }]}>{item.type} - {item.subtype}</Text>
         </View>
     );
 
@@ -62,13 +110,14 @@ export default function AccountsList() {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Minhas Contas</Text>
+            <Text style={[styles.title, { color: theme.text }]}>{t('banks.myAccounts')}</Text>
             <FlatList
-                data={accounts}
+                data={filteredAccounts}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                ListEmptyComponent={<Text style={styles.empty}>Nenhuma conta conectada.</Text>}
+                scrollEnabled={false}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.tint} />}
+                ListEmptyComponent={<Text style={[styles.empty, { color: theme.muted }]}>{t('banks.empty')}</Text>}
                 contentContainerStyle={styles.listContent}
             />
         </View>
@@ -108,6 +157,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 8,
+    },
+    bankInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    bankLogo: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
     },
     bankName: {
         fontSize: 14,

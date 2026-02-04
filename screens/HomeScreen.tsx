@@ -1,9 +1,11 @@
 import AccountsList from '@/components/AccountsList';
+import { BankSelector } from '@/components/BankSelector';
 import { BalanceCard } from '@/components/cards/BalanceCard';
 import { SummaryCard } from '@/components/cards/SummaryCard';
 import { DonutChart } from '@/components/charts/DonutChart';
 import { Container } from '@/components/Container';
-import { PeriodFilter } from '@/components/PeriodFilter';
+import { BalanceOverviewChart } from '@/components/desktop/BalanceOverviewChart';
+import { SummaryStatsStack } from '@/components/desktop/SummaryStatsStack';
 import { Section } from '@/components/Section';
 import { TransactionItem } from '@/components/TransactionItem';
 import { TransactionTypeSelector } from '@/components/TransactionTypeSelector';
@@ -12,16 +14,15 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period, TransactionTypeFilter } from '@/types/home.types';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
-    Alert,
-    RefreshControl,
-    ScrollView,
     StyleSheet,
     Text,
+    TouchableOpacity,
     View
 } from 'react-native';
 
@@ -46,31 +47,18 @@ export default function HomeScreen() {
     const { t } = useTranslation();
     const [period, setPeriod] = useState<Period>('month');
     const [typeFilter, setTypeFilter] = useState<TransactionTypeFilter>('all');
-    const { summary, isLoading, refetch } = useFinanceData(period, typeFilter);
+    const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null);
+    const { summary, isLoading, refetch } = useFinanceData(period, typeFilter, selectedConnectionId);
     const { isDesktop, isTablet } = useResponsive();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
     const router = useRouter();
     const [refreshing, setRefreshing] = useState(false);
-    const [showConnectModal, setShowConnectModal] = useState(false);
 
     const onRefresh = async () => {
         setRefreshing(true);
         await refetch();
         setRefreshing(false);
-    };
-
-    const handleConnectSuccess = (itemData: any) => {
-        setShowConnectModal(false);
-        Alert.alert('Sucesso', 'Conta conectada com sucesso!');
-        refetch(); // Refresh dashboard data
-    };
-
-    const handleConnectError = (error: any) => {
-        // Modal handles alert, we just close or log
-        console.error("Connect error:", error);
-        // Don't close immediately so user can see error in widget if handled there, 
-        // but PluggyConnect calls onError then onClose usually.
     };
 
     const getGreeting = () => {
@@ -99,327 +87,430 @@ export default function HomeScreen() {
             .sort((a, b) => b.value - a.value);
     }, [summary.transactions]);
 
-    // Responsive layout
-    const cardContainerStyle = isDesktop
-        ? styles.cardsRow
-        : isTablet
-            ? styles.cardsRowTablet
-            : styles.cardsColumn;
-
-    const filterPosition = isDesktop ? 'header' : 'content';
-
     return (
         <Container>
-            <View style={styles.headerRow}>
+            {isDesktop && (
+                <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                    {t('tabs.home')}
+                </Text>
+            )}
+            {!isDesktop ? (
+                /* Mobile Layout */
                 <View>
-                    <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>{t('home.overview')}</Text>
-                </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    {filterPosition === 'header' && (
-                        <View style={styles.headerFilters}>
-                            <PeriodFilter
-                                selected={period}
-                                onChange={setPeriod}
-                                style={styles.headerFilter}
-                            />
+                    <View style={styles.headerRow}>
+                        <View>
+                            <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
+                            <Text style={[styles.userName, { color: theme.text }]}>
+                                {summary.userName || 'User'}
+                            </Text>
                         </View>
+                        <TouchableOpacity style={[styles.notificationIcon, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                            <Ionicons name="notifications-outline" size={22} color={theme.text} />
+                        </TouchableOpacity>
+                    </View>
+
+                    <BankSelector
+                        selectedId={selectedConnectionId}
+                        onSelect={setSelectedConnectionId}
+                    />
+
+                    {isLoading ? (
+                        <View style={styles.loadingContainer}>
+                            <ActivityIndicator size="large" color={theme.tint} />
+                        </View>
+                    ) : (
+                        <>
+                            <View style={styles.cardsSection}>
+                                <BalanceCard
+                                    debit={summary.totalDebit}
+                                    credit={summary.totalCredit}
+                                    style={styles.fullWidthCard}
+                                />
+                                <SummaryCard
+                                    income={summary.incomeTotal}
+                                    expense={summary.expenseTotal}
+                                    style={styles.fullWidthCard}
+                                />
+                            </View>
+
+                            <View style={styles.typeSelectorContainer}>
+                                <TransactionTypeSelector
+                                    selected={typeFilter}
+                                    onChange={setTypeFilter}
+                                />
+                            </View>
+
+                            <Section title={t('home.recentTransactions')}>
+                                <View style={styles.sectionHeader}>
+                                    <TouchableOpacity>
+                                        <Text style={[styles.viewAll, { color: theme.tint }]}>{t('home.viewAll')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.listContainer}>
+                                    {summary.transactions.length > 0 ? (
+                                        summary.transactions.slice(0, 5).map((transaction) => (
+                                            <TransactionItem
+                                                key={transaction.id}
+                                                transaction={transaction}
+                                            />
+                                        ))
+                                    ) : (
+                                        <View style={styles.emptyState}>
+                                            <Text style={[styles.emptyText, { color: theme.muted }]}>
+                                                {t('home.emptyTransactions')}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </Section>
+
+                            {categoryData.length > 0 && (
+                                <Section title={t('home.categoryChart')}>
+                                    <View style={[styles.chartContainer, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}>
+                                        <DonutChart data={categoryData} size={140} />
+                                    </View>
+                                </Section>
+                            )}
+
+                            <Section title={t('tabs.banks')}>
+                                <AccountsList filter={typeFilter} />
+                            </Section>
+                        </>
                     )}
                 </View>
-            </View>
-
-            <ScrollView
-                style={styles.scrollView}
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            >
-                {/* Period Filter - Mobile/Tablet */}
-                {filterPosition === 'content' && (
-                    <View style={styles.filtersMobile}>
-                        <PeriodFilter
-                            selected={period}
-                            onChange={setPeriod}
-                        />
-                    </View>
-                )}
-
-                {isLoading ? (
+            ) : (
+                /* Desktop Dashboard Grid */
+                isLoading ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={theme.tint} />
-                        <Text style={StyleSheet.flatten([styles.loadingText, { color: theme.text }])}>
-                            {t('home.loading')}
-                        </Text>
                     </View>
                 ) : (
-                    <>
-                        {/* Balance & Summary Cards */}
-                        <View style={cardContainerStyle}>
-                            <BalanceCard
-                                balance={summary.totalBalance}
-                                style={isDesktop || isTablet ? styles.cardHalf : styles.cardFull}
-                            />
-                            <SummaryCard
-                                income={summary.incomeTotal}
-                                expense={summary.expenseTotal}
-                                style={isDesktop || isTablet ? styles.cardHalf : styles.cardFull}
-                            />
-                        </View>
-
-                        {/* Connected Accounts List */}
-                        <Section title="Minhas Contas">
-                            <AccountsList />
-                        </Section>
-
-                        {/* Desktop/Tablet/Mobile Content */}
-                        {isDesktop ? (
-                            <View style={styles.desktopContent}>
-                                {/* Category Chart */}
-                                <View style={StyleSheet.flatten([styles.chartCard, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
-                                    <Text style={StyleSheet.flatten([styles.chartTitle, { color: theme.text }])}>
-                                        {t('home.categoryChart')}
-                                    </Text>
-                                    <DonutChart data={categoryData} size={180} />
+                    <View style={styles.desktopGrid}>
+                        {/* Column 1: Main Stats & Charts */}
+                        <View style={styles.gridColMain}>
+                            <View style={styles.gridRowTop}>
+                                <View style={styles.chartCol}>
+                                    <BalanceOverviewChart />
                                 </View>
-
-                                {/* Transactions Column */}
-                                <View style={styles.transactionsDesktop}>
-                                    {/* Type Filter on Top of Transactions */}
-                                    <View style={styles.typeSelectorContainer}>
-                                        <TransactionTypeSelector
-                                            selected={typeFilter}
-                                            onChange={setTypeFilter}
-                                        />
-                                    </View>
-                                    <Section title={t('home.transactions')}>
-                                        {renderTransactions()}
-                                    </Section>
-                                </View>
-                            </View>
-                        ) : (
-                            <>
-                                {/* Category Chart - Mobile/Tablet */}
-                                {categoryData.length > 0 && (
-                                    <Section title={t('home.categoryChart')}>
-                                        <View style={StyleSheet.flatten([styles.chartContainer, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }])}>
-                                            <DonutChart data={categoryData} size={140} />
-                                        </View>
-                                    </Section>
-                                )}
-
-                                {/* Type Filter Above Transactions */}
-                                <View style={styles.typeSelectorContainer}>
-                                    <TransactionTypeSelector
-                                        selected={typeFilter}
-                                        onChange={setTypeFilter}
+                                <View style={styles.statsCol}>
+                                    <SummaryStatsStack
+                                        income={summary.incomeTotal}
+                                        expense={summary.expenseTotal}
+                                        saved={summary.totalBalance}
                                     />
                                 </View>
+                            </View>
 
-                                {/* Transactions */}
-                                <Section title={t('home.transactions')}>
-                                    {renderTransactions()}
-                                </Section>
-                            </>
-                        )}
+                            {/* Moved Transaction History here for cleaner layout */}
+                            <View style={[styles.genericCard, { backgroundColor: theme.card, marginTop: 24 }]}>
+                                <View style={styles.cardHeader}>
+                                    <Text style={[styles.cardTitle, { color: theme.text }]}>
+                                        {t('home.recentTransactions')}
+                                    </Text>
+                                    <TouchableOpacity>
+                                        <Text style={[styles.viewAll, { color: theme.tint }]}>{t('home.viewAll')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.transactionList}>
+                                    {summary.transactions.slice(0, 10).map(tx => (
+                                        <TransactionItem key={tx.id} transaction={tx} />
+                                    ))}
+                                </View>
+                            </View>
+                        </View>
 
-                        {/* Quick Stats for Desktop */}
-                        {isDesktop && summary.transactions.length > 0 && (
-                            <View style={styles.statsRow}>
-                                <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                    <Text style={StyleSheet.flatten([styles.statValue, { color: theme.tint }])}>
-                                        {summary.transactions.length}
-                                    </Text>
-                                    <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        {t('home.stats.transactions')}
-                                    </Text>
+                        {/* Column 2: Simplified Cards Column */}
+                        <View style={styles.gridColSide}>
+                            <View style={[styles.genericCard, { backgroundColor: theme.card }]}>
+                                <View style={styles.cardHeader}>
+                                    <Text style={[styles.cardTitle, { color: theme.text }]}>{t('home.myCard')}</Text>
                                 </View>
-                                <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                    <Text style={StyleSheet.flatten([styles.statValue, { color: theme.success }])}>
-                                        {summary.transactions.filter(t => t.type === 'income').length}
-                                    </Text>
-                                    <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        {t('home.stats.income')}
-                                    </Text>
-                                </View>
-                                <View style={StyleSheet.flatten([styles.statCard, { backgroundColor: theme.card }])}>
-                                    <Text style={StyleSheet.flatten([styles.statValue, { color: theme.error }])}>
-                                        {summary.transactions.filter(t => t.type === 'expense').length}
-                                    </Text>
-                                    <Text style={StyleSheet.flatten([styles.statLabel, { color: theme.text, opacity: 0.6 }])}>
-                                        {t('home.stats.expense')}
+
+                                <BalanceCard
+                                    debit={summary.totalDebit}
+                                    credit={summary.totalCredit}
+                                    style={styles.desktopBalanceCard}
+                                />
+
+                                {/* Tips or small info could stay if requested, but removing based on "clean" request */}
+                                <View style={{ marginTop: 20 }}>
+                                    <Text style={[styles.cardSubtitle, { color: theme.muted, fontSize: 13 }]}>
+                                        {t('home.premiumTips')}
                                     </Text>
                                 </View>
                             </View>
-                        )}
-                    </>
-                )}
-            </ScrollView>
-
-
+                        </View>
+                    </View>
+                )
+            )}
         </Container>
     );
-
-    function renderTransactions() {
-        if (summary.transactions.length === 0) {
-            return (
-                <View style={styles.emptyState}>
-                    <Text style={StyleSheet.flatten([styles.emptyText, { color: theme.text, opacity: 0.5 }])}>
-                        {t('home.emptyTransactions')}
-                    </Text>
-                </View>
-            );
-        }
-
-        return summary.transactions.slice(0, 10).map((transaction, index) => (
-            <TransactionItem
-                key={transaction.id}
-                transaction={transaction}
-                style={index === Math.min(summary.transactions.length - 1, 9)
-                    ? styles.lastTransaction
-                    : undefined}
-            />
-        ));
-    }
 }
 
 const styles = StyleSheet.create({
-    headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        paddingVertical: 16,
-        marginBottom: 8,
-    },
-    greeting: {
-        fontSize: 14,
-        fontWeight: '600',
-        marginBottom: 2,
-    },
-    headerTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        letterSpacing: -1,
-    },
-    scrollView: {
+    container: {
         flex: 1,
     },
     scrollContent: {
-        paddingBottom: 24,
+        paddingTop: 10,
+        paddingBottom: 40,
     },
-    headerFilters: {
+    headerRow: {
         flexDirection: 'row',
-        gap: 12,
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 24,
     },
-    headerFilter: {
-        minWidth: 200,
+    greeting: {
+        fontSize: 16,
+        fontWeight: '500',
     },
-    filtersMobile: {
-        marginBottom: 20,
+    userName: {
+        fontSize: 28,
+        fontWeight: '800',
+        marginTop: 4,
+    },
+    notificationIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cardsSection: {
+        gap: 20,
+        marginBottom: 24,
+        marginTop: 8,
+    },
+    fullWidthCard: {
+        width: '100%',
     },
     typeSelectorContainer: {
         marginBottom: 16,
     },
-    // Loading
-    loadingContainer: {
-        flex: 1,
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
         alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 48,
+        marginTop: -35,
+        marginBottom: 10,
     },
-    loadingText: {
-        marginTop: 12,
+    viewAll: {
         fontSize: 14,
-    },
-    // Card layouts
-    cardsColumn: {
-        flexDirection: 'column',
-        gap: 16,
-        marginBottom: 24,
-    },
-    cardsRow: {
-        flexDirection: 'row',
-        gap: 20,
-        marginBottom: 24,
-    },
-    cardsRowTablet: {
-        flexDirection: 'row',
-        gap: 16,
-        marginBottom: 24,
-    },
-    cardFull: {
-        width: '100%',
-    },
-    cardHalf: {
-        flex: 1,
-    },
-    // Chart
-    chartCard: {
-        flex: 1,
-        borderRadius: 12,
-        padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 2,
-    },
-    chartTitle: {
-        fontSize: 16,
         fontWeight: '600',
-        marginBottom: 16,
+    },
+    listContainer: {
+        gap: 8,
+    },
+    loadingContainer: {
+        padding: 60,
+        alignItems: 'center',
     },
     chartContainer: {
-        borderRadius: 12,
-        padding: 20,
+        borderRadius: 24,
+        padding: 24,
         alignItems: 'center',
-    },
-    // Desktop layout
-    desktopContent: {
-        flexDirection: 'row',
-        gap: 20,
-        marginBottom: 24,
-    },
-    transactionsDesktop: {
-        flex: 2,
-    },
-    // Transactions
-    lastTransaction: {
-        borderBottomWidth: 0,
     },
     emptyState: {
-        paddingVertical: 32,
         alignItems: 'center',
+        paddingVertical: 32,
     },
     emptyText: {
         fontSize: 14,
     },
-    // Desktop stats
-    statsRow: {
+    // Desktop Grid Styles
+    desktopGrid: {
         flexDirection: 'row',
-        gap: 16,
+        gap: 24,
         marginTop: 8,
     },
-    statCard: {
+    gridColMain: {
+        flex: 2,
+        gap: 24,
+    },
+    gridColSide: {
         flex: 1,
-        borderRadius: 12,
-        padding: 16,
+        gap: 24,
+    },
+    gridRowTop: {
+        flexDirection: 'row',
+        gap: 24,
+    },
+    chartCol: {
+        flex: 2,
+    },
+    statsCol: {
+        flex: 1,
+    },
+    gridRowMiddle: {
+        flexDirection: 'row',
+        gap: 24,
+    },
+    spendingLimitCol: {
+        flex: 1,
+    },
+    tipsCol: {
+        flex: 1,
+    },
+    gridRowBottom: {
+        flexDirection: 'row',
+        gap: 24,
+    },
+    costAnalysisCol: {
+        flex: 1,
+    },
+    healthCol: {
+        flex: 1,
+    },
+    goalCol: {
+        flex: 1,
+    },
+    genericCard: {
+        borderRadius: 24,
+        padding: 24,
+        flex: 1,
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 2,
+        marginBottom: 8,
     },
-    statValue: {
-        fontSize: 28,
+    cardTitle: {
+        fontSize: 16,
         fontWeight: '700',
-        marginBottom: 4,
     },
-    statLabel: {
+    cardSubtitle: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '600',
+    },
+    cardDesc: {
+        fontSize: 13,
+        lineHeight: 18,
+        marginVertical: 12,
+    },
+    readMore: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    readMoreText: {
+        fontSize: 13,
+        fontWeight: '700',
+    },
+    progressRow: {
+        marginVertical: 16,
+    },
+    progressBar: {
+        height: 6,
+        borderRadius: 3,
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        borderRadius: 3,
+    },
+    valRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+    },
+    valText: {
+        fontSize: 20,
+        fontWeight: '800',
+    },
+    targetText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    dashAmount: {
+        fontSize: 28,
+        fontWeight: '800',
+        marginBottom: 16,
+    },
+    miniBars: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        gap: 8,
+        height: 40,
+        marginBottom: 20,
+    },
+    miniBar: {
+        width: 12,
+        borderRadius: 4,
+    },
+    legendGrid: {
+        gap: 8,
+    },
+    legItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    legDot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+    },
+    legText: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#64748B',
+    },
+    desktopBalanceCard: {
+        height: 180,
+    },
+    addCardBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    addCardText: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    cardActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+    },
+    cardActionItem: {
+        alignItems: 'center',
+        gap: 8,
+    },
+    actionIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    actionLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    transactionList: {
+        gap: 8,
+    },
+    periodToggle: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        gap: 4,
+    },
+    periodText: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        marginBottom: 24,
+        marginTop: 8,
     },
 });

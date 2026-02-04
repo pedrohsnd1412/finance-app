@@ -18,6 +18,8 @@ export interface Transaction {
 
 export interface FinancialSummary {
     totalBalance: number;
+    totalDebit: number;
+    totalCredit: number;
     incomeTotal: number;
     expenseTotal: number;
     transactions: Transaction[];
@@ -40,7 +42,7 @@ export interface TypeFilterOption {
 }
 
 export const TYPE_FILTER_OPTIONS: TypeFilterOption[] = [
-    { key: 'credit', label: 'Cartão' },
-    { key: 'debit', label: 'Débito' },
+    { key: 'credit', label: 'Crédito' },
+    { key: 'debit', label: 'Conta Corrente' },
     { key: 'all', label: 'Todos' },
 ];

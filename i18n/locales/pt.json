@@ -6,7 +6,25 @@
         "delete": "Excluir",
         "logout": "Sair",
         "version": "Versão",
-        "back": "Voltar"
+        "back": "Voltar",
+        "success": "Sucesso",
+        "connectSuccess": "Conta conectada com sucesso!",
+        "categories": {
+            "housing": "Moradia",
+            "food": "Alimentação",
+            "transportation": "Transporte",
+            "entertainment": "Entretenimento",
+            "other": "Outros"
+        },
+        "days": {
+            "sun": "Dom",
+            "mon": "Seg",
+            "tue": "Ter",
+            "wed": "Qua",
+            "thu": "Qui",
+            "fri": "Sex",
+            "sat": "Sáb"
+        }
     },
     "auth": {
         "login": "Entrar",
@@ -25,6 +43,11 @@
     },
     "home": {
         "overview": "Visão Geral",
+        "balance": "Saldo",
+        "income": "Entradas",
+        "expense": "Saídas",
+        "recentTransactions": "Transações Recentes",
+        "viewAll": "Ver Tudo",
         "greetings": {
             "morning": "Bom dia",
             "afternoon": "Boa tarde",
@@ -35,10 +58,56 @@
         "emptyTransactions": "Nenhuma movimentação neste período.",
         "stats": {
             "transactions": "Transações",
-            "income": "Entradas",
-            "expense": "Saídas"
+            "income": "Ganhos",
+            "expense": "Gastos",
+            "totalIncome": "Entradas Totais",
+            "totalExpenses": "Saídas Totais",
+            "savedBalance": "Saldo Salvo",
+            "fromLastMonth": "{{percentage}} em relação ao mês anterior"
         },
-        "loading": "Carregando dados..."
+        "loading": "Carregando dados...",
+        "myCard": "Meu cartão",
+        "premiumTips": "Otimize seus gastos com as ferramentas ACRU Premium.",
+        "balanceOverview": "Visão geral do saldo",
+        "savings": "Poupança"
+    },
+    "banks": {
+        "manageInfo": "Gerencie todas as suas contas bancárias e instituições conectadas em um só lugar.",
+        "myAccounts": "Minhas Contas",
+        "empty": "Nenhuma conta conectada.",
+        "bankFallback": "Banco"
+    },
+    "cashflow": {
+        "title": "Análise de Fluxo de Caixa",
+        "projection": "Projeção Mensal",
+        "onTrack": "Com base nos seus padrões de gastos atuais, você está no caminho certo para economizar {{amount}} este mês."
+    },
+    "budget": {
+        "title": "Gestão de Orçamento",
+        "of": "de",
+        "overBudget": "Acima do orçamento",
+        "left": "restante",
+        "createNew": "Criar Novo Orçamento",
+        "categories": {
+            "housing": "Moradia",
+            "food": "Alimentação",
+            "transportation": "Transporte",
+            "entertainment": "Entretenimento"
+        }
+    },
+    "cards": {
+        "description": "Gerenciamento de cartões de crédito e débito."
+    },
+    "settings": {
+        "langSubtitle": "Idioma padrão do sistema",
+        "themeSubtitle": "O modo escuro é sincronizado com as configurações do sistema"
+    },
+    "sidebar": {
+        "collapse": "Recolher"
+    },
+    "header": {
+        "searchPlaceholder": "Busca rápida",
+        "addWidget": "Adicionar widget"
     },
     "more": {
         "preferences": "Preferências",
@@ -56,8 +125,14 @@
         "tutorial": "Tutorial do App",
         "about": "Sobre o App",
         "connectNew": "Conectar Nova Conta",
-        "connectNewSubtitle": "Sincronize seus dados bancários de forma segura através do Open Finance.",
-        "error": "Erro ao conectar. Tente novamente."
+        "connectNewSubtitle": "Sincronize seus dados bancários",
+        "error": "Erro ao conectar. Tente novamente.",
+        "accountActive": "Conta ativa",
+        "connectedAccounts": "Contas Conectadas",
+        "statusActive": "Ativadas",
+        "statusDark": "Escuro",
+        "statusLight": "Claro",
+        "connectModalTitle": "Conectar Conta"
     },
     "languages": {
         "pt": "Português",

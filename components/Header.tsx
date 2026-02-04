@@ -1,4 +1,5 @@
 import { useColorScheme } from '@/components/useColorScheme';
+import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -14,6 +15,9 @@ interface HeaderProps {
 export function Header({ title, rightElement, showBack, onBack }: HeaderProps) {
     const colorScheme = useColorScheme();
     const theme = colorScheme ?? 'light';
+    const { isDesktop } = useResponsive();
+
+    if (isDesktop) return null;
 
     return (
         <View style={[styles.container, { borderBottomColor: Colors[theme].border }]}>
