@@ -1,26 +1,14 @@
-import { useColorScheme } from '@/components/useColorScheme';
-import { Colors } from '@/constants/Colors';
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 interface GlassCardProps {
     children: React.ReactNode;
-    style?: ViewStyle | ViewStyle[];
+    style?: StyleProp<ViewStyle>;
 }
 
 export function GlassCard({ children, style }: GlassCardProps) {
-    const colorScheme = useColorScheme();
-    const theme = Colors[colorScheme ?? 'light'];
-
     return (
-        <View style={[
-            styles.card,
-            {
-                backgroundColor: theme.card,
-                borderColor: theme.border,
-            },
-            style
-        ]}>
+        <View style={[styles.card, style]}>
             {children}
         </View>
     );
@@ -28,9 +16,11 @@ export function GlassCard({ children, style }: GlassCardProps) {
 
 const styles = StyleSheet.create({
     card: {
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderRadius: 32,
         padding: 24,
         borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
     },
 });

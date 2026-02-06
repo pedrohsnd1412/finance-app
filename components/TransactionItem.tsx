@@ -9,9 +9,10 @@ import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 interface TransactionItemProps {
     transaction: Transaction;
     style?: ViewStyle;
+    hideBorder?: boolean;
 }
 
-export function TransactionItem({ transaction, style }: TransactionItemProps) {
+export function TransactionItem({ transaction, style, hideBorder = false }: TransactionItemProps) {
     const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];

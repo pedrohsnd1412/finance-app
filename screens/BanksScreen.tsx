@@ -20,6 +20,11 @@ export default function BanksScreen() {
     return (
         <Container>
             <View style={styles.content}>
+                <View style={styles.titleSection}>
+                    <Text style={styles.pageTitle}>{t('tabs.banks')}</Text>
+                    <Text style={styles.pageSubtitle}>Gerencie suas conexões e contas bancárias</Text>
+                </View>
+
                 {/* Full Width Security Banner */}
                 <GlassCard style={styles.infoBox}>
                     <View style={styles.infoIcon}>
@@ -65,6 +70,22 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         paddingTop: 8,
+    },
+    titleSection: {
+        marginTop: 8,
+        marginBottom: 28,
+    },
+    pageTitle: {
+        fontSize: 32,
+        fontWeight: '900',
+        color: '#FFFFFF',
+        letterSpacing: -1,
+    },
+    pageSubtitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#94A3B8',
+        marginTop: 4,
     },
     infoBox: {
         flexDirection: 'row',

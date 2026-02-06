@@ -89,31 +89,44 @@ export default function HomeScreen() {
                     </div>
                 </GlassCard>
 
-                <GlassCard>
+                <GlassCard className="flex flex-col lg:flex-row items-center gap-8">
                     <div className="flex-1">
-                        <h4 className="text-3xl font-bold text-white mb-4">{t('home.categoryChart')}</h4>
+                        <h4 className="text-3xl font-bold text-white mb-6">{t('home.categoryChart')}</h4>
                         <div className="space-y-4">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-1 bg-rose-500 rounded-full"></div>
-                                <span className="text-sm text-gray-400 flex-1">{t('common.categories.food')}</span>
-                                <span className="text-sm font-bold">25%</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-1 bg-orange-500 rounded-full"></div>
-                                <span className="text-sm text-gray-400 flex-1">Plataforma</span>
-                                <span className="text-sm font-bold">75%</span>
-                            </div>
+                            {Object.entries(summary.transactions
+                                .filter(t => t.type === 'expense')
+                                .reduce((acc, curr) => {
+                                    const cat = curr.category || 'Outros';
+                                    acc[cat] = (acc[cat] || 0) + curr.amount;
+                                    return acc;
+                                }, {} as Record<string, number>))
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 5)
+                                .map(([cat, val], idx) => {
+                                    const total = summary.expenseTotal || 1;
+                                    const percentage = ((val / total) * 100).toFixed(0);
+                                    const colors = ['#f43f5e', '#ef4444', '#f97316', '#8b5cf6', '#6366f1'];
+                                    return (
+                                        <div key={cat} className="flex items-center gap-3">
+                                            <div className="w-8 h-1 rounded-full" style={{ backgroundColor: colors[idx % colors.length] }}></div>
+                                            <span className="text-sm text-gray-400 flex-1">{cat}</span>
+                                            <span className="text-sm font-bold">{percentage}%</span>
+                                        </div>
+                                    );
+                                })}
                         </div>
                     </div>
 
-                    <div className="relative w-40 h-40 flex items-center justify-center">
+                    <div className="relative w-48 h-48 flex items-center justify-center">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f43f5e" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset="188.4" strokeLinecap="round" />
-                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f97316" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset="62.8" strokeLinecap="round" />
+                            {/* Simplified implementation for the top 2 categories */}
+                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#f43f5e" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.65)} strokeLinecap="round" />
+                            <circle cx="50" cy="50" r="40" fill="transparent" stroke="#6366f1" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.25)} strokeLinecap="round" opacity="0.6" />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-2xl font-bold">78K</span>
+                            <span className="text-xl text-gray-400 font-bold mb-1">Total</span>
+                            <span className="text-2xl font-black">R${summary.expenseTotal.toFixed(0)}</span>
                         </div>
                     </div>
                 </GlassCard>
