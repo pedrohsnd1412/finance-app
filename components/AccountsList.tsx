@@ -1,3 +1,4 @@
+import { GlassCard } from '@/components/GlassCard';
 import { useColorScheme } from '@/components/useColorScheme';
 import { getBankLogo } from '@/constants/Banks';
 import { Colors } from '@/constants/Colors';
@@ -51,9 +52,6 @@ export default function AccountsList({ filter = 'all' }: AccountsListProps) {
                 .order('balance', { ascending: false });
 
             if (error) throw error;
-
-            // Map the data to Flatten the structure if needed or keep as is
-            // The existing render expects item.connection.connector_name which matches this query structure
             setAccounts(data as any || []);
         } catch (error) {
             console.error('Error fetching accounts:', error);
@@ -75,49 +73,74 @@ export default function AccountsList({ filter = 'all' }: AccountsListProps) {
     const filteredAccounts = accounts.filter(acc => {
         if (filter === 'all') return true;
         if (filter === 'credit') return acc.type === 'CREDIT_CARD';
-        // 'debit' maps to 'Conta Corrente' label
         if (filter === 'debit') return acc.type !== 'CREDIT_CARD';
         return true;
     });
 
     const renderItem = ({ item }: { item: Account }) => (
-        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-            <View style={styles.header}>
+        <GlassCard style={styles.card}>
+            <View style={styles.cardHeader}>
                 <View style={styles.bankInfo}>
-                    <Image
-                        source={{ uri: getBankLogo(item.connection?.connector_name) }}
-                        style={styles.bankLogo}
-                        resizeMode="contain"
-                    />
-                    <Text style={[styles.bankName, { color: theme.muted }]}>{item.connection?.connector_name || t('banks.bankFallback')}</Text>
+                    <View style={styles.logoWrapper}>
+                        <Image
+                            source={{ uri: getBankLogo(item.connection?.connector_name) }}
+                            style={styles.bankLogo}
+                            resizeMode="contain"
+                        />
+                    </View>
+                    <View>
+                        <Text style={styles.bankName}>{item.connection?.connector_name || t('banks.bankFallback')}</Text>
+                        <Text style={styles.accountName}>{item.name}</Text>
+                    </View>
                 </View>
-                <Ionicons name="wallet-outline" size={20} color={theme.muted} />
+                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
             </View>
-            <Text style={[styles.accountName, { color: theme.text }]}>{item.name}</Text>
-            <Text style={[styles.balance, { color: theme.text }]}>
-                {new Intl.NumberFormat(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
-                    style: 'currency',
-                    currency: item.currency || (i18n.language === 'pt' ? 'BRL' : 'USD')
-                }).format(item.balance)}
-            </Text>
-            <Text style={[styles.type, { color: theme.muted }]}>{item.type} - {item.subtype}</Text>
-        </View>
+
+            <View style={styles.cardFooter}>
+                <View>
+                    <Text style={styles.typeLabel}>{item.type === 'CREDIT_CARD' ? t('banks.creditCard') : t('banks.checkingAccount')}</Text>
+                    <Text style={styles.balance}>
+                        {new Intl.NumberFormat(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+                            style: 'currency',
+                            currency: item.currency || (i18n.language === 'pt' ? 'BRL' : 'USD')
+                        }).format(item.balance)}
+                    </Text>
+                </View>
+                {item.type === 'CREDIT_CARD' && (
+                    <View style={styles.tag}>
+                        <Text style={styles.tagText}>MASTER</Text>
+                    </View>
+                )}
+            </View>
+        </GlassCard>
     );
 
     if (loading && !refreshing) {
-        return <ActivityIndicator style={styles.loader} />;
+        return (
+            <View style={styles.loaderContainer}>
+                <ActivityIndicator color="#6366F1" />
+            </View>
+        );
     }
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.title, { color: theme.text }]}>{t('banks.myAccounts')}</Text>
+            <View style={styles.sectionHeader}>
+                <Text style={styles.title}>{t('banks.myAccounts')}</Text>
+                <Text style={styles.count}>{filteredAccounts.length}</Text>
+            </View>
             <FlatList
                 data={filteredAccounts}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 scrollEnabled={false}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.tint} />}
-                ListEmptyComponent={<Text style={[styles.empty, { color: theme.muted }]}>{t('banks.empty')}</Text>}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366F1" />}
+                ListEmptyComponent={
+                    <View style={styles.emptyContainer}>
+                        <Ionicons name="wallet-outline" size={48} color="#94A3B8" style={{ opacity: 0.2 }} />
+                        <Text style={styles.empty}>{t('banks.empty')}</Text>
+                    </View>
+                }
                 contentContainerStyle={styles.listContent}
             />
         </View>
@@ -127,71 +150,115 @@ export default function AccountsList({ filter = 'all' }: AccountsListProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
     },
-    loader: {
-        marginTop: 20,
+    loaderContainer: {
+        paddingVertical: 40,
+        alignItems: 'center',
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+        paddingHorizontal: 0,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        color: '#333',
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+    },
+    count: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#6366F1',
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 8,
     },
     listContent: {
         paddingBottom: 20,
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
+        padding: 20,
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
     },
-    header: {
+    cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 20,
     },
     bankInfo: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 8,
+        gap: 12,
+    },
+    logoWrapper: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
     },
     bankLogo: {
         width: 24,
         height: 24,
-        borderRadius: 12,
     },
     bankName: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        color: '#94A3B8',
         fontWeight: '600',
     },
     accountName: {
         fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 4,
+        fontWeight: '700',
+        color: '#FFFFFF',
+    },
+    cardFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
+    },
+    typeLabel: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginBottom: 2,
     },
     balance: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 4,
-        color: '#000',
+        fontSize: 22,
+        fontWeight: '800',
+        color: '#FFFFFF',
     },
-    type: {
-        fontSize: 12,
-        color: '#999',
-        textTransform: 'uppercase',
+    tag: {
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+    },
+    tagText: {
+        fontSize: 10,
+        fontWeight: '800',
+        color: '#94A3B8',
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        paddingVertical: 40,
+        gap: 12,
     },
     empty: {
-        textAlign: 'center',
-        color: '#999',
-        marginTop: 20,
+        fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
     },
 });

@@ -69,16 +69,31 @@
         "myCard": "Meu cartão",
         "premiumTips": "Otimize seus gastos com as ferramentas ACRU Premium.",
         "balanceOverview": "Visão geral do saldo",
-        "savings": "Poupança"
+        "savings": "Poupança",
+        "averageIncome": "Média de Entradas",
+        "transactionsSubtitle": "Reveja e gira o seu histórico de gastos",
+        "topCategory": "Principal Categoria"
     },
     "banks": {
         "manageInfo": "Gerencie todas as suas contas bancárias e instituições conectadas em um só lugar.",
         "myAccounts": "Minhas Contas",
         "empty": "Nenhuma conta conectada.",
-        "bankFallback": "Banco"
+        "bankFallback": "Banco",
+        "secureConnectionTitle": "Conexão Segura",
+        "secureConnectionDesc": "Seus dados são criptografados e protegidos. Usamos segurança de nível bancário para garantir que suas informações permaneçam privadas.",
+        "connectedAccountsSubtitle": "Gerencie suas instituições financeiras vinculadas"
     },
     "cashflow": {
         "title": "Análise de Fluxo de Caixa",
+        "subtitle": "Mergulhe profundamente nos seus fluxos financeiros",
+        "last30Days": "Últimos 30 Dias",
+        "incomeVsExpenses": "Entradas vs Saídas",
+        "averageWeeklyIncome": "Média Semanal de Entradas",
+        "averageWeeklyExpense": "Média Semanal de Saídas",
+        "monthlySavings": "Economia Mensal",
+        "financialHealth": "Saúde Financeira",
+        "savingsRate": "Taxa de Poupança",
+        "expenseRatio": "Taxa de Gastos",
         "projection": "Projeção Mensal",
         "onTrack": "Com base nos seus padrões de gastos atuais, você está no caminho certo para economizar {{amount}} este mês."
     },
@@ -93,10 +108,18 @@
             "food": "Alimentação",
             "transportation": "Transporte",
             "entertainment": "Entretenimento"
-        }
+        },
+        "subtitle": "Defina limites e acompanhe o seu desempenho",
+        "overallLimit": "Limite Total",
+        "spentSoFar": "Gasto até agora",
+        "remaining": "Restante",
+        "utilized": "utilizado"
     },
     "cards": {
-        "description": "Gerenciamento de cartões de crédito e débito."
+        "description": "Gerenciamento de cartões de crédito e débito.",
+        "subtitle": "Gerencie seus cartões e limites",
+        "newCard": "Novo Cartão",
+        "recentActivity": "Atividade Recente do Cartão"
     },
     "settings": {
         "langSubtitle": "Idioma padrão do sistema",
@@ -107,7 +130,9 @@
     },
     "header": {
         "searchPlaceholder": "Busca rápida",
-        "addWidget": "Adicionar widget"
+        "addWidget": "Adicionar widget",
+        "settings": "Configurações",
+        "settingsSubtitle": "Gerencie suas preferências de conta e segurança"
     },
     "more": {
         "preferences": "Preferências",
@@ -132,7 +157,22 @@
         "statusActive": "Ativadas",
         "statusDark": "Escuro",
         "statusLight": "Claro",
-        "connectModalTitle": "Conectar Conta"
+        "connectModalTitle": "Conectar Conta",
+        "aiAssistant": "Assistente IA",
+        "aiSubtitle": "Converse com nossa IA para obter insights financeiros",
+        "online": "Online",
+        "aiPlaceholder": "Pergunte qualquer coisa sobre suas finanças...",
+        "insight": "Insight",
+        "analysis": "Análise",
+        "optimization": "Otimização",
+        "appearance": "Aparência",
+        "dark": "Escuro",
+        "bankSecurity": "Criptografia de nível bancário",
+        "signOut": "Sair da conta",
+        "logoutDesc": "Encerrar sessão no app",
+        "upgradeTitle": "Upgrade para Pro",
+        "upgradeDesc": "Você está usando a versão gratuita. Assine o Pro para conexões bancárias ilimitadas e análises avançadas.",
+        "upgradeButton": "Atualizar Agora"
     },
     "languages": {
         "pt": "Português",

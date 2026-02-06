@@ -1,6 +1,6 @@
 import AccountsList from '@/components/AccountsList';
 import { Container } from '@/components/Container';
-import { Header } from '@/components/Header';
+import { GlassCard } from '@/components/GlassCard';
 import PluggyConnect from '@/components/PluggyConnect';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
@@ -84,7 +84,7 @@ export default function MoreScreen() {
 
     const renderTabBar = () => (
         <View style={styles.tabContainer}>
-            <View style={[styles.tabBar, { backgroundColor: 'rgba(0,0,0,0.03)' }]}>
+            <View style={styles.tabBar}>
                 {TABS.map((tab) => {
                     const isActive = activeTab === tab.key;
                     return (
@@ -92,20 +92,19 @@ export default function MoreScreen() {
                             key={tab.key}
                             style={[
                                 styles.tab,
-                                isActive && styles.tabActive,
-                                isActive && { backgroundColor: theme.card }
+                                isActive && styles.tabActive
                             ]}
                             onPress={() => setActiveTab(tab.key)}
                         >
                             <Ionicons
                                 name={tab.icon}
                                 size={18}
-                                color={isActive ? theme.tint : theme.muted}
+                                color={isActive ? '#FFFFFF' : '#94A3B8'}
                             />
                             <Text
                                 style={[
                                     styles.tabLabel,
-                                    { color: isActive ? theme.tint : theme.muted },
+                                    { color: isActive ? '#FFFFFF' : '#94A3B8' },
                                 ]}
                             >
                                 {t(tab.label)}
@@ -121,52 +120,52 @@ export default function MoreScreen() {
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             {/* User Info */}
             {user && (
-                <View style={StyleSheet.flatten([styles.userCard, { backgroundColor: theme.card }])}>
-                    <View style={StyleSheet.flatten([styles.userAvatar, { backgroundColor: theme.tint }])}>
+                <GlassCard style={styles.userCard}>
+                    <View style={styles.userAvatar}>
                         <Ionicons name="person" size={28} color="#fff" />
                     </View>
                     <View style={styles.userInfo}>
-                        <Text style={StyleSheet.flatten([styles.userEmail, { color: theme.text }])}>
+                        <Text style={styles.userEmail}>
                             {user.email}
                         </Text>
-                        <Text style={{ fontSize: 10, color: theme.text, opacity: 0.4, marginTop: 2 }}>
+                        <Text style={styles.userIdText}>
                             ID: {user.id}
                         </Text>
-                        <Text style={StyleSheet.flatten([styles.userLabel, { color: theme.text, opacity: 0.5 }])}>
+                        <Text style={styles.userLabel}>
                             {t('more.accountActive')}
                         </Text>
                     </View>
-                </View>
+                </GlassCard>
             )}
 
             <View style={styles.section}>
-                <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
+                <Text style={styles.sectionTitle}>
                     {t('more.connectedAccounts')}
                 </Text>
 
                 {/* Connect Account Button */}
-                <Pressable
-                    style={StyleSheet.flatten([styles.addCard, { borderColor: theme.tint, backgroundColor: theme.tint + '10' }])}
+                <TouchableOpacity
+                    style={styles.addCard}
                     onPress={() => setShowConnectModal(true)}
                 >
-                    <View style={StyleSheet.flatten([styles.addIconContainer, { backgroundColor: theme.tint }])}>
+                    <View style={styles.addIconContainer}>
                         <Ionicons name="add" size={28} color="#fff" />
                     </View>
                     <View style={styles.addCardText}>
-                        <Text style={StyleSheet.flatten([styles.addCardTitle, { color: theme.text }])}>
+                        <Text style={styles.addCardTitle}>
                             {t('more.connectNew')}
                         </Text>
-                        <Text style={StyleSheet.flatten([styles.addCardSubtitle, { color: theme.text, opacity: 0.6 }])}>
+                        <Text style={styles.addCardSubtitle}>
                             {t('more.connectNewSubtitle')}
                         </Text>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
 
                 <AccountsList />
             </View>
 
             <View style={styles.section}>
-                <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
+                <Text style={styles.sectionTitle}>
                     {t('more.preferences')}
                 </Text>
 
@@ -176,25 +175,27 @@ export default function MoreScreen() {
                     { icon: 'language-outline', label: t('more.language'), value: i18n.language === 'pt' ? t('languages.pt') : t('languages.en'), action: toggleLanguage },
                     { icon: 'lock-closed-outline', label: t('more.privacy'), value: '', action: undefined },
                 ].map((item, index) => (
-                    <Pressable
+                    <TouchableOpacity
                         key={index}
-                        style={StyleSheet.flatten([styles.settingsItem, { backgroundColor: theme.card }])}
+                        style={styles.settingsItem}
                         onPress={item.action}
                     >
-                        <Ionicons name={item.icon as any} size={22} color={theme.tint} />
-                        <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.text }])}>
+                        <View style={styles.settingsIconBox}>
+                            <Ionicons name={item.icon as any} size={20} color="#6366F1" />
+                        </View>
+                        <Text style={styles.settingsLabel}>
                             {item.label}
                         </Text>
-                        <Text style={StyleSheet.flatten([styles.settingsValue, { color: theme.text, opacity: 0.5 }])}>
+                        <Text style={styles.settingsValue}>
                             {item.value}
                         </Text>
-                        <Ionicons name="chevron-forward" size={18} color={theme.text} style={{ opacity: 0.3 }} />
-                    </Pressable>
+                        <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+                    </TouchableOpacity>
                 ))}
             </View>
 
             <View style={styles.section}>
-                <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
+                <Text style={styles.sectionTitle}>
                     {t('more.account')}
                 </Text>
 
@@ -203,30 +204,34 @@ export default function MoreScreen() {
                     { icon: 'shield-checkmark-outline', label: t('more.security'), action: undefined },
                     { icon: 'document-text-outline', label: t('more.terms'), action: undefined },
                 ].map((item, index) => (
-                    <Pressable
+                    <TouchableOpacity
                         key={index}
-                        style={StyleSheet.flatten([styles.settingsItem, { backgroundColor: theme.card }])}
+                        style={styles.settingsItem}
                         onPress={item.action}
                     >
-                        <Ionicons name={item.icon as any} size={22} color={theme.tint} />
-                        <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.text }])}>
+                        <View style={styles.settingsIconBox}>
+                            <Ionicons name={item.icon as any} size={20} color="#6366F1" />
+                        </View>
+                        <Text style={styles.settingsLabel}>
                             {item.label}
                         </Text>
-                        <Ionicons name="chevron-forward" size={18} color={theme.text} style={{ opacity: 0.3 }} />
-                    </Pressable>
+                        <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+                    </TouchableOpacity>
                 ))}
 
                 {/* Logout Button */}
-                <Pressable
-                    style={StyleSheet.flatten([styles.settingsItem, styles.logoutButton, { backgroundColor: theme.error + '10' }])}
+                <TouchableOpacity
+                    style={[styles.settingsItem, styles.logoutButton]}
                     onPress={handleLogout}
                 >
-                    <Ionicons name="log-out-outline" size={22} color={theme.error} />
-                    <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.error }])}>
+                    <View style={[styles.settingsIconBox, { backgroundColor: 'rgba(244, 63, 94, 0.1)' }]}>
+                        <Ionicons name="log-out-outline" size={20} color="#F43F5E" />
+                    </View>
+                    <Text style={[styles.settingsLabel, { color: '#F43F5E' }]}>
                         {t('common.logout')}
                     </Text>
-                    <Ionicons name="chevron-forward" size={18} color={theme.error} style={{ opacity: 0.3 }} />
-                </Pressable>
+                    <Ionicons name="chevron-forward" size={18} color="#F43F5E" style={{ opacity: 0.3 }} />
+                </TouchableOpacity>
             </View>
         </ScrollView>
     );
@@ -234,7 +239,7 @@ export default function MoreScreen() {
     const renderHelp = () => (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
             <View style={styles.section}>
-                <Text style={StyleSheet.flatten([styles.sectionTitle, { color: theme.text }])}>
+                <Text style={styles.sectionTitle}>
                     {t('more.helpCenter')}
                 </Text>
 
@@ -244,21 +249,23 @@ export default function MoreScreen() {
                     { icon: 'book-outline', label: t('more.tutorial') },
                     { icon: 'information-circle-outline', label: t('more.about') },
                 ].map((item, index) => (
-                    <Pressable
+                    <TouchableOpacity
                         key={index}
-                        style={StyleSheet.flatten([styles.settingsItem, { backgroundColor: theme.card }])}
+                        style={styles.settingsItem}
                     >
-                        <Ionicons name={item.icon as any} size={22} color={theme.tint} />
-                        <Text style={StyleSheet.flatten([styles.settingsLabel, { color: theme.text }])}>
+                        <View style={styles.settingsIconBox}>
+                            <Ionicons name={item.icon as any} size={20} color="#6366F1" />
+                        </View>
+                        <Text style={styles.settingsLabel}>
                             {item.label}
                         </Text>
-                        <Ionicons name="chevron-forward" size={18} color={theme.text} style={{ opacity: 0.3 }} />
-                    </Pressable>
+                        <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+                    </TouchableOpacity>
                 ))}
             </View>
 
             <View style={styles.version}>
-                <Text style={StyleSheet.flatten([styles.versionText, { color: theme.text, opacity: 0.3 }])}>
+                <Text style={styles.versionText}>
                     DignusAI v1.0.0
                 </Text>
             </View>
@@ -266,43 +273,38 @@ export default function MoreScreen() {
     );
 
     return (
-        <Container>
-            <Header title={t('tabs.more')} />
-            {isDesktop && (
-                <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                    {t('tabs.more')}
-                </Text>
-            )}
-            {renderTabBar()}
-            {activeTab === 'settings' && renderSettings()}
-            {activeTab === 'help' && renderHelp()}
+        <Container style={styles.container}>
+            <View style={styles.header}>
+                {!isDesktop ? (
+                    <View>
+                        <Text style={styles.mobileTitle}>{t('tabs.more')}</Text>
+                        <Text style={styles.mobileSubtitle}>{t('more.subtitle')}</Text>
+                    </View>
+                ) : (
+                    <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                        {t('tabs.more')}
+                    </Text>
+                )}
+            </View>
+
+            <View style={{ paddingHorizontal: 16, flex: 1 }}>
+                {renderTabBar()}
+                {activeTab === 'settings' && renderSettings()}
+                {activeTab === 'help' && renderHelp()}
+            </View>
 
             <Modal
                 visible={showConnectModal}
-                animationType="fade"
+                animationType="slide"
                 transparent={true}
                 onRequestClose={() => setShowConnectModal(false)}
             >
-                <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
-                    <View style={{
-                        width: Platform.OS === 'web' ? '50%' : '90%',
-                        height: Platform.OS === 'web' ? '70%' : '80%',
-                        backgroundColor: theme.card,
-                        borderRadius: 20,
-                        overflow: 'hidden',
-                        shadowColor: "#000",
-                        shadowOffset: {
-                            width: 0,
-                            height: 2,
-                        },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 3.84,
-                        elevation: 5,
-                    }}>
-                        <View style={{ padding: 16, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: theme.tint + '10' }}>
-                            <Text style={{ flex: 1, fontSize: 16, fontWeight: 'bold', color: theme.text, marginLeft: 8 }}>{t('more.connectModalTitle')}</Text>
-                            <TouchableOpacity onPress={() => setShowConnectModal(false)} style={{ padding: 4 }}>
-                                <Ionicons name="close-circle" size={24} color={theme.muted} />
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>{t('more.connectModalTitle')}</Text>
+                            <TouchableOpacity onPress={() => setShowConnectModal(false)} style={styles.closeButton}>
+                                <Ionicons name="close" size={24} color="#FFFFFF" />
                             </TouchableOpacity>
                         </View>
                         <PluggyConnect
@@ -318,13 +320,41 @@ export default function MoreScreen() {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: 0,
+    },
+    header: {
+        paddingHorizontal: 16,
+        marginBottom: 32,
+        marginTop: 8,
+    },
+    mobileTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -1,
+    },
+    mobileSubtitle: {
+        fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
+        marginTop: 4,
+    },
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        marginBottom: 24,
+    },
     tabContainer: {
         marginBottom: 24,
     },
     tabBar: {
         flexDirection: 'row',
-        borderRadius: 16,
-        padding: 5,
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: 20,
+        padding: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
     },
     tab: {
         flex: 1,
@@ -332,68 +362,88 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        paddingVertical: 10,
-        borderRadius: 12,
+        paddingVertical: 12,
+        borderRadius: 16,
     },
     tabActive: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
     },
     tabLabel: {
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: '700',
     },
     content: {
         flex: 1,
     },
-    loadingContainer: {
-        paddingVertical: 48,
-        alignItems: 'center',
-    },
-    // Stats Row
-    statsRow: {
+    userCard: {
         flexDirection: 'row',
-        gap: 16,
-        marginBottom: 24,
-    },
-    statCard: {
-        flex: 1,
         alignItems: 'center',
-        padding: 20,
-        borderRadius: 24,
-        gap: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.03)',
+        padding: 24,
+        marginBottom: 32,
+        gap: 20,
     },
-    statValue: {
-        fontSize: 26,
+    userAvatar: {
+        width: 64,
+        height: 64,
+        borderRadius: 20,
+        backgroundColor: '#6366F1',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#6366F1',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    userInfo: {
+        flex: 1,
+        gap: 2,
+    },
+    userEmail: {
+        fontSize: 18,
         fontWeight: '800',
-        letterSpacing: -1,
+        color: '#FFFFFF',
     },
-    statLabel: {
-        fontSize: 12,
+    userIdText: {
+        fontSize: 10,
+        color: '#94A3B8',
         fontWeight: '600',
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
     },
-    // Add Connection Card
+    userLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#10B981',
+        marginTop: 4,
+    },
+    section: {
+        marginBottom: 32,
+    },
+    sectionTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#94A3B8',
+        marginBottom: 16,
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+    },
     addCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        borderRadius: 24,
+        padding: 24,
+        borderRadius: 28,
         borderWidth: 2,
         borderStyle: 'dashed',
+        borderColor: 'rgba(99, 102, 241, 0.3)',
+        backgroundColor: 'rgba(99, 102, 241, 0.05)',
         marginBottom: 24,
-        gap: 16,
+        gap: 20,
     },
     addIconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
+        width: 52,
+        height: 52,
+        borderRadius: 18,
+        backgroundColor: '#6366F1',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -402,91 +452,93 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     addCardTitle: {
-        fontSize: 17,
-        fontWeight: '700',
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#FFFFFF',
     },
     addCardSubtitle: {
         fontSize: 14,
-        lineHeight: 18,
-    },
-    // User Card
-    userCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 20,
-        borderRadius: 24,
-        marginBottom: 24,
-        gap: 16,
-        borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.05)',
-    },
-    userAvatar: {
-        width: 64,
-        height: 64,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    userInfo: {
-        flex: 1,
-        gap: 4,
-    },
-    userEmail: {
-        fontSize: 17,
-        fontWeight: '700',
-    },
-    userLabel: {
-        fontSize: 13,
+        color: '#94A3B8',
         fontWeight: '500',
+        lineHeight: 20,
     },
-    // Sections
-    section: {
-        marginBottom: 32,
-    },
-    sectionTitle: {
-        fontSize: 13,
-        fontWeight: '700',
-        marginBottom: 16,
-        textTransform: 'uppercase',
-        letterSpacing: 1,
-    },
-    // Settings Items
     settingsItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 18,
-        borderRadius: 20,
-        marginBottom: 10,
-        gap: 14,
+        padding: 16,
+        borderRadius: 24,
+        backgroundColor: 'rgba(255, 255, 255, 0.03)',
         borderWidth: 1,
-        borderColor: 'rgba(0,0,0,0.03)',
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        marginBottom: 12,
+        gap: 16,
+    },
+    settingsIconBox: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     settingsLabel: {
         flex: 1,
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
+        color: '#FFFFFF',
     },
     settingsValue: {
         fontSize: 14,
-        fontWeight: '500',
+        color: '#94A3B8',
+        fontWeight: '600',
     },
     logoutButton: {
         marginTop: 16,
-        borderWidth: 0,
+        backgroundColor: 'rgba(244, 63, 94, 0.05)',
+        borderColor: 'rgba(244, 63, 94, 0.1)',
     },
-    // Version
     version: {
         alignItems: 'center',
         paddingVertical: 32,
     },
     versionText: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
     },
-    desktopTitle: {
-        fontSize: 32,
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        justifyContent: 'flex-end',
+    },
+    modalContent: {
+        width: '100%',
+        height: '92%',
+        backgroundColor: '#0d0d12',
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
+        overflow: 'hidden',
+    },
+    modalHeader: {
+        padding: 24,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    modalTitle: {
+        fontSize: 20,
         fontWeight: '800',
-        marginBottom: 24,
-        marginTop: 8,
+        color: '#FFFFFF',
+    },
+    closeButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

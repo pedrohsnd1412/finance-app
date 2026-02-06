@@ -1,15 +1,11 @@
-import { SummaryCard } from '@/components/cards/SummaryCard';
 import { Container } from '@/components/Container';
-import { PeriodFilter } from '@/components/PeriodFilter';
 import { TransactionItem } from '@/components/TransactionItem';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
-import { Period } from '@/types/home.types';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -17,35 +13,17 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
 
-const CATEGORY_COLORS: Record<string, string> = {
-    'Alimentação': '#FF6B6B',
-    'Transporte': '#4ECDC4',
-    'Saúde': '#45B7D1',
-    'Educação': '#96CEB4',
-    'Entretenimento': '#DDA0DD',
-    'Contas': '#FFD93D',
-    'Compras': '#6BCB77',
-    'Viagem': '#4D96FF',
-    'Moradia': '#FF8B94',
-    'Trabalho': '#A8E6CF',
-    'Investimentos': '#88D8B0',
-    'Transferência': '#B4A7D6',
-    'Outros': '#9E9E9E',
-};
-
-export default function ExpensesScreen() {
-    const [period, setPeriod] = useState<Period>('month');
-    const { summary, isLoading, refetch } = useFinanceData(period);
+export default function IncomesScreen() {
+    const { summary, isLoading, refetch } = useFinanceData('month');
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
-    const router = useRouter();
 
-    const expensesList = useMemo(() => {
+    const incomesList = useMemo(() => {
         return summary.transactions
-            .filter(t => t.type === 'expense')
+            .filter(t => t.type === 'income')
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [summary.transactions]);
 
@@ -56,28 +34,17 @@ export default function ExpensesScreen() {
         <View style={styles.headerContent}>
             {!isDesktop ? (
                 <View style={styles.mobileHeader}>
-                    <Text style={styles.mobileTitle}>{t('home.transactions')}</Text>
-                    <Text style={styles.mobileSubtitle}>{t('home.transactionsSubtitle')}</Text>
+                    <Text style={styles.mobileTitle}>{t('home.stats.income')}</Text>
+                    <Text style={styles.mobileSubtitle}>Acompanhe todas as suas entradas</Text>
                 </View>
             ) : (
                 <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                    {t('home.transactions')}
+                    {t('home.stats.income')}
                 </Text>
             )}
 
-            <View style={styles.filterContainer}>
-                <PeriodFilter selected={period} onChange={setPeriod} />
-            </View>
-
-            <View style={styles.summaryContainer}>
-                <SummaryCard
-                    income={summary.incomeTotal}
-                    expense={summary.expenseTotal}
-                />
-            </View>
-
             <View style={styles.sectionHeader}>
-                <Text style={styles.listTitle}>{t('home.recentTransactions')}</Text>
+                <Text style={styles.listTitle}>Histórico de Entradas</Text>
                 <TouchableOpacity style={styles.filterButton}>
                     <Ionicons name="filter-outline" size={20} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -87,16 +54,16 @@ export default function ExpensesScreen() {
 
     return (
         <Container style={styles.container}>
-            {isLoading && expensesList.length === 0 ? (
+            {isLoading && incomesList.length === 0 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.tint} />
                     <Text style={[styles.loadingText, { color: '#94A3B8' }]}>
-                        {t('home.loading')}
+                        {t('common.loading')}
                     </Text>
                 </View>
             ) : (
                 <FlatList
-                    data={expensesList}
+                    data={incomesList}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <TransactionItem transaction={item} />}
                     ListHeaderComponent={renderHeader}
@@ -106,9 +73,9 @@ export default function ExpensesScreen() {
                     refreshing={isLoading}
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
-                            <Ionicons name="receipt-outline" size={64} color="#94A3B8" style={{ opacity: 0.2 }} />
+                            <Ionicons name="stats-chart-outline" size={64} color="#94A3B8" style={{ opacity: 0.2 }} />
                             <Text style={styles.emptyText}>
-                                {t('home.emptyTransactions')}
+                                Nenhuma receita encontrada neste período.
                             </Text>
                         </View>
                     }
@@ -120,75 +87,73 @@ export default function ExpensesScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        paddingHorizontal: 0,
+        flex: 1,
+    },
+    headerContent: {
+        marginBottom: 24,
     },
     mobileHeader: {
-        paddingHorizontal: 16,
         marginBottom: 32,
-        marginTop: 8,
+        paddingTop: 8,
     },
     mobileTitle: {
         fontSize: 32,
-        fontWeight: '800',
+        fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -1,
+        letterSpacing: -1.5,
     },
     mobileSubtitle: {
-        fontSize: 14,
+        fontSize: 16,
         color: '#94A3B8',
-        fontWeight: '600',
-        marginTop: 2,
+        fontWeight: '500',
+        marginTop: 4,
     },
-    loadingContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 16,
-        paddingTop: 100,
-    },
-    loadingText: {
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    listContent: {
-        paddingBottom: 40,
-    },
-    headerContent: {
-        paddingBottom: 16,
-    },
-    filterContainer: {
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
         marginBottom: 24,
-    },
-    summaryContainer: {
-        paddingHorizontal: 16,
-        marginBottom: 32,
+        letterSpacing: -1,
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        marginBottom: 12,
+        marginTop: 8,
     },
     listTitle: {
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: '700',
         color: '#94A3B8',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
     },
     filterButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
+        width: 40,
+        height: 40,
+        borderRadius: 12,
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
+    },
+    listContent: {
+        paddingBottom: 40,
+    },
+    loadingContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 100,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 14,
+        fontWeight: '600',
     },
     emptyState: {
         alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 80,
         gap: 16,
     },
@@ -196,12 +161,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#94A3B8',
         fontWeight: '600',
-    },
-    desktopTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        marginHorizontal: 16,
-        marginBottom: 24,
-        marginTop: 8,
+        textAlign: 'center',
     },
 });

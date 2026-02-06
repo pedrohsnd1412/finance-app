@@ -1,3 +1,4 @@
+import { GlassCard } from '@/components/GlassCard';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,43 +29,51 @@ export function SummaryStatsStack({ income, expense, saved }: SummaryStatsStackP
         {
             label: t('home.stats.totalIncome'),
             value: income,
-            trend: t('home.stats.fromLastMonth', { percentage: '+5.1%' }),
+            trend: '+5.1%',
             icon: 'trending-up',
-            color: '#84CC16'
+            color: '#10B981',
+            bgColor: 'rgba(16, 185, 129, 0.1)'
         },
         {
             label: t('home.stats.totalExpenses'),
             value: expense,
-            trend: t('home.stats.fromLastMonth', { percentage: '-15.5%' }),
+            trend: '-15.5%',
             icon: 'trending-down',
-            color: '#F87171'
+            color: '#F43F5E',
+            bgColor: 'rgba(244, 63, 94, 0.1)'
         },
         {
             label: t('home.stats.savedBalance'),
             value: saved,
-            trend: t('home.stats.fromLastMonth', { percentage: '+20.7%' }),
-            icon: 'wallet',
-            color: '#3B82F6'
+            trend: '+20.7%',
+            icon: 'wallet-outline',
+            color: '#6366F1',
+            bgColor: 'rgba(99, 102, 241, 0.1)'
         },
     ];
 
     return (
         <View style={styles.container}>
             {stats.map((stat, index) => (
-                <View key={index} style={[styles.card, { backgroundColor: theme.card }]}>
-                    <Text style={[styles.label, { color: theme.muted }]}>{stat.label}</Text>
-                    <Text style={[styles.value, { color: theme.text }]}>{formatCurrency(stat.value)}</Text>
-                    <View style={styles.trendRow}>
-                        <Ionicons
-                            name={stat.trend.startsWith('+') ? 'arrow-up' : 'arrow-down'}
-                            size={14}
-                            color={stat.trend.startsWith('+') ? '#84CC16' : '#F87171'}
-                        />
-                        <Text style={[styles.trendText, { color: stat.trend.startsWith('+') ? '#84CC16' : '#F87171' }]}>
-                            {stat.trend}
-                        </Text>
+                <GlassCard key={index} style={styles.card}>
+                    <View style={[styles.iconBox, { backgroundColor: stat.bgColor }]}>
+                        <Ionicons name={stat.icon as any} size={20} color={stat.color} />
                     </View>
-                </View>
+                    <View style={styles.content}>
+                        <Text style={styles.label}>{stat.label}</Text>
+                        <Text style={styles.value}>{formatCurrency(stat.value)}</Text>
+                        <View style={styles.trendRow}>
+                            <Ionicons
+                                name={stat.trend.startsWith('+') ? 'trending-up' : 'trending-down'}
+                                size={12}
+                                color={stat.trend.startsWith('+') ? '#10B981' : '#F43F5E'}
+                            />
+                            <Text style={[styles.trendText, { color: stat.trend.startsWith('+') ? '#10B981' : '#F43F5E' }]}>
+                                {stat.trend}
+                            </Text>
+                        </View>
+                    </View>
+                </GlassCard>
             ))}
         </View>
     );
@@ -72,30 +81,45 @@ export function SummaryStatsStack({ income, expense, saved }: SummaryStatsStackP
 
 const styles = StyleSheet.create({
     container: {
-        gap: 20,
+        gap: 16,
     },
     card: {
-        borderRadius: 24,
-        padding: 24,
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 20,
+        gap: 20,
+    },
+    iconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    content: {
         flex: 1,
     },
     label: {
-        fontSize: 13,
-        fontWeight: '600',
-        marginBottom: 8,
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 4,
     },
     value: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: '800',
-        marginBottom: 12,
+        color: '#FFFFFF',
     },
     trendRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4,
+        marginTop: 4,
     },
     trendText: {
         fontSize: 12,
-        fontWeight: '600',
+        fontWeight: '700',
     },
 });

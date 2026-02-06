@@ -18,6 +18,23 @@ export default function Root({ children }: { children: React.ReactNode }) {
         */}
         <ScrollViewStyleReset />
 
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              tailwind.config = {
+                theme: {
+                  extend: {
+                    fontFamily: {
+                      sans: ['Inter', 'sans-serif'],
+                    },
+                  },
+                },
+              }
+            `,
+          }}
+        />
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
         {/* Add any additional <head> elements that you want globally available on web... */}
@@ -33,6 +50,6 @@ body {
 }
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: #000;
+    background-color: #0d0d12;
   }
 }`;

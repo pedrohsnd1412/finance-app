@@ -87,6 +87,14 @@ export default function HomeScreen() {
             .sort((a, b) => b.value - a.value);
     }, [summary.transactions]);
 
+    // Calculate Credit vs Debit
+    const creditDebitData = React.useMemo(() => {
+        return [
+            { name: 'Crédito', value: summary.totalCredit * 100, color: '#F43F5E' },
+            { name: 'Débito', value: (summary.totalDebit - summary.totalCredit) * 100, color: '#6366F1' },
+        ];
+    }, [summary.totalCredit, summary.totalDebit]);
+
     return (
         <Container>
             {isDesktop && (
@@ -96,16 +104,16 @@ export default function HomeScreen() {
             )}
             {!isDesktop ? (
                 /* Mobile Layout */
-                <View>
+                <View style={styles.mobileLayout}>
                     <View style={styles.headerRow}>
                         <View>
-                            <Text style={[styles.greeting, { color: theme.muted }]}>{getGreeting()}</Text>
-                            <Text style={[styles.userName, { color: theme.text }]}>
-                                {summary.userName || 'User'}
+                            <Text style={styles.userName}>
+                                {t('home.overview')}
                             </Text>
+                            <Text style={styles.greeting}>{getGreeting()}, {summary.userName || 'User'}</Text>
                         </View>
-                        <TouchableOpacity style={[styles.notificationIcon, { backgroundColor: theme.card, borderColor: theme.border }]}>
-                            <Ionicons name="notifications-outline" size={22} color={theme.text} />
+                        <TouchableOpacity style={styles.notificationIcon}>
+                            <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
                         </TouchableOpacity>
                     </View>
 
@@ -119,7 +127,7 @@ export default function HomeScreen() {
                             <ActivityIndicator size="large" color={theme.tint} />
                         </View>
                     ) : (
-                        <>
+                        <View style={styles.scrollContent}>
                             <View style={styles.cardsSection}>
                                 <BalanceCard
                                     debit={summary.totalDebit}
@@ -140,12 +148,20 @@ export default function HomeScreen() {
                                 />
                             </View>
 
-                            <Section title={t('home.recentTransactions')}>
-                                <View style={styles.sectionHeader}>
-                                    <TouchableOpacity>
-                                        <Text style={[styles.viewAll, { color: theme.tint }]}>{t('home.viewAll')}</Text>
-                                    </TouchableOpacity>
+                            <Section title="Evolução Patrimonial">
+                                <View style={styles.chartWrapper}>
+                                    <DonutChart data={creditDebitData} size={180} />
                                 </View>
+                            </Section>
+
+                            <Section
+                                title={t('home.recentTransactions')}
+                                action={
+                                    <TouchableOpacity>
+                                        <Text style={styles.viewAll}>{t('home.viewAll')}</Text>
+                                    </TouchableOpacity>
+                                }
+                            >
                                 <View style={styles.listContainer}>
                                     {summary.transactions.length > 0 ? (
                                         summary.transactions.slice(0, 5).map((transaction) => (
@@ -156,7 +172,7 @@ export default function HomeScreen() {
                                         ))
                                     ) : (
                                         <View style={styles.emptyState}>
-                                            <Text style={[styles.emptyText, { color: theme.muted }]}>
+                                            <Text style={styles.emptyText}>
                                                 {t('home.emptyTransactions')}
                                             </Text>
                                         </View>
@@ -166,8 +182,8 @@ export default function HomeScreen() {
 
                             {categoryData.length > 0 && (
                                 <Section title={t('home.categoryChart')}>
-                                    <View style={[styles.chartContainer, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}>
-                                        <DonutChart data={categoryData} size={140} />
+                                    <View style={styles.chartWrapper}>
+                                        <DonutChart data={categoryData} size={180} />
                                     </View>
                                 </Section>
                             )}
@@ -175,7 +191,7 @@ export default function HomeScreen() {
                             <Section title={t('tabs.banks')}>
                                 <AccountsList filter={typeFilter} />
                             </Section>
-                        </>
+                        </View>
                     )}
                 </View>
             ) : (
@@ -251,73 +267,80 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    mobileLayout: {
+        paddingTop: 8,
+    },
     scrollContent: {
-        paddingTop: 10,
         paddingBottom: 40,
     },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        marginBottom: 32,
+        paddingHorizontal: 4,
     },
     greeting: {
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
     userName: {
-        fontSize: 28,
+        fontSize: 32,
         fontWeight: '800',
+        color: '#FFFFFF',
         marginTop: 4,
+        letterSpacing: -1,
     },
     notificationIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 52,
+        height: 52,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     cardsSection: {
         gap: 20,
-        marginBottom: 24,
-        marginTop: 8,
+        marginBottom: 32,
     },
     fullWidthCard: {
         width: '100%',
     },
     typeSelectorContainer: {
-        marginBottom: 16,
-    },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        marginTop: -35,
-        marginBottom: 10,
+        marginBottom: 24,
     },
     viewAll: {
         fontSize: 14,
-        fontWeight: '600',
+        fontWeight: '700',
+        color: '#6366F1',
     },
     listContainer: {
-        gap: 8,
+        gap: 0, // TransactionItems have their own padding
     },
     loadingContainer: {
-        padding: 60,
+        flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 100,
     },
-    chartContainer: {
-        borderRadius: 24,
-        padding: 24,
+    chartWrapper: {
         alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 20,
     },
     emptyState: {
         alignItems: 'center',
-        paddingVertical: 32,
+        paddingVertical: 40,
     },
     emptyText: {
         fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
     },
     // Desktop Grid Styles
     desktopGrid: {

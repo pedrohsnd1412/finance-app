@@ -1,0 +1,91 @@
+import { BalanceCard } from '@/components/web/BalanceCard';
+import { BanksGrid } from '@/components/web/BanksGrid';
+import { GlassCard } from '@/components/web/GlassCard';
+import { useFinanceData } from '@/hooks/useFinanceData';
+import { supabase } from '@/lib/supabase';
+import { Plus, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
+export default function BanksScreen() {
+    const { t } = useTranslation();
+    const [accounts, setAccounts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { summary } = useFinanceData('month');
+
+    useEffect(() => {
+        async function fetchAccounts() {
+            const { data } = await supabase
+                .from('accounts')
+                .select(`
+          id,
+          name,
+          balance,
+          currency,
+          type,
+          connection:connection_items (
+            connector_name
+          )
+        `)
+                .order('balance', { ascending: false });
+
+            if (data) {
+                const accountsData = data as any[];
+                setAccounts(accountsData.map(acc => ({
+                    id: acc.id,
+                    name: acc.name,
+                    balance: acc.balance,
+                    currency: acc.currency,
+                    type: acc.type,
+                    connector: acc.connection?.connector_name || t('banks.bankFallback')
+                })));
+            }
+            setLoading(false);
+        }
+        fetchAccounts();
+    }, [t]);
+
+    return (
+        <div className="flex-1 overflow-y-auto p-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold tracking-tight">{t('tabs.banks')}</h1>
+                <button className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-600/20">
+                    <Plus size={20} />
+                    <span>{t('more.connectNew')}</span>
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+                <div className="lg:col-span-1">
+                    <BalanceCard balance={summary.totalBalance.toFixed(2)} />
+                </div>
+                <div className="lg:col-span-2">
+                    <GlassCard className="h-full flex flex-col justify-center">
+                        <div className="flex items-center gap-6">
+                            <div className="w-16 h-16 bg-indigo-500/10 rounded-[24px] flex items-center justify-center border border-indigo-500/20">
+                                <ShieldCheck size={32} className="text-indigo-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold mb-1">{t('banks.secureConnectionTitle')}</h3>
+                                <p className="text-gray-400 max-w-md">{t('banks.secureConnectionDesc')}</p>
+                            </div>
+                        </div>
+                    </GlassCard>
+                </div>
+            </div>
+
+            <div className="mb-6">
+                <h2 className="text-xl font-bold mb-2">{t('more.connectedAccounts')}</h2>
+                <p className="text-gray-500 text-sm">{t('banks.connectedAccountsSubtitle')}</p>
+            </div>
+
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map(i => <div key={i} className="h-48 bg-white/5 animate-pulse rounded-[32px]"></div>)}
+                </div>
+            ) : (
+                <BanksGrid accounts={accounts} />
+            )}
+        </div>
+    );
+}

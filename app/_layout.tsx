@@ -55,6 +55,32 @@ export default function RootLayout() {
   );
 }
 
+const CustomDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: '#6366f1',
+    background: '#0d0d12',
+    card: '#0d0d12',
+    text: '#FFFFFF',
+    border: 'rgba(255, 255, 255, 0.08)',
+    notification: '#6366f1',
+  },
+};
+
+const CustomLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#6366F1',
+    background: '#F8FAFC',
+    card: '#FFFFFF',
+    text: '#0F172A',
+    border: '#E2E8F0',
+    notification: '#6366F1',
+  },
+};
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const { user, isLoading } = useAuth();
@@ -78,14 +104,14 @@ function RootLayoutNav() {
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colorScheme === 'dark' ? '#0d0d12' : '#F8FAFC' }}>
+        <ActivityIndicator size="large" color="#6366f1" />
       </View>
     );
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? CustomDarkTheme : CustomLightTheme}>
       <Stack>
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

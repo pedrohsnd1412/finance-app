@@ -31,33 +31,36 @@ export function TransactionItem({ transaction, style }: TransactionItemProps) {
     };
 
     const getIcon = () => {
-        if (isIncome) return 'bag-outline';
         const category = transaction.category?.toLowerCase() || '';
         if (category.includes('alimentação') || category.includes('food')) return 'restaurant-outline';
-        return 'bag-outline';
+        if (category.includes('compras') || category.includes('shopping')) return 'cart-outline';
+        if (category.includes('transporte') || category.includes('transport')) return 'car-outline';
+        if (category.includes('saúde') || category.includes('health')) return 'medkit-outline';
+        if (category.includes('entretenimento') || category.includes('entertainment')) return 'game-controller-outline';
+        return isIncome ? 'arrow-down-circle-outline' : 'arrow-up-circle-outline';
     };
 
     return (
         <View style={StyleSheet.flatten([styles.container, style])}>
-            <View style={[styles.iconBox, { backgroundColor: '#F1F5F9' }]}>
+            <View style={[styles.iconBox, { backgroundColor: 'rgba(255, 255, 255, 0.05)' }]}>
                 <Ionicons
                     name={getIcon() as any}
                     size={22}
-                    color="#6366F1"
+                    color={isIncome ? '#10B981' : '#F43F5E'}
                 />
             </View>
             <View style={styles.info}>
-                <Text style={[styles.desc, { color: '#0F172A' }]} numberOfLines={1}>
+                <Text style={[styles.desc, { color: '#FFFFFF' }]} numberOfLines={1}>
                     {transaction.description}
                 </Text>
-                <Text style={[styles.subText, { color: '#64748B' }]}>
+                <Text style={[styles.subText, { color: '#94A3B8' }]}>
                     {transaction.category || t('common.categories.other')}
                 </Text>
             </View>
             <View style={styles.right}>
                 <Text style={[
                     styles.val,
-                    { color: isIncome ? theme.success : '#EF4444' }
+                    { color: isIncome ? '#10B981' : '#FFFFFF' }
                 ]}>
                     {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
                 </Text>
@@ -73,12 +76,13 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 12,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
     },
     iconBox: {
-        width: 52,
-        height: 52,
-        borderRadius: 18,
+        width: 48,
+        height: 48,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 16,
@@ -88,18 +92,18 @@ const styles = StyleSheet.create({
         gap: 2,
     },
     desc: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '700',
     },
     subText: {
-        fontSize: 13,
-        fontWeight: '500',
+        fontSize: 12,
+        fontWeight: '600',
     },
     right: {
         gap: 2,
     },
     val: {
         fontSize: 16,
-        fontWeight: '700',
+        fontWeight: '800',
     },
 });

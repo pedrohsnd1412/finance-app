@@ -1,5 +1,6 @@
 import AccountsList from '@/components/AccountsList';
 import { Container } from '@/components/Container';
+import { GlassCard } from '@/components/GlassCard';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
@@ -19,39 +20,40 @@ export default function BanksScreen() {
     return (
         <Container>
             <View style={styles.header}>
-                {isDesktop && (
+                {!isDesktop ? (
+                    <View>
+                        <Text style={styles.mobileTitle}>{t('tabs.banks')}</Text>
+                        <Text style={styles.mobileSubtitle}>{t('banks.connectedAccountsSubtitle')}</Text>
+                    </View>
+                ) : (
                     <Text style={[styles.desktopTitle, { color: theme.text }]}>
                         {t('tabs.banks')}
                     </Text>
                 )}
                 <TouchableOpacity
-                    style={[styles.connectButton, { backgroundColor: theme.tint }]}
+                    style={[styles.connectButton, { backgroundColor: '#6366f1' }]}
                     onPress={() => {
-                        // For now we can navigate to more screen where the connect modal is, 
-                        // or we could implement the modal here too.
-                        // Given the request for "integration", I'll keep it simple for now.
                         router.push('/more');
                     }}
                 >
-                    <Ionicons name="add" size={20} color="#fff" />
-                    <Text style={styles.connectButtonText}>{t('more.connectNew')}</Text>
+                    <Ionicons name="add" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
 
             <View style={styles.content}>
-                <View style={[styles.infoBox, { backgroundColor: theme.card, borderColor: theme.border, borderWidth: 1 }]}>
-                    <View style={[styles.infoIcon, { backgroundColor: theme.tint + '10' }]}>
-                        <Ionicons name="shield-checkmark-outline" size={22} color={theme.tint} />
+                <GlassCard style={styles.infoBox}>
+                    <View style={styles.infoIcon}>
+                        <Ionicons name="shield-checkmark-outline" size={32} color="#6366f1" />
                     </View>
                     <View style={styles.infoTextContainer}>
-                        <Text style={[styles.infoTitle, { color: theme.text }]}>{t('more.security')}</Text>
-                        <Text style={[styles.infoText, { color: theme.muted }]}>
-                            {t('banks.manageInfo')}
-                        </Text>
+                        <Text style={styles.secureTitle}>{t('banks.secureConnectionTitle')}</Text>
+                        <Text style={styles.secureDesc}>{t('banks.secureConnectionDesc')}</Text>
                     </View>
-                </View>
+                </GlassCard>
 
-                <AccountsList />
+                <View style={{ marginTop: 8 }}>
+                    <AccountsList />
+                </View>
             </View>
         </Container>
     );
@@ -65,23 +67,34 @@ const styles = StyleSheet.create({
         marginBottom: 32,
         marginTop: 8,
     },
+    mobileTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -1,
+    },
+    mobileSubtitle: {
+        fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
+        marginTop: 2,
+    },
     desktopTitle: {
         fontSize: 32,
         fontWeight: '800',
         marginBottom: 0,
     },
     connectButton: {
-        flexDirection: 'row',
+        width: 52,
+        height: 52,
+        borderRadius: 20,
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 14,
-        gap: 8,
-    },
-    connectButtonText: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '700',
+        justifyContent: 'center',
+        shadowColor: '#6366f1',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
     },
     content: {
         flex: 1,
@@ -90,28 +103,32 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 24,
-        borderRadius: 24,
         marginBottom: 32,
         gap: 20,
     },
     infoIcon: {
-        width: 48,
-        height: 48,
-        borderRadius: 14,
+        width: 64,
+        height: 64,
+        borderRadius: 20,
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
         alignItems: 'center',
         justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(99, 102, 241, 0.2)',
     },
     infoTextContainer: {
         flex: 1,
         gap: 4,
     },
-    infoTitle: {
-        fontSize: 16,
+    secureTitle: {
+        fontSize: 18,
         fontWeight: '700',
+        color: '#FFFFFF',
     },
-    infoText: {
+    secureDesc: {
         fontSize: 14,
         lineHeight: 20,
+        color: '#94A3B8',
         fontWeight: '500',
     },
 });

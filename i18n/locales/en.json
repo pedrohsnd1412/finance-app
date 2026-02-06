@@ -69,16 +69,31 @@
         "myCard": "My card",
         "premiumTips": "Optimize your spending with ACRU Premium tools.",
         "balanceOverview": "Balance overview",
-        "savings": "Savings"
+        "savings": "Savings",
+        "averageIncome": "Average Income",
+        "transactionsSubtitle": "Review and manage your spending history",
+        "topCategory": "Top Category"
     },
     "banks": {
         "manageInfo": "Manage all your connected bank accounts and institutions in one place.",
         "myAccounts": "My Accounts",
         "empty": "No accounts connected.",
-        "bankFallback": "Bank"
+        "bankFallback": "Bank",
+        "secureConnectionTitle": "Secure Connection",
+        "secureConnectionDesc": "Your data is encrypted and protected. We use bank-grade security to ensure your information stays private.",
+        "connectedAccountsSubtitle": "Manage your linked financial institutions"
     },
     "cashflow": {
         "title": "Cashflow Analysis",
+        "subtitle": "Deep dive into your financial flows",
+        "last30Days": "Last 30 Days",
+        "incomeVsExpenses": "Income vs Expenses",
+        "averageWeeklyIncome": "Average Weekly Income",
+        "averageWeeklyExpense": "Average Weekly Expense",
+        "monthlySavings": "Monthly Savings",
+        "financialHealth": "Financial Health",
+        "savingsRate": "Savings Rate",
+        "expenseRatio": "Expense Ratio",
         "projection": "Monthly Projection",
         "onTrack": "Based on your current spending patterns, you are on track to save {{amount}} this month."
     },
@@ -93,10 +108,18 @@
             "food": "Food",
             "transportation": "Transportation",
             "entertainment": "Entertainment"
-        }
+        },
+        "subtitle": "Set limits and track your performance",
+        "overallLimit": "Overall Limit",
+        "spentSoFar": "Spent so far",
+        "remaining": "Remaining",
+        "utilized": "utilized"
     },
     "cards": {
-        "description": "Credit and debit card management."
+        "description": "Credit and debit card management.",
+        "subtitle": "Manage your cards and limits",
+        "newCard": "New Card",
+        "recentActivity": "Recent Card Activity"
     },
     "settings": {
         "langSubtitle": "System default language",
@@ -107,7 +130,9 @@
     },
     "header": {
         "searchPlaceholder": "Quick search",
-        "addWidget": "Add widget"
+        "addWidget": "Add widget",
+        "settings": "Settings",
+        "settingsSubtitle": "Manage your account preferences and security"
     },
     "more": {
         "preferences": "Preferences",
@@ -132,7 +157,22 @@
         "statusActive": "Enabled",
         "statusDark": "Dark",
         "statusLight": "Light",
-        "connectModalTitle": "Connect Account"
+        "connectModalTitle": "Connect Account",
+        "aiAssistant": "AI Assistant",
+        "aiSubtitle": "Chat with our AI to get financial insights",
+        "online": "Online",
+        "aiPlaceholder": "Ask anything about your finances...",
+        "insight": "Insight",
+        "analysis": "Analysis",
+        "optimization": "Optimization",
+        "appearance": "Appearance",
+        "dark": "Dark Mode",
+        "bankSecurity": "Bank-grade encryption",
+        "signOut": "Sign Out",
+        "logoutDesc": "Logout from your account",
+        "upgradeTitle": "Upgrade to Pro",
+        "upgradeDesc": "You are currently using the free version. Upgrade to Pro for unlimited bank connections and advanced analytics.",
+        "upgradeButton": "Upgrade Now"
     },
     "languages": {
         "pt": "Portuguese",

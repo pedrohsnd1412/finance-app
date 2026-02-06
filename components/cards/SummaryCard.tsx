@@ -1,3 +1,4 @@
+import { GlassCard } from '@/components/GlassCard';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,30 +19,32 @@ export function SummaryCard({ income = 0, expense = 0, style }: SummaryCardProps
 
     const formatCurrency = (value: number): string => {
         const safeValue = value ?? 0;
-        return safeValue.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-            maximumFractionDigits: 0, // Matching image look (no decimals for these cards)
+        return 'R$ ' + safeValue.toLocaleString('pt-BR', {
+            maximumFractionDigits: 0,
         });
     };
 
     return (
         <View style={[styles.container, style]}>
-            <View style={[styles.card, { backgroundColor: theme.incomeCard }]}>
-                <View style={[styles.iconBox, { backgroundColor: '#6366F1' }]}>
-                    <Ionicons name="arrow-down" size={16} color="#FFFFFF" />
+            <GlassCard style={styles.card}>
+                <View style={[styles.iconBox, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
+                    <Ionicons name="arrow-down" size={20} color="#10B981" />
                 </View>
-                <Text style={styles.label}>{t('home.income')}</Text>
-                <Text style={styles.value}>{formatCurrency(income)}</Text>
-            </View>
+                <View>
+                    <Text style={styles.label}>{t('home.stats.income')}</Text>
+                    <Text style={styles.value}>{formatCurrency(income)}</Text>
+                </View>
+            </GlassCard>
 
-            <View style={[styles.card, { backgroundColor: theme.expenseCard }]}>
-                <View style={[styles.iconBox, { backgroundColor: '#F59E0B' }]}>
-                    <Ionicons name="arrow-up" size={16} color="#FFFFFF" />
+            <GlassCard style={styles.card}>
+                <View style={[styles.iconBox, { backgroundColor: 'rgba(244, 63, 94, 0.1)' }]}>
+                    <Ionicons name="arrow-up" size={20} color="#F43F5E" />
                 </View>
-                <Text style={styles.label}>{t('home.expense')}</Text>
-                <Text style={styles.value}>{formatCurrency(expense)}</Text>
-            </View>
+                <View>
+                    <Text style={styles.label}>{t('home.stats.expense')}</Text>
+                    <Text style={styles.value}>{formatCurrency(expense)}</Text>
+                </View>
+            </GlassCard>
         </View>
     );
 }
@@ -53,26 +56,38 @@ const styles = StyleSheet.create({
     },
     card: {
         flex: 1,
-        borderRadius: 24,
         padding: 20,
-        gap: 8,
+        gap: 16,
     },
     iconBox: {
-        width: 36,
-        height: 36,
-        borderRadius: 12,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 4,
     },
     label: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#64748B',
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 4,
     },
     value: {
-        fontSize: 22,
+        fontSize: 24,
+        fontWeight: '800',
+        color: '#FFFFFF',
+    },
+    trendRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        marginTop: 4,
+    },
+    trendText: {
+        fontSize: 12,
         fontWeight: '700',
-        color: '#1E293B',
+        color: '#10B981',
     },
 });

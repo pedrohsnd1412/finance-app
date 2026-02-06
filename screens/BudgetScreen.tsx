@@ -1,4 +1,5 @@
 import { Container } from '@/components/Container';
+import { GlassCard } from '@/components/GlassCard';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
@@ -21,12 +22,24 @@ export default function BudgetScreen() {
     ];
 
     return (
-        <Container>
-            {isDesktop && (
-                <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                    {t('budget.title')}
-                </Text>
-            )}
+        <Container style={styles.container}>
+            <View style={styles.header}>
+                {!isDesktop ? (
+                    <View>
+                        <Text style={styles.mobileTitle}>{t('budget.title')}</Text>
+                        <Text style={styles.mobileSubtitle}>{t('budget.subtitle')}</Text>
+                    </View>
+                ) : (
+                    <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                        {t('budget.title')}
+                    </Text>
+                )}
+                <TouchableOpacity
+                    style={[styles.smallAddButton, { backgroundColor: '#6366f1' }]}
+                >
+                    <Ionicons name="add" size={24} color="#fff" />
+                </TouchableOpacity>
+            </View>
 
             <View style={styles.grid}>
                 {budgets.map((budget, i) => {
@@ -34,22 +47,29 @@ export default function BudgetScreen() {
                     const isOver = budget.spent > budget.limit;
 
                     return (
-                        <View key={i} style={[styles.budgetCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                        <GlassCard key={i} style={styles.budgetCard}>
                             <View style={styles.cardHeader}>
-                                <Text style={[styles.category, { color: theme.text }]}>{budget.category}</Text>
+                                <Text style={styles.category}>{budget.category}</Text>
                                 <TouchableOpacity>
-                                    <Ionicons name="ellipsis-horizontal" size={20} color={theme.muted} />
+                                    <Ionicons name="ellipsis-horizontal" size={20} color="#94A3B8" />
                                 </TouchableOpacity>
                             </View>
 
+                            <View style={styles.amountRow}>
+                                <Text style={[styles.spentAmount, { color: isOver ? '#F43F5E' : '#FFFFFF' }]}>
+                                    ${budget.spent}
+                                </Text>
+                                <Text style={styles.limitAmount}>/ ${budget.limit}</Text>
+                            </View>
+
                             <View style={styles.progressContainer}>
-                                <View style={[styles.progressBar, { backgroundColor: theme.border }]}>
+                                <View style={styles.progressBar}>
                                     <View
                                         style={[
                                             styles.progressFill,
                                             {
                                                 width: `${progress * 100}%`,
-                                                backgroundColor: isOver ? theme.error : budget.color
+                                                backgroundColor: isOver ? '#F43F5E' : budget.color
                                             }
                                         ]}
                                     />
@@ -57,92 +77,114 @@ export default function BudgetScreen() {
                             </View>
 
                             <View style={styles.footer}>
-                                <Text style={[styles.spentText, { color: isOver ? theme.error : theme.text }]}>
-                                    ${budget.spent} <Text style={{ color: theme.muted, fontWeight: '400' }}>{t('budget.of')} ${budget.limit}</Text>
-                                </Text>
-                                <Text style={[styles.remainingText, { color: isOver ? theme.error : theme.muted }]}>
+                                <Text style={[styles.remainingText, { color: isOver ? '#F43F5E' : '#94A3B8' }]}>
                                     {isOver ? t('budget.overBudget') : `$${budget.limit - budget.spent} ${t('budget.left')}`}
                                 </Text>
                             </View>
-                        </View>
+                        </GlassCard>
                     );
                 })}
             </View>
-
-            <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.tint }]}>
-                <Ionicons name="add" size={24} color="#FFF" />
-                <Text style={styles.addButtonText}>{t('budget.createNew')}</Text>
-            </TouchableOpacity>
         </Container>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        paddingHorizontal: 0,
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        marginBottom: 32,
+        marginTop: 8,
+    },
+    mobileTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#FFFFFF',
+        letterSpacing: -1,
+    },
+    mobileSubtitle: {
+        fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
+        marginTop: 4,
+    },
     desktopTitle: {
         fontSize: 32,
         fontWeight: '800',
         marginBottom: 24,
-        marginTop: 8,
+    },
+    smallAddButton: {
+        width: 52,
+        height: 52,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#6366f1',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+        elevation: 8,
     },
     grid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 20,
+        flexDirection: 'column',
+        gap: 16,
+        paddingHorizontal: 16,
         marginBottom: 32,
     },
     budgetCard: {
-        width: '48%',
         padding: 24,
-        borderRadius: 24,
-        borderWidth: 1,
     },
     cardHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 16,
     },
     category: {
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: '800',
+        color: '#FFFFFF',
+    },
+    amountRow: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        gap: 4,
+        marginBottom: 20,
+    },
+    spentAmount: {
+        fontSize: 28,
+        fontWeight: '800',
+    },
+    limitAmount: {
+        fontSize: 14,
+        color: '#94A3B8',
+        fontWeight: '600',
     },
     progressContainer: {
-        marginBottom: 16,
+        marginBottom: 12,
     },
     progressBar: {
-        height: 10,
-        borderRadius: 5,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         overflow: 'hidden',
     },
     progressFill: {
         height: '100%',
-        borderRadius: 5,
+        borderRadius: 4,
     },
     footer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    spentText: {
-        fontSize: 16,
-        fontWeight: '700',
-    },
     remainingText: {
-        fontSize: 14,
-        fontWeight: '500',
-    },
-    addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 18,
-        borderRadius: 16,
-        gap: 12,
-        maxWidth: 300,
-    },
-    addButtonText: {
-        color: '#FFF',
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: '700',
     },
 });

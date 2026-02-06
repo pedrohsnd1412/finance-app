@@ -16,19 +16,19 @@ export const Colors = {
     expenseCard: '#FFFBEB',
   },
   dark: {
-    text: '#F8FAFC', // Slate 50
-    background: '#020617', // Slate 950
-    tint: '#818CF8', // Indigo 400
-    tabIconDefault: '#475569', // Slate 600
-    tabIconSelected: '#818CF8',
-    card: '#0F172A', // Slate 900
-    border: '#1E293B', // Slate 800
-    success: '#34D399', // Emerald 400
-    error: '#F87171', // Red 400
-    warning: '#FBBF24', // Amber 400
-    muted: '#94A3B8', // Slate 400
-    premiumCard: '#1A1C1E',
-    incomeCard: '#1E293B',
-    expenseCard: '#1E293B',
+    text: '#FFFFFF',
+    background: '#0d0d12',
+    tint: '#6366f1',
+    tabIconDefault: '#475569',
+    tabIconSelected: '#FFFFFF',
+    card: 'rgba(255, 255, 255, 0.05)',
+    border: 'rgba(255, 255, 255, 0.08)',
+    success: '#10b981',
+    error: '#f43f5e',
+    warning: '#f59e0b',
+    muted: '#94a3b8',
+    premiumCard: '#6366f1',
+    incomeCard: 'rgba(16, 185, 129, 0.1)',
+    expenseCard: 'rgba(244, 63, 94, 0.1)',
   },
 };

@@ -33,21 +33,20 @@ export default function TabLayout() {
             screenOptions={{
               tabBarActiveTintColor: theme.tint,
               headerShown: false,
-              tabBarStyle: isDesktop ? { display: 'none' } : undefined,
+              tabBarStyle: { display: 'none' },
             }}>
             <Tabs.Screen
               name="index"
               options={{
-                title: 'Home',
+                title: 'Visão Geral',
                 tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
               }}
             />
             <Tabs.Screen
-              name="banks"
+              name="incomes"
               options={{
-                title: 'Bancos',
-                tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
-                href: isDesktop ? undefined : null,
+                title: 'Receitas',
+                tabBarIcon: ({ color }) => <TabBarIcon name="arrow-circle-down" color={color} />,
               }}
             />
             <Tabs.Screen
@@ -62,6 +61,14 @@ export default function TabLayout() {
               options={{
                 title: 'Fluxo',
                 tabBarIcon: ({ color }) => <TabBarIcon name="line-chart" color={color} />,
+                href: isDesktop ? undefined : null,
+              }}
+            />
+            <Tabs.Screen
+              name="banks"
+              options={{
+                title: 'Bancos',
+                tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
                 href: isDesktop ? undefined : null,
               }}
             />
@@ -109,6 +116,14 @@ export default function TabLayout() {
         {Platform.select({
           ios: <Icon sf="house.fill" />,
           android: <Icon src={<VectorIcon family={FontAwesome} name="home" />} />,
+        })}
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="incomes">
+        <Label>Receitas</Label>
+        {Platform.select({
+          ios: <Icon sf="arrow.down.circle.fill" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="arrow-circle-down" />} />,
         })}
       </NativeTabs.Trigger>
 

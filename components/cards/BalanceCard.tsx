@@ -1,9 +1,8 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 interface BalanceCardProps {
     debit: number;
@@ -12,44 +11,40 @@ interface BalanceCardProps {
 }
 
 export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     const formatCurrency = (value: number): string => {
-        return value.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
-            style: 'currency',
-            currency: i18n.language === 'pt' ? 'BRL' : 'USD',
+        return 'R$ ' + value.toLocaleString('pt-BR', {
+            maximumFractionDigits: 0,
         });
     };
 
-    // Mock progress for UI match
-    const progress = 0.65;
-
     return (
-        <View style={StyleSheet.flatten([styles.card, { backgroundColor: theme.premiumCard }, style])}>
-            <View style={styles.topRow}>
-                <Text style={styles.balanceAmount}>
-                    {formatCurrency(debit)}
-                </Text>
-                <TouchableOpacity style={styles.moreButton}>
-                    <Ionicons name="ellipsis-horizontal" size={20} color="#FFFFFF" />
-                </TouchableOpacity>
-            </View>
+        <View style={StyleSheet.flatten([styles.card, { backgroundColor: '#6366f1' }, style])}>
+            {/* Glossy overlay effect simulation */}
+            <View style={styles.glossyOverlay} />
 
-            <Text style={styles.label}>{t('home.balance')}</Text>
-
-            <View style={styles.progressWrapper}>
-                <View style={styles.progressBar}>
-                    <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
+            <View style={styles.content}>
+                <View style={styles.topRow}>
+                    <View>
+                        <Text style={styles.label}>Subtotal</Text>
+                        <Text style={styles.balanceAmount}>
+                            {formatCurrency(debit - credit)}
+                        </Text>
+                    </View>
                 </View>
-            </View>
 
-            <View style={styles.bottomRow}>
-                <Text style={styles.cardNumber}>**** **** 302</Text>
-                <View style={styles.cardBrand}>
-                    <View style={[styles.brandCircle, { backgroundColor: '#EB001B', marginRight: -8 }]} />
-                    <View style={[styles.brandCircle, { backgroundColor: '#F79E1B', opacity: 0.8 }]} />
+                <View style={styles.bottomRow}>
+                    <View>
+                        <Text style={styles.cardNumber}>**** 4582</Text>
+                        <Text style={styles.expiry}>09/28</Text>
+                    </View>
+                    <View style={styles.cardBrand}>
+                        <View style={[styles.brandCircle, { backgroundColor: '#EB001B', marginRight: -8 }]} />
+                        <View style={[styles.brandCircle, { backgroundColor: '#F79E1B', opacity: 0.8 }]} />
+                    </View>
                 </View>
             </View>
         </View>
@@ -58,73 +53,73 @@ export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 28,
-        padding: 24,
-        shadowColor: '#000',
+        borderRadius: 36,
+        height: 220,
+        overflow: 'hidden',
+        shadowColor: '#6366f1',
         shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 10,
+        shadowOpacity: 0.4,
+        shadowRadius: 20,
+        elevation: 12,
+    },
+    glossyOverlay: {
+        position: 'absolute',
+        top: -100,
+        right: -100,
+        width: 300,
+        height: 300,
+        borderRadius: 150,
+        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    content: {
+        flex: 1,
+        padding: 30,
+        justifyContent: 'space-between',
     },
     topRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 4,
+        alignItems: 'flex-start',
     },
     balanceAmount: {
-        fontSize: 32,
-        fontWeight: '800',
+        fontSize: 48,
+        fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -0.5,
-    },
-    moreButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        alignItems: 'center',
-        justifyContent: 'center',
+        letterSpacing: -2,
+        marginTop: 4,
     },
     label: {
         fontSize: 14,
-        fontWeight: '500',
-        color: 'rgba(255, 255, 255, 0.6)',
-        marginBottom: 24,
-    },
-    progressWrapper: {
-        marginBottom: 24,
-    },
-    progressBar: {
-        height: 6,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: 3,
-        overflow: 'hidden',
-    },
-    progressFill: {
-        height: '100%',
-        backgroundColor: '#F79E1B',
-        borderRadius: 3,
+        fontWeight: '700',
+        color: 'rgba(255, 255, 255, 0.9)',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
     },
     bottomRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8,
+        alignItems: 'flex-end',
     },
     cardNumber: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: '600',
-        color: 'rgba(255, 255, 255, 0.8)',
-        letterSpacing: 1,
+        color: '#FFFFFF',
+        letterSpacing: 2,
+    },
+    expiry: {
+        fontSize: 10,
+        fontWeight: '600',
+        color: 'rgba(255, 255, 255, 0.5)',
+        marginTop: 4,
+        textTransform: 'uppercase',
     },
     cardBrand: {
         flexDirection: 'row',
         alignItems: 'center',
     },
     brandCircle: {
-        width: 18,
-        height: 18,
-        borderRadius: 9,
+        width: 24,
+        height: 24,
+        borderRadius: 12,
     },
 });
