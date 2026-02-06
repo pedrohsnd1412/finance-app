@@ -33,7 +33,7 @@ export default function TabLayout() {
             screenOptions={{
               tabBarActiveTintColor: theme.tint,
               headerShown: false,
-              tabBarStyle: { display: 'none' },
+              tabBarStyle: { display: 'none', backgroundColor: 'transparent', elevation: 0, borderTopWidth: 0 },
             }}>
             <Tabs.Screen
               name="index"

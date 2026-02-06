@@ -63,8 +63,8 @@ export default function HomeScreen() {
             {/* Middle Section: Income Chart and Expenses Pie */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <GlassCard>
-                    <div className="flex justify-between items-center mb-10">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest">{t('home.averageIncome')}</h4>
+                    <div className="flex justify-between items-center mb-6">
+                        <h4 className="text-2xl font-bold text-white">{t('home.averageIncome')}</h4>
                         <MoreVertical size={18} className="text-gray-500" />
                     </div>
 
@@ -91,7 +91,7 @@ export default function HomeScreen() {
 
                 <GlassCard className="flex items-center">
                     <div className="flex-1">
-                        <h4 className="text-sm font-bold text-white uppercase tracking-widest mb-10">{t('home.categoryChart')}</h4>
+                        <h4 className="text-2xl font-bold text-white mb-6">{t('home.categoryChart')}</h4>
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-1 bg-rose-500 rounded-full"></div>

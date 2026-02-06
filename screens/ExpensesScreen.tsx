@@ -56,12 +56,12 @@ export default function ExpensesScreen() {
         <View style={styles.headerContent}>
             {!isDesktop ? (
                 <View style={styles.mobileHeader}>
-                    <Text style={styles.mobileTitle}>{t('home.transactions')}</Text>
+                    <Text style={styles.mobileTitle}>{t('tabs.expenses')}</Text>
                     <Text style={styles.mobileSubtitle}>{t('home.transactionsSubtitle')}</Text>
                 </View>
             ) : (
                 <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                    {t('home.transactions')}
+                    {t('tabs.expenses')}
                 </Text>
             )}
 

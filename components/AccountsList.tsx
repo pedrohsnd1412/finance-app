@@ -24,9 +24,10 @@ import { TransactionTypeFilter } from '@/types/home.types';
 
 interface AccountsListProps {
     filter?: TransactionTypeFilter;
+    hideHeader?: boolean;
 }
 
-export default function AccountsList({ filter = 'all' }: AccountsListProps) {
+export default function AccountsList({ filter = 'all', hideHeader = false }: AccountsListProps) {
     const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
@@ -125,10 +126,12 @@ export default function AccountsList({ filter = 'all' }: AccountsListProps) {
 
     return (
         <View style={styles.container}>
-            <View style={styles.sectionHeader}>
-                <Text style={styles.title}>{t('banks.myAccounts')}</Text>
-                <Text style={styles.count}>{filteredAccounts.length}</Text>
-            </View>
+            {!hideHeader && (
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.title}>{t('banks.myAccounts')}</Text>
+                    <Text style={styles.count}>{filteredAccounts.length}</Text>
+                </View>
+            )}
             <FlatList
                 data={filteredAccounts}
                 keyExtractor={(item) => item.id}

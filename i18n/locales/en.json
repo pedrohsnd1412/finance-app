@@ -84,7 +84,7 @@
         "connectedAccountsSubtitle": "Manage your linked financial institutions"
     },
     "cashflow": {
-        "title": "Cashflow Analysis",
+        "title": "Cashflow",
         "subtitle": "Deep dive into your financial flows",
         "last30Days": "Last 30 Days",
         "incomeVsExpenses": "Income vs Expenses",

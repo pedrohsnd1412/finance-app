@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function BanksScreen() {
     const { t } = useTranslation();
@@ -19,28 +19,8 @@ export default function BanksScreen() {
 
     return (
         <Container>
-            <View style={styles.header}>
-                {!isDesktop ? (
-                    <View>
-                        <Text style={styles.mobileTitle}>{t('tabs.banks')}</Text>
-                        <Text style={styles.mobileSubtitle}>{t('banks.connectedAccountsSubtitle')}</Text>
-                    </View>
-                ) : (
-                    <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                        {t('tabs.banks')}
-                    </Text>
-                )}
-                <TouchableOpacity
-                    style={[styles.connectButton, { backgroundColor: '#6366f1' }]}
-                    onPress={() => {
-                        router.push('/more');
-                    }}
-                >
-                    <Ionicons name="add" size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
-
             <View style={styles.content}>
+                {/* Full Width Security Banner */}
                 <GlassCard style={styles.infoBox}>
                     <View style={styles.infoIcon}>
                         <Ionicons name="shield-checkmark-outline" size={32} color="#6366f1" />
@@ -49,10 +29,32 @@ export default function BanksScreen() {
                         <Text style={styles.secureTitle}>{t('banks.secureConnectionTitle')}</Text>
                         <Text style={styles.secureDesc}>{t('banks.secureConnectionDesc')}</Text>
                     </View>
+                    {!isDesktop && (
+                        <TouchableOpacity
+                            style={[styles.connectButton, { backgroundColor: '#6366f1' }]}
+                            onPress={() => router.push('/more')}
+                        >
+                            <Ionicons name="add" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    )}
                 </GlassCard>
 
-                <View style={{ marginTop: 8 }}>
-                    <AccountsList />
+                <View style={styles.sectionsGrid}>
+                    <View style={styles.accountSection}>
+                        <View style={styles.sectionTitleRow}>
+                            <Text style={styles.sectionTitle}>Contas Correntes</Text>
+                            <View style={styles.badge}><Text style={styles.badgeText}>Ativas</Text></View>
+                        </View>
+                        <AccountsList filter="debit" hideHeader={true} />
+                    </View>
+
+                    <View style={styles.accountSection}>
+                        <View style={styles.sectionTitleRow}>
+                            <Text style={styles.sectionTitle}>Cartões de Crédito</Text>
+                            <View style={styles.badge}><Text style={styles.badgeText}>Gestão</Text></View>
+                        </View>
+                        <AccountsList filter="credit" hideHeader={true} />
+                    </View>
                 </View>
             </View>
         </Container>
@@ -60,51 +62,17 @@ export default function BanksScreen() {
 }
 
 const styles = StyleSheet.create({
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 32,
-        marginTop: 8,
-    },
-    mobileTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        color: '#FFFFFF',
-        letterSpacing: -1,
-    },
-    mobileSubtitle: {
-        fontSize: 14,
-        color: '#94A3B8',
-        fontWeight: '600',
-        marginTop: 2,
-    },
-    desktopTitle: {
-        fontSize: 32,
-        fontWeight: '800',
-        marginBottom: 0,
-    },
-    connectButton: {
-        width: 52,
-        height: 52,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#6366f1',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 12,
-        elevation: 8,
-    },
     content: {
         flex: 1,
+        paddingTop: 8,
     },
     infoBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 24,
+        padding: 32,
         marginBottom: 32,
-        gap: 20,
+        gap: 24,
+        width: '100%',
     },
     infoIcon: {
         width: 64,
@@ -121,14 +89,52 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     secureTitle: {
-        fontSize: 18,
-        fontWeight: '700',
+        fontSize: 22,
+        fontWeight: '800',
         color: '#FFFFFF',
     },
     secureDesc: {
-        fontSize: 14,
-        lineHeight: 20,
+        fontSize: 15,
+        lineHeight: 22,
         color: '#94A3B8',
         fontWeight: '500',
+    },
+    sectionsGrid: {
+        flexDirection: Platform.OS === 'web' ? 'row' : 'column',
+        gap: 32,
+    },
+    accountSection: {
+        flex: 1,
+    },
+    sectionTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1.5,
+    },
+    badge: {
+        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 6,
+    },
+    badgeText: {
+        color: '#6366f1',
+        fontSize: 10,
+        fontWeight: '700',
+    },
+    connectButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

@@ -1,4 +1,3 @@
-import { BarChart3 } from 'lucide-react';
 import React from 'react';
 
 interface StatCardProps {
@@ -12,21 +11,16 @@ interface StatCardProps {
 export const StatCard = ({ title, amount, change, trend, chartData }: StatCardProps) => {
     const isPositive = trend === 'up';
     return (
-        <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-8 flex-1 min-w-[280px] flex flex-col justify-between">
+        <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-6 flex-1 min-w-[280px] flex flex-col justify-between">
             <div>
-                <div className="flex justify-between items-start mb-6">
-                    <div className="bg-white/5 p-2 rounded-xl">
-                        <BarChart3 size={20} className="text-gray-300" />
-                    </div>
-                    <div className="text-right">
-                        <span className="text-sm text-white font-bold block">{title}</span>
-                        <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Mensal</span>
-                    </div>
+                <div className="mb-4">
+                    <span className="text-2xl text-white font-bold block mb-1">{title}</span>
+                    <span className="text-xs text-gray-400 font-medium">Fluxo Mensal</span>
                 </div>
 
-                <div className="flex items-baseline gap-3 mb-8">
-                    <h3 className="text-4xl font-black text-white">R$ {amount}</h3>
-                    <div className={`flex items-center text-[11px] font-bold px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                <div className="flex items-baseline gap-3 mb-6">
+                    <h3 className="text-3xl font-black text-white">R$ {amount}</h3>
+                    <div className={`flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                         {change}% {isPositive ? '↑' : '↓'}
                     </div>
                 </div>

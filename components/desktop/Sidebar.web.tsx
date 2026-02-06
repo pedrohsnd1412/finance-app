@@ -3,7 +3,6 @@ import { usePathname, useRouter } from 'expo-router';
 import { ArrowLeftRight, BarChart3, ChevronDown, HelpCircle, LayoutDashboard, Receipt, Settings, Wallet } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Text } from 'react-native';
 
 const SidebarItem = ({ icon: Icon, label, active = false, badge, onClick }: {
     icon: any,
@@ -83,9 +82,9 @@ export function Sidebar() {
             <div className="mt-auto p-3 bg-white/5 rounded-2xl border border-white/5 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-all group">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5">
                     <div className="w-full h-full rounded-full border-2 border-[#12121a] overflow-hidden flex items-center justify-center bg-[#12121a]">
-                        <Text className="text-sm font-bold text-white">
-                            {(summary.userName || 'U')[0].toUpperCase()}
-                        </Text>
+                        <span className="text-sm font-bold text-white uppercase">
+                            {(summary.userName || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                        </span>
                     </div>
                 </div>
                 <div className="flex-1 min-w-0">
