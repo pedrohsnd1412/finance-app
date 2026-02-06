@@ -30,10 +30,15 @@ export default function TabLayout() {
         <View style={styles.content}>
           {isDesktop && <TopHeader />}
           <Tabs
+            tabBar={() => null}
             screenOptions={{
               tabBarActiveTintColor: theme.tint,
               headerShown: false,
-              tabBarStyle: { display: 'none', backgroundColor: 'transparent', elevation: 0, borderTopWidth: 0 },
+              tabBarStyle: {
+                display: 'none',
+                height: 0,
+                borderTopWidth: 0,
+              },
             }}>
             <Tabs.Screen
               name="index"
@@ -161,5 +166,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    backgroundColor: '#0d0d12',
   },
 });

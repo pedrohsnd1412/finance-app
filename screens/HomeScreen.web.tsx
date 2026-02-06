@@ -24,7 +24,7 @@ export default function HomeScreen() {
     }));
 
     return (
-        <div className="flex-1 overflow-y-auto pt-16 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
+        <div className="flex-1 overflow-y-auto pt-4 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
             {/* Top Section: Balance and Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 mt-4">
                 <BalanceCard balance={summary.totalBalance.toFixed(2)} />

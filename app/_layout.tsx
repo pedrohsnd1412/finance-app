@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { ActivityIndicator, LogBox, View } from 'react-native';
+import { ActivityIndicator, LogBox, Platform, View } from 'react-native';
 import 'react-native-reanimated';
 import './../i18n';
 
@@ -41,6 +41,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+      if (Platform.OS === 'web') {
+        document.body.style.backgroundColor = '#0d0d12';
+      }
     }
   }, [loaded]);
 
