@@ -35,7 +35,7 @@ export function Sidebar() {
 
     const menuItems = [
         { icon: LayoutDashboard, label: t('home.overview'), route: "/" },
-        { icon: ArrowLeftRight, label: 'Receitas', route: "/incomes" },
+        { icon: ArrowLeftRight, label: t('tabs.incomes'), route: "/incomes" },
         { icon: Receipt, label: t('tabs.expenses'), route: "/expenses" },
         { icon: BarChart3, label: t('cashflow.title'), route: "/cashflow" },
         { icon: Wallet, label: t('tabs.banks'), route: "/banks" },

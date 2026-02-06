@@ -38,7 +38,7 @@ export const TransactionList = ({ transactions, title = "Recent Transactions", o
                             <span className="text-sm font-semibold text-white">{tx.name}</span>
                         </div>
                         <div className="col-span-2 text-xs text-gray-400">{tx.date}</div>
-                        <div className="col-span-2 text-sm font-bold text-white">${tx.amount}</div>
+                        <div className="col-span-2 text-sm font-bold text-white">R$ {tx.amount}</div>
                         <div className="col-span-2 text-xs text-gray-400">{tx.time}</div>
                         <div className="col-span-2 flex justify-end">
                             <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${tx.status === 'Success' ? 'text-green-400' : 'text-orange-400'}`}>

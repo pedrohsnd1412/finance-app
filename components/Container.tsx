@@ -15,8 +15,8 @@ interface ContainerProps {
 export function Container({ children, style, useSafeArea = true, maxWidth = 1400, scrollEnabled = true }: ContainerProps) {
     const colorScheme = useColorScheme();
     const theme = colorScheme ?? 'light';
-    const backgroundColor = Colors[theme].background;
     const { isDesktop } = useResponsive();
+    const backgroundColor = isDesktop ? '#0d0d12' : Colors[theme].background;
 
     const Wrapper = useSafeArea ? SafeAreaView : View;
 

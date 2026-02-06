@@ -38,12 +38,12 @@ export default function IncomesScreen() {
         <View style={styles.headerContent}>
             {!isDesktop ? (
                 <View style={styles.mobileHeader}>
-                    <Text style={styles.mobileTitle}>{t('home.stats.income')}</Text>
+                    <Text style={styles.mobileTitle}>{t('tabs.incomes')}</Text>
                     <Text style={styles.mobileSubtitle}>Acompanhe todas as suas entradas</Text>
                 </View>
             ) : (
                 <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                    {t('home.stats.income')}
+                    {t('tabs.incomes')}
                 </Text>
             )}
 

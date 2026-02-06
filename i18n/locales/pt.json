@@ -37,6 +37,7 @@
     "tabs": {
         "home": "Home",
         "expenses": "Despesas",
+        "incomes": "Receitas",
         "cards": "Cartões",
         "banks": "Bancos",
         "more": "Mais"
