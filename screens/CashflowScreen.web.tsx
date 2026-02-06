@@ -9,7 +9,7 @@ export default function CashflowScreen() {
 
     return (
         <div className="flex-1 overflow-y-auto p-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
-            <div className="flex justify-between items-center mb-10 mt-4">
+            <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-10 mt-4">
                 <div>
                     <h1 className="text-4xl font-black tracking-tight mb-2">{t('cashflow.title')}</h1>
                     <p className="text-gray-500 font-medium">{t('cashflow.subtitle')}</p>

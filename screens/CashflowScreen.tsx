@@ -27,9 +27,12 @@ export default function CashflowScreen() {
                         <Text style={styles.mobileSubtitle}>{t('cashflow.subtitle')}</Text>
                     </View>
                 ) : (
-                    <Text style={[styles.desktopTitle, { color: theme.text }]}>
-                        {t('cashflow.title')}
-                    </Text>
+                    <View style={styles.titleSection}>
+                        <Text style={[styles.desktopTitle, { color: theme.text }]}>
+                            {t('cashflow.title')}
+                        </Text>
+                        <Text style={styles.pageSubtitle}>{t('cashflow.subtitle')}</Text>
+                    </View>
                 )}
             </View>
 
@@ -86,8 +89,18 @@ const styles = StyleSheet.create({
     },
     desktopTitle: {
         fontSize: 32,
-        fontWeight: '800',
-        marginBottom: 24,
+        fontWeight: '900',
+        letterSpacing: -1,
+    },
+    titleSection: {
+        marginTop: 8,
+        marginBottom: 28,
+    },
+    pageSubtitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#94A3B8',
+        marginTop: 4,
     },
     grid: {
         flexDirection: 'column',

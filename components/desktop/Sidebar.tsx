@@ -96,7 +96,8 @@ const styles = StyleSheet.create({
     sidebar: {
         height: '100%',
         borderRightWidth: 1,
-        paddingVertical: 32,
+        paddingTop: 70,
+        paddingBottom: 32,
         // Remove paddingHorizontal and handle it in items
         transitionProperty: 'width', // Works on web
         transitionDuration: '0.3s',

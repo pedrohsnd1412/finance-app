@@ -9,13 +9,13 @@ import { useTranslation } from 'react-i18next';
 export function TopHeader() {
     const { t } = useTranslation();
     return (
-        <header className="flex justify-between items-center mb-8 p-8 bg-[#0d0d12]">
-            <div className="relative w-96">
+        <header className="flex justify-between items-center h-[120px] pt-[60px] px-8 bg-[#0d0d12]">
+            <div className="relative w-96 h-12">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                 <input
                     type="text"
                     placeholder={t('header.searchPlaceholder')}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    className="w-full h-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
                 />
             </div>
             <div className="flex items-center gap-4">

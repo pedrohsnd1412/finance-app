@@ -25,9 +25,9 @@ export default function SettingsScreen() {
 
     return (
         <div className="flex-1 overflow-y-auto p-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
-            <div className="mb-10">
-                <h1 className="text-3xl font-bold tracking-tight">{t('header.settings')}</h1>
-                <p className="text-gray-500 mt-1">{t('header.settingsSubtitle')}</p>
+            <div className="mb-10 mt-4">
+                <h1 className="text-4xl font-black tracking-tight mb-2">{t('header.settings')}</h1>
+                <p className="text-gray-500 font-medium">{t('header.settingsSubtitle')}</p>
             </div>
 
             <div className="max-w-4xl space-y-8">
