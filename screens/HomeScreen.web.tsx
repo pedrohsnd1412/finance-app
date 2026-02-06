@@ -89,9 +89,9 @@ export default function HomeScreen() {
                     </div>
                 </GlassCard>
 
-                <GlassCard className="flex items-center">
+                <GlassCard>
                     <div className="flex-1">
-                        <h4 className="text-2xl font-bold text-white mb-6">{t('home.categoryChart')}</h4>
+                        <h4 className="text-3xl font-bold text-white mb-4">{t('home.categoryChart')}</h4>
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-1 bg-rose-500 rounded-full"></div>

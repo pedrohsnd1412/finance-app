@@ -55,12 +55,12 @@ export function TopHeader() {
 
 const styles = StyleSheet.create({
     header: {
-        height: 120,
+        height: 160,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 40,
-        paddingTop: 45,
+        paddingTop: 80,
         backgroundColor: '#0d0d12',
     },
     searchContainer: {

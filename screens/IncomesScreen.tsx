@@ -1,11 +1,14 @@
+import { SummaryCard } from '@/components/cards/SummaryCard';
 import { Container } from '@/components/Container';
+import { PeriodFilter } from '@/components/PeriodFilter';
 import { TransactionItem } from '@/components/TransactionItem';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
+import { Period } from '@/types/home.types';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     ActivityIndicator,
@@ -13,11 +16,12 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
 } from 'react-native';
 
 export default function IncomesScreen() {
-    const { summary, isLoading, refetch } = useFinanceData('month');
+    const [period, setPeriod] = useState<Period>('month');
+    const { summary, isLoading, refetch } = useFinanceData(period);
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
@@ -43,6 +47,17 @@ export default function IncomesScreen() {
                 </Text>
             )}
 
+            <View style={styles.filterContainer}>
+                <PeriodFilter selected={period} onChange={setPeriod} />
+            </View>
+
+            <View style={styles.summaryContainer}>
+                <SummaryCard
+                    income={summary.incomeTotal}
+                    expense={summary.expenseTotal}
+                />
+            </View>
+
             <View style={styles.sectionHeader}>
                 <Text style={styles.listTitle}>Histórico de Entradas</Text>
                 <TouchableOpacity style={styles.filterButton}>
@@ -58,7 +73,7 @@ export default function IncomesScreen() {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.tint} />
                     <Text style={[styles.loadingText, { color: '#94A3B8' }]}>
-                        {t('common.loading')}
+                        {t('home.loading')}
                     </Text>
                 </View>
             ) : (
@@ -87,73 +102,75 @@ export default function IncomesScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-    },
-    headerContent: {
-        marginBottom: 24,
+        paddingHorizontal: 0,
     },
     mobileHeader: {
+        paddingHorizontal: 16,
         marginBottom: 32,
-        paddingTop: 8,
+        marginTop: 8,
     },
     mobileTitle: {
         fontSize: 32,
-        fontWeight: '900',
-        color: '#FFFFFF',
-        letterSpacing: -1.5,
-    },
-    mobileSubtitle: {
-        fontSize: 16,
-        color: '#94A3B8',
-        fontWeight: '500',
-        marginTop: 4,
-    },
-    desktopTitle: {
-        fontSize: 32,
         fontWeight: '800',
-        marginBottom: 24,
+        color: '#FFFFFF',
         letterSpacing: -1,
     },
-    sectionHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: 8,
-    },
-    listTitle: {
+    mobileSubtitle: {
         fontSize: 14,
-        fontWeight: '700',
         color: '#94A3B8',
-        textTransform: 'uppercase',
-        letterSpacing: 1.5,
-    },
-    filterButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.08)',
-    },
-    listContent: {
-        paddingBottom: 40,
+        fontWeight: '600',
+        marginTop: 2,
     },
     loadingContainer: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 100,
+        gap: 16,
+        paddingTop: 100,
     },
     loadingText: {
-        marginTop: 16,
         fontSize: 14,
         fontWeight: '600',
     },
-    emptyState: {
+    listContent: {
+        paddingBottom: 40,
+    },
+    headerContent: {
+        paddingBottom: 16,
+    },
+    filterContainer: {
+        marginBottom: 24,
+    },
+    summaryContainer: {
+        paddingHorizontal: 16,
+        marginBottom: 32,
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        marginBottom: 12,
+    },
+    listTitle: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#94A3B8',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    filterButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.08)',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    emptyState: {
+        alignItems: 'center',
         paddingVertical: 80,
         gap: 16,
     },
@@ -161,6 +178,12 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#94A3B8',
         fontWeight: '600',
-        textAlign: 'center',
+    },
+    desktopTitle: {
+        fontSize: 32,
+        fontWeight: '800',
+        marginHorizontal: 16,
+        marginBottom: 24,
+        marginTop: 8,
     },
 });
