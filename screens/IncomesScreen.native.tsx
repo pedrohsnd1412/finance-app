@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     },
     summaryValue: {
         fontSize: 32,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -0.5,
     },

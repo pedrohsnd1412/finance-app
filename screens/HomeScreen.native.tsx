@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     },
     heroBalanceCard: {
         width: '100%',
-        height: 200,
+        height: 130,
     },
     summaryStatsRow: {
         flexDirection: 'row',
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     },
     halfStatCard: {
         flex: 1,
-        padding: 18,
+        padding: 14,
         borderRadius: 24,
     },
     statLabel: {
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: 18,
-        fontWeight: '800',
+        fontWeight: '700',
     },
     chartSectionCard: {
         padding: 24,

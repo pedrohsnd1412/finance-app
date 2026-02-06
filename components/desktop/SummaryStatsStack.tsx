@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     },
     value: {
         fontSize: 22,
-        fontWeight: '800',
+        fontWeight: '700',
         color: '#FFFFFF',
     },
     trendRow: {

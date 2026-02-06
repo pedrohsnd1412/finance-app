@@ -9,10 +9,10 @@ export default function CashflowScreen() {
 
     return (
         <div className="flex-1 overflow-y-auto p-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-10 mt-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">{t('cashflow.title')}</h1>
-                    <p className="text-gray-500 mt-1">{t('cashflow.subtitle')}</p>
+                    <h1 className="text-4xl font-black tracking-tight mb-2">{t('cashflow.title')}</h1>
+                    <p className="text-gray-500 font-medium">{t('cashflow.subtitle')}</p>
                 </div>
                 <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer transition-all hover:bg-white/10">
                     <span className="text-sm font-bold">{t('cashflow.last30Days')}</span>
@@ -23,7 +23,7 @@ export default function CashflowScreen() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <GlassCard className="flex flex-col">
                     <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-lg font-bold">{t('cashflow.incomeVsExpenses')}</h3>
+                        <h3 className="text-lg font-semibold">{t('cashflow.incomeVsExpenses')}</h3>
                         <MoreVertical size={18} className="text-gray-500" />
                     </div>
 
@@ -75,7 +75,7 @@ export default function CashflowScreen() {
                         </div>
                         <div>
                             <p className="text-sm text-gray-400 font-medium">{t('cashflow.monthlySavings')}</p>
-                            <h3 className="text-3xl font-bold">${(summary.incomeTotal - summary.expenseTotal).toFixed(2)}</h3>
+                            <h3 className="text-3xl font-semibold">${(summary.incomeTotal - summary.expenseTotal).toFixed(2)}</h3>
                             <p className="text-xs text-green-400 mt-1">↗ 14% increase</p>
                         </div>
                     </GlassCard>
@@ -108,7 +108,7 @@ export default function CashflowScreen() {
 
             <GlassCard className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-indigo-500/20 p-10 relative overflow-hidden">
                 <div className="relative z-10">
-                    <h2 className="text-2xl font-bold mb-2">{t('cashflow.projection')}</h2>
+                    <h2 className="text-2xl font-semibold mb-2">{t('cashflow.projection')}</h2>
                     <p className="text-indigo-200/70 max-w-lg mb-6">{t('cashflow.onTrack', { amount: '$12,400.00' })}</p>
                     <button className="px-6 py-3 bg-white text-indigo-600 rounded-xl font-bold hover:bg-gray-100 transition-all">Enable Auto-Savings</button>
                 </div>

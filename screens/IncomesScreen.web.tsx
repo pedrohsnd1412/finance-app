@@ -109,7 +109,7 @@ export default function IncomesScreen() {
 
                     <div className="relative z-10">
                         <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">Saúde Financeira</span>
-                        <h3 className="text-2xl font-bold mt-2 text-white">Taxa de Poupança</h3>
+                        <h3 className="text-2xl font-semibold mt-2 text-white">Taxa de Poupança</h3>
                         <p className="text-sm text-gray-400 mt-1">Ótimo desempenho este mês!</p>
                     </div>
 

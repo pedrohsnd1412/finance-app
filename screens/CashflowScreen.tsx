@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: 16,
-        marginBottom: 32,
+        marginBottom: 28,
         marginTop: 8,
     },
     mobileTitle: {
         fontSize: 32,
-        fontWeight: '800',
+        fontWeight: '900',
         color: '#FFFFFF',
         letterSpacing: -1,
     },
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 18,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#FFFFFF',
     },
     cardDesc: {

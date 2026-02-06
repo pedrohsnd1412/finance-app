@@ -47,9 +47,9 @@ export function Sidebar() {
     ];
 
     return (
-        <aside className="w-64 border-r border-white/5 flex flex-col pt-20 pb-8 px-6 shrink-0 bg-[#0d0d12] bg-gradient-to-b from-transparent via-transparent to-purple-900/10 min-h-screen h-full">
-            <div className="flex items-center gap-2 mb-16 px-2">
-                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center italic font-bold text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]">Q</div>
+        <aside className="w-64 border-r border-white/5 flex flex-col pt-[102px] pb-8 px-6 shrink-0 bg-[#0d0d12] bg-gradient-to-b from-transparent via-transparent to-purple-900/10 min-h-screen h-full">
+            <div className="flex items-center gap-3 mb-12 px-2">
+                <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center italic font-bold text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]">Q</div>
                 <span className="text-xl font-bold tracking-tight text-white">Qashflow</span>
             </div>
 

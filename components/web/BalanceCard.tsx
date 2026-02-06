@@ -7,10 +7,10 @@ interface BalanceCardProps {
 
 export const BalanceCard = ({ balance, currency = "USD" }: BalanceCardProps) => {
     return (
-        <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-6 relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+        <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-6 relative overflow-hidden flex flex-col justify-between min-h-[120px]">
             <div className="flex justify-between items-start relative z-10">
                 <div>
-                    <h4 className="text-3xl text-white font-bold mb-1">Meu Saldo</h4>
+                    <h4 className="text-3xl text-white font-semibold mb-1">Meu Saldo</h4>
                     <p className="text-xs text-gray-400 font-medium tracking-wide">Saldo disponível</p>
                 </div>
             </div>
