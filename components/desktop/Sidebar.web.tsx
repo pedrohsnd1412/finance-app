@@ -1,6 +1,7 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { usePathname, useRouter } from 'expo-router';
-import { ArrowLeftRight, BarChart3, ChevronDown, HelpCircle, LayoutDashboard, Receipt, Settings, Wallet } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, ChevronDown, HelpCircle, LayoutDashboard, LogOut, Receipt, Settings, Wallet } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -32,6 +33,7 @@ export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const { summary } = useFinanceData('month');
+    const { signOut } = useAuth();
 
     const menuItems = [
         { icon: LayoutDashboard, label: t('home.overview'), route: "/" },
@@ -50,7 +52,7 @@ export function Sidebar() {
         <aside className="w-64 border-r border-white/5 flex flex-col pt-[72px] pb-8 px-6 shrink-0 bg-[#0d0d12] bg-gradient-to-b from-transparent via-transparent to-purple-900/10 min-h-screen h-full">
             <div className="flex items-center gap-3 mb-12 px-2">
                 <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center italic font-bold text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]">D</div>
-                <span className="text-xl font-bold tracking-tight text-white">DignusAI</span>
+                <span className="text-xl font-bold tracking-tight text-white">Dignos AI</span>
             </div>
 
             <nav className="flex-1 space-y-1">
@@ -76,6 +78,14 @@ export function Sidebar() {
                             onClick={() => item.route !== "#" && router.push(item.route as any)}
                         />
                     ))}
+
+                    <div
+                        onClick={signOut}
+                        className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-all rounded-xl mb-1 text-gray-400 hover:bg-rose-500/10 hover:text-rose-400 mt-2"
+                    >
+                        <LogOut size={20} />
+                        <span className="text-sm font-medium">{t('more.signOut')}</span>
+                    </div>
                 </div>
             </nav>
 

@@ -75,10 +75,10 @@ export default function LoginScreen() {
                     {/* Logo/Header */}
                     <View style={styles.header}>
                         <View style={StyleSheet.flatten([styles.logoContainer, { backgroundColor: theme.tint }])}>
-                            <Ionicons name="cube" size={40} color="#fff" />
+                            <Text style={styles.logoText}>D</Text>
                         </View>
                         <Text style={StyleSheet.flatten([styles.title, { color: theme.text }])}>
-                            DignusAI
+                            Dignos AI
                         </Text>
                         <Text style={StyleSheet.flatten([styles.subtitle, { color: theme.text, opacity: 0.6 }])}>
                             {t('auth.enterToAccess')}
@@ -217,6 +217,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 20,
+        shadowColor: '#4f46e5',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.4,
+        shadowRadius: 15,
+        elevation: 10,
+    },
+    logoText: {
+        fontSize: 36,
+        fontWeight: '900',
+        fontStyle: 'italic',
+        color: '#fff',
     },
     title: {
         fontSize: 28,

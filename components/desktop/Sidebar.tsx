@@ -43,7 +43,7 @@ export function Sidebar() {
         >
             <View style={styles.logoContainer}>
                 <Text style={[styles.logoText, { color: theme.text }]}>
-                    {isHovered ? 'DignusAI' : 'D'}
+                    {isHovered ? 'Dignos AI' : 'D'}
                 </Text>
             </View>
 

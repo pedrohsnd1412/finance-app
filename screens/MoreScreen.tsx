@@ -274,7 +274,7 @@ export default function MoreScreen() {
 
             <View style={styles.version}>
                 <Text style={styles.versionText}>
-                    DignusAI v1.0.0
+                    Dignos AI v1.0.0
                 </Text>
             </View>
         </ScrollView>
