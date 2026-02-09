@@ -6,6 +6,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import i18n from '@/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -40,6 +41,7 @@ export default function MoreScreen() {
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<TabKey>('settings');
     const colorScheme = useColorScheme();
+    const { toggleTheme } = useTheme();
     const theme = Colors[colorScheme ?? 'light'];
     const { isDesktop } = useResponsive();
     const { user, signOut } = useAuth();
@@ -127,10 +129,10 @@ export default function MoreScreen() {
                     </View>
                     <View style={styles.userInfo}>
                         <Text style={[styles.userEmail, { color: theme.text }]}>
-                            {user.email}
+                            {user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0]}
                         </Text>
                         <Text style={styles.userIdText}>
-                            ID: {user.id}
+                            {user.email}
                         </Text>
                         <Text style={styles.userLabel}>
                             {t('more.accountActive')}
@@ -147,7 +149,7 @@ export default function MoreScreen() {
 
                 {[
                     { icon: 'notifications-outline', label: t('more.notifications'), value: t('more.statusActive'), action: undefined },
-                    { icon: 'moon-outline', label: t('more.theme'), value: colorScheme === 'dark' ? t('more.statusDark') : t('more.statusLight'), action: undefined },
+                    { icon: 'moon-outline', label: t('more.theme'), value: colorScheme === 'dark' ? t('more.statusDark') : t('more.statusLight'), action: toggleTheme },
                     { icon: 'language-outline', label: t('more.language'), value: i18n.language === 'pt' ? t('languages.pt') : t('languages.en'), action: toggleLanguage },
                     { icon: 'lock-closed-outline', label: t('more.privacy'), value: '', action: undefined },
                 ].map((item, index) => (
