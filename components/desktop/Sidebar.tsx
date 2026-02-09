@@ -1,5 +1,6 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@/contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import React from 'react';
@@ -22,6 +23,7 @@ export function Sidebar() {
     const router = useRouter();
     const pathname = usePathname();
     const [isHovered, setIsHovered] = React.useState(false);
+    const { signOut } = useAuth();
 
     const sidebarWidth = isHovered ? 260 : 80;
 
@@ -41,7 +43,7 @@ export function Sidebar() {
         >
             <View style={styles.logoContainer}>
                 <Text style={[styles.logoText, { color: theme.text }]}>
-                    {isHovered ? 'Dignus AI' : 'D'}
+                    {isHovered ? 'DignusAI' : 'D'}
                 </Text>
             </View>
 
@@ -81,7 +83,20 @@ export function Sidebar() {
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity style={[styles.collapseButton, !isHovered && { justifyContent: 'center', paddingHorizontal: 0 }]}>
+                <TouchableOpacity
+                    style={[styles.collapseButton, !isHovered && { justifyContent: 'center', paddingHorizontal: 0 }]}
+                    onPress={signOut}
+                >
+                    <Ionicons name="log-out-outline" size={20} color={theme.muted} />
+                    {isHovered && (
+                        <Text style={[styles.collapseText, { color: theme.muted }]}>{t('common.logout')}</Text>
+                    )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[styles.collapseButton, !isHovered && { justifyContent: 'center', paddingHorizontal: 0 }]}
+                    onPress={() => setIsHovered(!isHovered)}
+                >
                     <Ionicons name={isHovered ? "chevron-back" : "chevron-forward"} size={20} color={theme.muted} />
                     {isHovered && (
                         <Text style={[styles.collapseText, { color: theme.muted }]}>{t('sidebar.collapse')}</Text>

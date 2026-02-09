@@ -93,25 +93,7 @@ export default function HomeScreen() {
                 // The Container handles the ScrollView now, so we avoid nesting ScrollViews or double scrolling vertical issues.
                 // We remove styles.mobileLayout wrapper if it adds flex: 1 which might conflict with Container's scroll.
                 <View style={{ paddingBottom: 40 }}>
-                    {/* Header: Logo and Identity Area */}
-                    <View style={styles.mobileHeader}>
-                        <View style={styles.logoRow}>
-                            <View style={styles.logoCircle}>
-                                <Text style={styles.logoText}>D</Text>
-                            </View>
-                            <Text style={styles.appName}>Dignus AI</Text>
-                        </View>
-                        <View style={styles.headerActions}>
-                            <TouchableOpacity style={styles.headerActionIcon}>
-                                <Ionicons name="search-outline" size={20} color="#94A3B8" />
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.headerActionIcon}>
-                                <Ionicons name="notifications-outline" size={20} color="#94A3B8" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    {/* Identity & Period Section */}
+                    {/* Identity & Period Section - Renamed to Overview as per design request implicitly via 'vision general' */}
                     <View style={styles.identitySection}>
                         <View>
                             <Text style={styles.pageTitle}>{t('home.overview')}</Text>
@@ -146,42 +128,35 @@ export default function HomeScreen() {
                     ) : (
                         <View style={styles.scrollContent}>
                             {/* Key Highlights */}
-                            <View style={{ gap: 16 }}>
+                            <View style={{ gap: 16, marginBottom: 32 }}>
                                 <BalanceCard
                                     debit={summary.totalDebit}
                                     credit={summary.totalCredit}
                                     style={{ width: '100%' }}
                                 />
 
-                                <StatCard
-                                    title={t('home.stats.income')}
-                                    amount={summary.incomeTotal.toFixed(0)}
-                                    change="8"
-                                    trend="up"
-                                    chartData={[
-                                        { month: 'Jan', value: 30 },
-                                        { month: 'Feb', value: 45 },
-                                        { month: 'Mar', value: 35 },
-                                        { month: 'Apr', value: 80, active: true },
-                                        { month: 'May', value: 40 },
-                                        { month: 'Jun', value: 50 },
-                                    ]}
-                                />
-
-                                <StatCard
-                                    title={t('home.stats.expense')}
-                                    amount={summary.expenseTotal.toFixed(0)}
-                                    change="8"
-                                    trend="down"
-                                    chartData={[
-                                        { month: 'Jan', value: 40 },
-                                        { month: 'Feb', value: 30 },
-                                        { month: 'Mar', value: 50 },
-                                        { month: 'Apr', value: 35 },
-                                        { month: 'May', value: 70, active: true },
-                                        { month: 'Jun', value: 45 },
-                                    ]}
-                                />
+                                <View style={{ flexDirection: 'row', gap: 12 }}>
+                                    <View style={{ flex: 1 }}>
+                                        <StatCard
+                                            title={t('home.stats.income')}
+                                            amount={summary.incomeTotal}
+                                            change="0"
+                                            trend="up"
+                                            chartData={[]}
+                                            style={{ minHeight: 120 }}
+                                        />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <StatCard
+                                            title={t('home.stats.expense')}
+                                            amount={summary.expenseTotal}
+                                            change="0"
+                                            trend="down"
+                                            chartData={[]}
+                                            style={{ minHeight: 120 }}
+                                        />
+                                    </View>
+                                </View>
                             </View>
 
                             {/* Recent Activity */}

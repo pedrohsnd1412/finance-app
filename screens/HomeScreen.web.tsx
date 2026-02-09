@@ -24,7 +24,7 @@ export default function HomeScreen() {
     }));
 
     return (
-        <div className="flex-1 overflow-y-auto pt-8 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
+        <div className="flex-1 overflow-y-auto pt-4 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
             {/* Page Title Section */}
             <div className="mb-2 mt-2">
                 <h1 className="text-4xl font-black tracking-tight mb-2">{t('home.overview')}</h1>

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 interface StatCardProps {
     title: string;
-    amount: string;
+    amount: number;
     change: string;
     trend: 'up' | 'down';
     chartData: { month: string; value: number; active?: boolean; label?: string }[];
@@ -12,8 +12,15 @@ interface StatCardProps {
 }
 
 export function StatCard({ title, amount, change, trend, chartData, style }: StatCardProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const isPositive = trend === 'up';
+
+    const formattedAmount = amount.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+        style: 'currency',
+        currency: i18n.language === 'pt' ? 'BRL' : 'USD',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
 
     return (
         <View style={StyleSheet.flatten([styles.card, style])}>
@@ -24,12 +31,7 @@ export function StatCard({ title, amount, change, trend, chartData, style }: Sta
                 </View>
 
                 <View style={styles.valueRow}>
-                    <Text style={styles.amount}>R$ {amount}</Text>
-                    <View style={[styles.badge, isPositive ? styles.badgeSuccess : styles.badgeError]}>
-                        <Text style={[styles.badgeText, isPositive ? styles.textSuccess : styles.textError]}>
-                            {change}% {isPositive ? '↑' : '↓'}
-                        </Text>
-                    </View>
+                    <Text style={styles.amount}>{formattedAmount}</Text>
                 </View>
             </View>
 

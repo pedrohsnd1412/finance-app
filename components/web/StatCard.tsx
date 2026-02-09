@@ -10,8 +10,18 @@ interface StatCardProps {
 }
 
 export const StatCard = ({ title, amount, change, trend, chartData }: StatCardProps) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const isPositive = trend === 'up';
+
+    const formatCurrency = (value: string) => {
+        const num = parseFloat(value);
+        return num.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+            style: 'currency',
+            currency: i18n.language === 'pt' ? 'BRL' : 'USD',
+            minimumFractionDigits: 2
+        });
+    };
+
     return (
         <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-5 flex-1 min-w-[280px] min-h-[120px] flex flex-col justify-between">
             <div>
@@ -21,10 +31,7 @@ export const StatCard = ({ title, amount, change, trend, chartData }: StatCardPr
                 </div>
 
                 <div className="flex items-baseline gap-3 mb-4">
-                    <h3 className="text-3xl font-black text-white">R$ {amount}</h3>
-                    <div className={`flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                        {change}% {isPositive ? '↑' : '↓'}
-                    </div>
+                    <h3 className="text-3xl font-black text-white">{formatCurrency(amount)}</h3>
                 </div>
             </div>
 

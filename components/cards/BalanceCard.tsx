@@ -11,12 +11,14 @@ interface BalanceCardProps {
 }
 
 export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
 
     const formatCurrency = (value: number): string => {
-        return 'R$ ' + value.toLocaleString('pt-BR', {
+        return value.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+            style: 'currency',
+            currency: i18n.language === 'pt' ? 'BRL' : 'USD',
             maximumFractionDigits: 0,
         });
     };
@@ -35,7 +37,7 @@ export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
                 <View style={{ marginTop: 20 }}>
                     <Text style={styles.label}>{t('home.subtotal')}</Text>
                     <Text style={styles.balanceAmount}>
-                        R$ {debit.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                        {formatCurrency(debit)}
                     </Text>
                 </View>
             </View>

@@ -1,4 +1,3 @@
-import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,9 +27,9 @@ export default function LoginScreen() {
 
     const { signIn } = useAuth();
     const router = useRouter();
-    const colorScheme = useColorScheme();
+    const colorScheme = 'dark';
     const { isDesktop, isTablet } = useResponsive();
-    const theme = Colors[colorScheme ?? 'light'];
+    const theme = Colors.dark;
 
     const isWideScreen = isDesktop || isTablet;
 
@@ -58,7 +57,7 @@ export default function LoginScreen() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={StyleSheet.flatten([styles.container, { backgroundColor: theme.background }])}
+            style={StyleSheet.flatten([styles.container, { backgroundColor: '#0d0d12' }])}
         >
             <ScrollView
                 contentContainerStyle={StyleSheet.flatten([

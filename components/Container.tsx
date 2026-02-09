@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     container: {
-        flex: 1,
+        flexGrow: 1,
         width: '100%',
         alignSelf: 'center',
         paddingHorizontal: 16,

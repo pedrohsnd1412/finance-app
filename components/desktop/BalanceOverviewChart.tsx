@@ -1,7 +1,8 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors } from '@/constants/Colors';
+import { useFinanceData } from '@/hooks/useFinanceData';
 import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -9,19 +10,49 @@ export function BalanceOverviewChart() {
     const { t, i18n } = useTranslation();
     const colorScheme = useColorScheme();
     const theme = Colors[colorScheme ?? 'light'];
+    const { summary } = useFinanceData('month');
 
-    const DATA = [
-        { day: t('common.days.sun'), savings: 15, income: 25, expenses: -10 },
-        { day: t('common.days.mon'), savings: 20, income: 30, expenses: -15 },
-        { day: t('common.days.tue'), savings: 12, income: 20, expenses: -18 },
-        { day: t('common.days.wed'), savings: 25, income: 35, expenses: -5 },
-        { day: t('common.days.thu'), savings: 18, income: 28, expenses: -12 },
-        { day: t('common.days.fri'), savings: 30, income: 45, expenses: -10 },
-        { day: t('common.days.sat'), savings: 22, income: 32, expenses: -8 },
-    ];
+    // Aggregate daily data from transactions
+    const chartData = useMemo(() => {
+        const dailyData = new Map<string, { income: number; expense: number }>();
 
+        // Initialize last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            dailyData.set(key, { income: 0, expense: 0 });
+        }
+
+        summary.transactions.forEach(tx => {
+            const dateKey = new Date(tx.date).toISOString().split('T')[0];
+            if (dailyData.has(dateKey)) {
+                const current = dailyData.get(dateKey)!;
+                if (tx.type === 'income') {
+                    current.income += tx.amount;
+                } else {
+                    current.expense += tx.amount;
+                }
+            }
+        });
+
+        // Convert to array and format for chart
+        return Array.from(dailyData.entries()).map(([dateStr, values]) => {
+            const date = new Date(dateStr);
+            const dayName = date.toLocaleDateString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', { weekday: 'short' });
+            return {
+                day: dayName.charAt(0).toUpperCase() + dayName.slice(1),
+                income: values.income,
+                expenses: values.expense,
+                // Savings is effectively income - expense, clamped to 0 for visualization if negative? 
+                // Or just net. Let's say savings = income - expense.
+                savings: Math.max(0, values.income - values.expense)
+            };
+        });
+    }, [summary.transactions, i18n.language]);
+
+    const maxVal = Math.max(...chartData.map(d => Math.max(d.income, d.expenses))) || 100;
     const chartHeight = 200;
-    const maxVal = 50;
 
     const formatCurrency = (val: number) => {
         return val.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
@@ -35,9 +66,10 @@ export function BalanceOverviewChart() {
         <View style={[styles.card, { backgroundColor: theme.card }]}>
             <View style={styles.header}>
                 <View>
-                    <Text style={[styles.amount, { color: theme.text }]}>{formatCurrency(12450)}</Text>
+                    <Text style={[styles.amount, { color: theme.text }]}>{formatCurrency(summary.totalBalance)}</Text>
                     <Text style={[styles.label, { color: theme.muted }]}>{t('home.balanceOverview')}</Text>
                 </View>
+
 
                 <View style={styles.controls}>
                     <View style={[styles.periodToggle, { borderColor: theme.border }]}>
@@ -69,11 +101,11 @@ export function BalanceOverviewChart() {
             </View>
 
             <View style={[styles.chartArea, { height: chartHeight }]}>
-                {DATA.map((item, index) => (
+                {chartData.map((item, index) => (
                     <View key={index} style={styles.barGroup}>
                         <View style={styles.bars}>
-                            <View style={[styles.bar, { height: (item.income / maxVal) * chartHeight, backgroundColor: '#84CC16' }]} />
-                            <View style={[styles.bar, { height: (item.savings / maxVal) * chartHeight, backgroundColor: '#FACC15', position: 'absolute', bottom: 0 }]} />
+                            <View style={[styles.bar, { height: Math.max(4, (item.income / maxVal) * chartHeight), backgroundColor: '#84CC16' }]} />
+                            <View style={[styles.bar, { height: Math.max(4, (item.savings / maxVal) * chartHeight), backgroundColor: '#FACC15', position: 'absolute', bottom: 0 }]} />
                         </View>
                         <Text style={[styles.dayText, { color: theme.muted }]}>{item.day}</Text>
                     </View>
