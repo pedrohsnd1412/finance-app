@@ -106,6 +106,13 @@ export default function TabLayout() {
                 tabBarIcon: ({ color }) => <TabBarIcon name="menu-outline" color={color} />,
               }}
             />
+            <Tabs.Screen
+              name="chat"
+              options={{
+                title: 'Chat IA',
+                href: null,
+              }}
+            />
           </Tabs>
         </View>
       </View>
@@ -206,6 +213,13 @@ export default function TabLayout() {
         options={{
           title: 'Mais',
           tabBarIcon: ({ color }) => <TabBarIcon name="menu-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="chat"
+        options={{
+          title: 'Chat IA',
+          href: null,
         }}
       />
     </Tabs>

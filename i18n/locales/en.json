@@ -34,9 +34,23 @@
         "login": "Login",
         "email": "Email",
         "password": "Password",
+        "confirmPassword": "Confirm Password",
         "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
         "createAccount": "Create account",
-        "enterToAccess": "Login to access your finances"
+        "enterToAccess": "Login to access your finances",
+        "registerSubtitle": "Create your account to get started",
+        "fillAllFields": "Please fill in all fields",
+        "invalidCredentials": "Invalid email or password",
+        "passwordsMismatch": "Passwords do not match",
+        "passwordMinLength": "Password must be at least 6 characters",
+        "emailAlreadyExists": "This email is already registered",
+        "accountCreated": "Account created!",
+        "checkEmail": "Check your email to confirm your registration, then you can login.",
+        "goToLogin": "Go to Login",
+        "emailPlaceholder": "your@email.com",
+        "passwordPlaceholder": "Minimum 6 characters",
+        "confirmPasswordPlaceholder": "Enter password again"
     },
     "tabs": {
         "home": "Home",
@@ -139,10 +153,13 @@
     },
     "settings": {
         "langSubtitle": "System default language",
-        "themeSubtitle": "Dark mode is synced with system settings"
+        "themeSubtitle": "Dark mode is synced with system settings",
+        "personalizeSubtitle": "Personalize your app experience"
     },
     "sidebar": {
-        "collapse": "Collapse"
+        "collapse": "Collapse",
+        "mainMenu": "Main Menu",
+        "settings": "Settings"
     },
     "header": {
         "searchPlaceholder": "Quick search",

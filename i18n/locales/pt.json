@@ -34,9 +34,23 @@
         "login": "Entrar",
         "email": "Email",
         "password": "Senha",
+        "confirmPassword": "Confirmar Senha",
         "noAccount": "Não tem uma conta?",
+        "hasAccount": "Já tem uma conta?",
         "createAccount": "Criar conta",
-        "enterToAccess": "Entre para acessar suas finanças"
+        "enterToAccess": "Entre para acessar suas finanças",
+        "registerSubtitle": "Crie sua conta para começar",
+        "fillAllFields": "Preencha todos os campos",
+        "invalidCredentials": "Email ou senha incorretos",
+        "passwordsMismatch": "As senhas não coincidem",
+        "passwordMinLength": "A senha deve ter pelo menos 6 caracteres",
+        "emailAlreadyExists": "Este email já está cadastrado",
+        "accountCreated": "Conta criada!",
+        "checkEmail": "Verifique seu email para confirmar o cadastro, depois você pode fazer login.",
+        "goToLogin": "Ir para Login",
+        "emailPlaceholder": "seu@email.com",
+        "passwordPlaceholder": "Mínimo 6 caracteres",
+        "confirmPasswordPlaceholder": "Digite a senha novamente"
     },
     "tabs": {
         "home": "Home",
@@ -139,10 +153,13 @@
     },
     "settings": {
         "langSubtitle": "Idioma padrão do sistema",
-        "themeSubtitle": "O modo escuro é sincronizado com as configurações do sistema"
+        "themeSubtitle": "O modo escuro é sincronizado com as configurações do sistema",
+        "personalizeSubtitle": "Personalize sua experiência no aplicativo"
     },
     "sidebar": {
-        "collapse": "Recolher"
+        "collapse": "Recolher",
+        "mainMenu": "Menu Principal",
+        "settings": "Configurações"
     },
     "header": {
         "searchPlaceholder": "Busca rápida",

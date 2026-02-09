@@ -1,10 +1,12 @@
 import { GlassCard } from '@/components/web/GlassCard';
+import { useAuth } from '@/contexts/AuthContext';
 import { Bell, ChevronRight, Globe, LogOut, Moon, Shield } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
     const { t, i18n } = useTranslation();
+    const { signOut } = useAuth();
     const currentLanguage = i18n.language;
 
     const changeLanguage = (lng: string) => {
@@ -58,7 +60,10 @@ export default function SettingsScreen() {
                 <section>
                     <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">{t('more.account')}</h2>
                     <div className="space-y-3">
-                        <div className="flex items-center justify-between p-6 bg-rose-500/5 backdrop-blur-md border border-rose-500/10 rounded-[24px] hover:bg-rose-500/10 transition-all cursor-pointer group">
+                        <div
+                            onClick={signOut}
+                            className="flex items-center justify-between p-6 bg-rose-500/5 backdrop-blur-md border border-rose-500/10 rounded-[24px] hover:bg-rose-500/10 transition-all cursor-pointer group"
+                        >
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center">
                                     <LogOut size={22} className="text-rose-500" />
@@ -74,7 +79,7 @@ export default function SettingsScreen() {
                 </section>
 
                 <GlassCard className="mt-12 text-center p-12">
-                    <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center italic font-bold text-3xl mx-auto mb-6 shadow-2xl shadow-indigo-600/20">A</div>
+                    <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center italic font-bold text-3xl mx-auto mb-6 shadow-2xl shadow-indigo-600/20">D</div>
                     <h3 className="text-xl font-bold mb-2">{t('more.upgradeTitle')}</h3>
                     <p className="text-gray-500 mb-8 max-w-sm mx-auto">{t('more.upgradeDesc')}</p>
                     <button className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-xl shadow-indigo-600/20">{t('more.upgradeButton')}</button>

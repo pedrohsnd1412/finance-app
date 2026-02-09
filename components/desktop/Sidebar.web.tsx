@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { usePathname, useRouter } from 'expo-router';
-import { ArrowLeftRight, BarChart3, ChevronDown, HelpCircle, LayoutDashboard, LogOut, Receipt, Settings, Wallet } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, Bot, ChevronDown, LayoutDashboard, LogOut, Menu, Receipt, Settings, Wallet } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -45,7 +45,7 @@ export function Sidebar() {
 
     const secondaryItems = [
         { icon: Settings, label: t('more.preferences'), route: "/settings" },
-        { icon: HelpCircle, label: t('more.helpCenter'), route: "#" },
+        { icon: Menu, label: t('tabs.more'), route: "/more" },
     ];
 
     return (
@@ -86,6 +86,16 @@ export function Sidebar() {
                         <LogOut size={20} />
                         <span className="text-sm font-medium">{t('more.signOut')}</span>
                     </div>
+                </div>
+
+                {/* AI Chat */}
+                <div
+                    onClick={() => router.push('/chat' as any)}
+                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all rounded-xl mt-4 ${pathname === '/chat' ? 'bg-indigo-600 text-white' : 'text-indigo-400 hover:bg-indigo-500/10'} border border-indigo-500/20`}
+                >
+                    <Bot size={20} />
+                    <span className="text-sm font-medium">{t('more.aiAssistant')}</span>
+                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse ml-auto"></span>
                 </div>
             </nav>
 
