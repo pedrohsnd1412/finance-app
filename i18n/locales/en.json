@@ -44,7 +44,9 @@
         "incomes": "Incomes",
         "cards": "Cards",
         "banks": "Banks",
-        "more": "More"
+        "more": "More",
+        "settings": "Settings",
+        "help": "Help"
     },
     "home": {
         "overview": "Overview",
@@ -149,6 +151,7 @@
         "settingsSubtitle": "Manage your account preferences and security"
     },
     "more": {
+        "subtitle": "Manage your account settings and preferences",
         "preferences": "Preferences",
         "notifications": "Notifications",
         "theme": "Theme",

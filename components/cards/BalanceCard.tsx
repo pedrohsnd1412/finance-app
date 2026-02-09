@@ -22,29 +22,21 @@ export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
     };
 
     return (
-        <View style={StyleSheet.flatten([styles.card, { backgroundColor: '#6366f1' }, style])}>
+        <View style={StyleSheet.flatten([styles.card, { backgroundColor: '#1a1b23' }, style])}>
             {/* Glossy overlay effect simulation */}
             <View style={styles.glossyOverlay} />
 
             <View style={styles.content}>
-                <View style={styles.topRow}>
-                    <View>
-                        <Text style={styles.label}>Subtotal</Text>
-                        <Text style={styles.balanceAmount}>
-                            {formatCurrency(debit - credit)}
-                        </Text>
-                    </View>
+                <View style={[styles.topRow, { flexDirection: 'column', gap: 0 }]}>
+                    <Text style={styles.headerTitle}>{t('home.myBalance')}</Text>
+                    <Text style={styles.headerSubtitle}>{t('home.availableBalance')}</Text>
                 </View>
 
-                <View style={styles.bottomRow}>
-                    <View>
-                        <Text style={styles.cardNumber}>**** 4582</Text>
-                        <Text style={styles.expiry}>09/28</Text>
-                    </View>
-                    <View style={styles.cardBrand}>
-                        <View style={[styles.brandCircle, { backgroundColor: '#EB001B', marginRight: -8 }]} />
-                        <View style={[styles.brandCircle, { backgroundColor: '#F79E1B', opacity: 0.8 }]} />
-                    </View>
+                <View style={{ marginTop: 20 }}>
+                    <Text style={styles.label}>{t('home.subtotal')}</Text>
+                    <Text style={styles.balanceAmount}>
+                        R$ {debit.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+                    </Text>
                 </View>
             </View>
         </View>
@@ -53,28 +45,31 @@ export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
 
 const styles = StyleSheet.create({
     card: {
-        borderRadius: 36,
-        height: 220,
+        borderRadius: 32,
+        minHeight: 180,
         overflow: 'hidden',
-        shadowColor: '#6366f1',
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.4,
-        shadowRadius: 20,
-        elevation: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.05)',
+        position: 'relative',
+        backgroundColor: '#1a1b23',
     },
     glossyOverlay: {
         position: 'absolute',
-        top: -100,
-        right: -100,
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        top: -20,
+        right: -20,
+        width: 256,
+        height: 256,
+        borderRadius: 128,
+        backgroundColor: '#6366f1',
+        opacity: 0.2,
+        transform: [{ scale: 1.5 }],
+        // blurRadius not directly supported in View, relying on opacity overlap
     },
     content: {
         flex: 1,
-        padding: 30,
+        padding: 24,
         justifyContent: 'space-between',
+        zIndex: 10,
     },
     topRow: {
         flexDirection: 'row',
@@ -82,18 +77,18 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
     balanceAmount: {
-        fontSize: 48,
+        fontSize: 40,
         fontWeight: '900',
         color: '#FFFFFF',
-        letterSpacing: -2,
+        letterSpacing: -1,
         marginTop: 4,
     },
     label: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: 'rgba(255, 255, 255, 0.9)',
+        fontSize: 12,
+        fontWeight: '800',
+        color: '#818cf8', // Indigo-400 equivalent
         textTransform: 'uppercase',
-        letterSpacing: 1.5,
+        letterSpacing: 0.5,
     },
     bottomRow: {
         flexDirection: 'row',
@@ -122,4 +117,16 @@ const styles = StyleSheet.create({
         height: 24,
         borderRadius: 12,
     },
+    headerTitle: {
+        fontSize: 24, // Starting to match desktop h4 text-3xl somewhat scaled
+        fontWeight: '600',
+        color: '#FFFFFF',
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontSize: 12,
+        color: '#9CA3AF', // Gray-400
+        fontWeight: '500',
+        letterSpacing: 0.5,
+    }
 });

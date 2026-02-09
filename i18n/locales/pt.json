@@ -44,7 +44,9 @@
         "incomes": "Receitas",
         "cards": "Cartões",
         "banks": "Bancos",
-        "more": "Mais"
+        "more": "Mais",
+        "settings": "Ajustes",
+        "help": "Ajuda"
     },
     "home": {
         "overview": "Visão Geral",
@@ -149,6 +151,7 @@
         "settingsSubtitle": "Gerencie suas preferências de conta e segurança"
     },
     "more": {
+        "subtitle": "Gerencie suas configurações e preferências da conta",
         "preferences": "Preferências",
         "notifications": "Notificações",
         "theme": "Tema",

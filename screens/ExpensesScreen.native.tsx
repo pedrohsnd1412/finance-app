@@ -81,7 +81,7 @@ export default function ExpensesScreen() {
     );
 
     return (
-        <Container>
+        <Container scrollEnabled={false}>
             {isLoading && expensesList.length === 0 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#6366F1" />

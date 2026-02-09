@@ -140,11 +140,11 @@ export default function TabLayout() {
         })}
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="cards">
-        <Label>Cartões</Label>
+      <NativeTabs.Trigger name="cashflow">
+        <Label>Fluxo</Label>
         {Platform.select({
-          ios: <Icon sf="creditcard.fill" />,
-          android: <Icon src={<VectorIcon family={FontAwesome} name="credit-card" />} />,
+          ios: <Icon sf="chart.line.uptrend.xyaxis" />,
+          android: <Icon src={<VectorIcon family={FontAwesome} name="line-chart" />} />,
         })}
       </NativeTabs.Trigger>
 

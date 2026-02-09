@@ -1,5 +1,5 @@
-import { BankSelector } from '@/components/BankSelector';
 import { BalanceCard } from '@/components/cards/BalanceCard';
+import { StatCard } from '@/components/cards/StatCard';
 import { DonutChart } from '@/components/charts/DonutChart';
 import { Container } from '@/components/Container';
 import { GlassCard } from '@/components/GlassCard';
@@ -87,10 +87,12 @@ export default function HomeScreen() {
     }, [summary.totalCredit, summary.totalDebit, t]);
 
     return (
-        <Container>
+        <Container scrollEnabled={!isDesktop}>
             {!isDesktop ? (
                 /* Mobile Layout */
-                <View style={styles.mobileLayout}>
+                // The Container handles the ScrollView now, so we avoid nesting ScrollViews or double scrolling vertical issues.
+                // We remove styles.mobileLayout wrapper if it adds flex: 1 which might conflict with Container's scroll.
+                <View style={{ paddingBottom: 40 }}>
                     {/* Header: Logo and Identity Area */}
                     <View style={styles.mobileHeader}>
                         <View style={styles.logoRow}>
@@ -136,11 +138,6 @@ export default function HomeScreen() {
                         </View>
                     </View>
 
-                    <BankSelector
-                        selectedId={selectedConnectionId}
-                        onSelect={setSelectedConnectionId}
-                    />
-
                     {isLoading ? (
                         <View style={styles.loadingContainer}>
                             <ActivityIndicator size="large" color="#6366F1" />
@@ -149,42 +146,43 @@ export default function HomeScreen() {
                     ) : (
                         <View style={styles.scrollContent}>
                             {/* Key Highlights */}
-                            <View style={styles.mainCardsRow}>
+                            <View style={{ gap: 16 }}>
                                 <BalanceCard
                                     debit={summary.totalDebit}
                                     credit={summary.totalCredit}
-                                    style={styles.heroBalanceCard}
+                                    style={{ width: '100%' }}
                                 />
-                                <View style={styles.summaryStatsRow}>
-                                    <GlassCard style={styles.halfStatCard}>
-                                        <Text style={styles.statLabel}>{t('home.stats.income')}</Text>
-                                        <Text style={[styles.statValue, { color: '#4ADE80' }]}>
-                                            R$ {summary.incomeTotal.toFixed(0)}
-                                        </Text>
-                                    </GlassCard>
-                                    <GlassCard style={styles.halfStatCard}>
-                                        <Text style={styles.statLabel}>{t('home.stats.expense')}</Text>
-                                        <Text style={[styles.statValue, { color: '#F87171' }]}>
-                                            R$ {summary.expenseTotal.toFixed(0)}
-                                        </Text>
-                                    </GlassCard>
-                                </View>
-                            </View>
 
-                            {/* Portfolio Evolution (Donut) */}
-                            <GlassCard style={styles.chartSectionCard}>
-                                <View style={styles.sectionHeaderCompact}>
-                                    <Text style={styles.sectionTitlePremium}>{t('home.evolution')}</Text>
-                                    <Ionicons name="trending-up" size={18} color="#6366F1" />
-                                </View>
-                                <View style={styles.chartContainerNative}>
-                                    <DonutChart data={creditDebitData} size={150} />
-                                    <View style={styles.chartOverlayNative}>
-                                        <Text style={styles.overlayLabel}>{t('home.patrimony')}</Text>
-                                        <Text style={styles.overlayValue}>R$ {(summary.totalDebit - summary.totalCredit).toFixed(0)}</Text>
-                                    </View>
-                                </View>
-                            </GlassCard>
+                                <StatCard
+                                    title={t('home.stats.income')}
+                                    amount={summary.incomeTotal.toFixed(0)}
+                                    change="8"
+                                    trend="up"
+                                    chartData={[
+                                        { month: 'Jan', value: 30 },
+                                        { month: 'Feb', value: 45 },
+                                        { month: 'Mar', value: 35 },
+                                        { month: 'Apr', value: 80, active: true },
+                                        { month: 'May', value: 40 },
+                                        { month: 'Jun', value: 50 },
+                                    ]}
+                                />
+
+                                <StatCard
+                                    title={t('home.stats.expense')}
+                                    amount={summary.expenseTotal.toFixed(0)}
+                                    change="8"
+                                    trend="down"
+                                    chartData={[
+                                        { month: 'Jan', value: 40 },
+                                        { month: 'Feb', value: 30 },
+                                        { month: 'Mar', value: 50 },
+                                        { month: 'Apr', value: 35 },
+                                        { month: 'May', value: 70, active: true },
+                                        { month: 'Jun', value: 45 },
+                                    ]}
+                                />
+                            </View>
 
                             {/* Recent Activity */}
                             <View style={styles.historySection}>
@@ -227,7 +225,7 @@ export default function HomeScreen() {
                     )}
                 </View>
             ) : (
-                /* Desktop Dashboard - Fallback to keep existing logic but simplify */
+                /* Desktop Dashboard */
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={theme.tint} />
                     <Text style={{ color: theme.muted, marginTop: 12 }}>{t('common.loading')}</Text>
