@@ -16,11 +16,13 @@ export function GlassCard({ children, style }: GlassCardProps) {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: '#1a1b23', // Darker background to match desktop
         borderRadius: 32,
         padding: 24,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
+        // Optional: add opacity if needed, but solid color ensures dark mode look
+        opacity: 0.9,
     },
 });

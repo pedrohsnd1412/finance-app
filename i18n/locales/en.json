@@ -24,6 +24,10 @@
             "thu": "Thu",
             "fri": "Fri",
             "sat": "Sat"
+        },
+        "period": {
+            "week": "7D",
+            "month": "Month"
         }
     },
     "auth": {
@@ -44,6 +48,7 @@
     },
     "home": {
         "overview": "Overview",
+        "intro": "Check your financial summary and wealth evolution",
         "balance": "Balance",
         "income": "Income",
         "expense": "Expense",
@@ -61,6 +66,7 @@
             "transactions": "Transactions",
             "income": "Income",
             "expense": "Expense",
+            "monthlyFlow": "Monthly Flow",
             "totalIncome": "Total Income",
             "totalExpenses": "Total expenses",
             "savedBalance": "Saved balance",
@@ -73,7 +79,14 @@
         "savings": "Savings",
         "averageIncome": "Average Income",
         "transactionsSubtitle": "Review and manage your spending history",
-        "topCategory": "Top Category"
+        "topCategory": "Top Category",
+        "myBalance": "My Balance",
+        "availableBalance": "Available Balance",
+        "subtotal": "Subtotal",
+        "evolution": "Wealth Evolution",
+        "patrimony": "Net Worth",
+        "syncing": "Syncing data...",
+        "total": "Total"
     },
     "banks": {
         "manageInfo": "Manage all your connected bank accounts and institutions in one place.",

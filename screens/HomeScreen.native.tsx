@@ -81,10 +81,10 @@ export default function HomeScreen() {
     // Calculate Credit vs Debit
     const creditDebitData = React.useMemo(() => {
         return [
-            { name: 'Crédito', value: summary.totalCredit * 100, color: '#F43F5E' },
-            { name: 'Débito', value: (summary.totalDebit - summary.totalCredit) * 100, color: '#6366F1' },
+            { name: t('home.stats.income'), value: summary.totalCredit * 100, color: '#F43F5E' },
+            { name: t('home.stats.expense'), value: (summary.totalDebit - summary.totalCredit) * 100, color: '#6366F1' },
         ];
-    }, [summary.totalCredit, summary.totalDebit]);
+    }, [summary.totalCredit, summary.totalDebit, t]);
 
     return (
         <Container>
@@ -95,9 +95,9 @@ export default function HomeScreen() {
                     <View style={styles.mobileHeader}>
                         <View style={styles.logoRow}>
                             <View style={styles.logoCircle}>
-                                <Text style={styles.logoText}>Q</Text>
+                                <Text style={styles.logoText}>D</Text>
                             </View>
-                            <Text style={styles.appName}>Qashflow</Text>
+                            <Text style={styles.appName}>Dignus AI</Text>
                         </View>
                         <View style={styles.headerActions}>
                             <TouchableOpacity style={styles.headerActionIcon}>
@@ -129,7 +129,7 @@ export default function HomeScreen() {
                                         styles.periodBtnTextMobile,
                                         period === p && styles.periodBtnTextActiveMobile
                                     ]}>
-                                        {p === 'week' ? '7D' : 'Mês'}
+                                        {p === 'week' ? t('common.period.week') : t('common.period.month')}
                                     </Text>
                                 </TouchableOpacity>
                             ))}
@@ -144,7 +144,7 @@ export default function HomeScreen() {
                     {isLoading ? (
                         <View style={styles.loadingContainer}>
                             <ActivityIndicator size="large" color="#6366F1" />
-                            <Text style={styles.loadingText}>Sincronizando dados...</Text>
+                            <Text style={styles.loadingText}>{t('home.syncing')}</Text>
                         </View>
                     ) : (
                         <View style={styles.scrollContent}>
@@ -174,13 +174,13 @@ export default function HomeScreen() {
                             {/* Portfolio Evolution (Donut) */}
                             <GlassCard style={styles.chartSectionCard}>
                                 <View style={styles.sectionHeaderCompact}>
-                                    <Text style={styles.sectionTitlePremium}>Evolução Patrimonial</Text>
+                                    <Text style={styles.sectionTitlePremium}>{t('home.evolution')}</Text>
                                     <Ionicons name="trending-up" size={18} color="#6366F1" />
                                 </View>
                                 <View style={styles.chartContainerNative}>
                                     <DonutChart data={creditDebitData} size={150} />
                                     <View style={styles.chartOverlayNative}>
-                                        <Text style={styles.overlayLabel}>Patrimônio</Text>
+                                        <Text style={styles.overlayLabel}>{t('home.patrimony')}</Text>
                                         <Text style={styles.overlayValue}>R$ {(summary.totalDebit - summary.totalCredit).toFixed(0)}</Text>
                                     </View>
                                 </View>

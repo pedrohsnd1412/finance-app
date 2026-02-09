@@ -24,6 +24,10 @@
             "thu": "Qui",
             "fri": "Sex",
             "sat": "Sáb"
+        },
+        "period": {
+            "week": "7D",
+            "month": "Mês"
         }
     },
     "auth": {
@@ -44,6 +48,7 @@
     },
     "home": {
         "overview": "Visão Geral",
+        "intro": "Confira o resumo das suas finanças e evolução patrimonial",
         "balance": "Saldo",
         "income": "Entradas",
         "expense": "Saídas",
@@ -60,8 +65,9 @@
         "stats": {
             "transactions": "Transações",
             "income": "Ganhos",
-            "expense": "Gastos",
-            "totalIncome": "Entradas Totais",
+            "expense": "Despesa",
+            "monthlyFlow": "Fluxo Mensal",
+            "totalIncome": "Receita Total",
             "totalExpenses": "Saídas Totais",
             "savedBalance": "Saldo Salvo",
             "fromLastMonth": "{{percentage}} em relação ao mês anterior"
@@ -72,8 +78,15 @@
         "balanceOverview": "Visão geral do saldo",
         "savings": "Poupança",
         "averageIncome": "Média de Entradas",
-        "transactionsSubtitle": "Reveja e gira o seu histórico de gastos",
-        "topCategory": "Principal Categoria"
+        "transactionsSubtitle": "Revise e gerencie seu histórico de despesas",
+        "topCategory": "Categoria Principal",
+        "myBalance": "Meu Saldo",
+        "availableBalance": "Saldo disponível",
+        "subtotal": "Subtotal",
+        "evolution": "Evolução Patrimonial",
+        "patrimony": "Patrimônio",
+        "syncing": "Sincronizando dados...",
+        "total": "Total"
     },
     "banks": {
         "manageInfo": "Gerencie todas as suas contas bancárias e instituições conectadas em um só lugar.",

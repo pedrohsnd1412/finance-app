@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface StatCardProps {
     title: string;
@@ -9,13 +10,14 @@ interface StatCardProps {
 }
 
 export const StatCard = ({ title, amount, change, trend, chartData }: StatCardProps) => {
+    const { t } = useTranslation();
     const isPositive = trend === 'up';
     return (
         <div className="bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-[32px] p-5 flex-1 min-w-[280px] min-h-[120px] flex flex-col justify-between">
             <div>
                 <div className="mb-2">
                     <span className="text-3xl text-white font-semibold block mb-1">{title}</span>
-                    <span className="text-xs text-gray-400 font-medium">Fluxo Mensal</span>
+                    <span className="text-xs text-gray-400 font-medium">{t('home.stats.monthlyFlow')}</span>
                 </div>
 
                 <div className="flex items-baseline gap-3 mb-4">

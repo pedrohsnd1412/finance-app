@@ -24,11 +24,11 @@ export default function HomeScreen() {
     }));
 
     return (
-        <div className="flex-1 overflow-y-auto pt-6 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
+        <div className="flex-1 overflow-y-auto pt-2 pb-8 px-8 bg-[#0d0d12] text-white font-sans selection:bg-indigo-500/30">
             {/* Page Title Section */}
-            <div className="mb-10 mt-4">
+            <div className="mb-6 mt-2">
                 <h1 className="text-4xl font-black tracking-tight mb-2">{t('home.overview')}</h1>
-                <p className="text-gray-500 font-medium">Confira o resumo das suas finanças e evolução patrimonial</p>
+                <p className="text-gray-500 font-medium">{t('home.intro')}</p>
             </div>
 
             {/* Top Section: Balance and Stats */}
@@ -74,7 +74,7 @@ export default function HomeScreen() {
                         <MoreVertical size={18} className="text-gray-500" />
                     </div>
 
-                    <div className="h-48 relative">
+                    <div className="h-32 relative">
                         <svg className="w-full h-full" viewBox="0 0 400 100">
                             <path
                                 d="M0,80 L50,80 L80,50 L110,80 L200,80 L220,10 L240,80 L400,80"
@@ -123,7 +123,7 @@ export default function HomeScreen() {
                         </div>
                     </div>
 
-                    <div className="relative w-48 h-48 flex items-center justify-center">
+                    <div className="relative w-32 h-32 flex items-center justify-center">
                         <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="rgba(255,255,255,0.05)" strokeWidth="10" />
                             {/* Simplified implementation for the top 2 categories */}
@@ -131,7 +131,7 @@ export default function HomeScreen() {
                             <circle cx="50" cy="50" r="40" fill="transparent" stroke="#6366f1" strokeWidth="10" strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.25)} strokeLinecap="round" opacity="0.6" />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-xl text-gray-400 font-bold mb-1">Total</span>
+                            <span className="text-xl text-gray-400 font-bold mb-1">{t('home.total')}</span>
                             <span className="text-2xl font-black">R${summary.expenseTotal.toFixed(0)}</span>
                         </div>
                     </div>

@@ -44,7 +44,7 @@ export function TopHeader() {
                             {summary.userName || 'User'}
                         </Text>
                         <Text style={[styles.userEmail, { color: theme.muted }]}>
-                            {summary.userName ? `${summary.userName.toLowerCase()}@acru.com` : 'user@acru.com'}
+                            {summary.userName ? `${summary.userName.toLowerCase()}@dignus.ai` : 'user@dignus.ai'}
                         </Text>
                     </View>
                 </View>
@@ -55,12 +55,12 @@ export function TopHeader() {
 
 const styles = StyleSheet.create({
     header: {
-        height: 120,
+        height: 72, // Reduced from 120
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 40,
-        paddingTop: 60,
+        paddingTop: 16, // Reduced from 60
         backgroundColor: '#0d0d12',
     },
     searchContainer: {

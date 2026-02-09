@@ -41,7 +41,7 @@ export function Sidebar() {
         >
             <View style={styles.logoContainer}>
                 <Text style={[styles.logoText, { color: theme.text }]}>
-                    {isHovered ? 'ACRU' : 'A'}
+                    {isHovered ? 'Dignus AI' : 'D'}
                 </Text>
             </View>
 
