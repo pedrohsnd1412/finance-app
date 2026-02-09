@@ -1,3 +1,5 @@
+import { useColorScheme } from '@/components/useColorScheme';
+import { Colors } from '@/constants/Colors';
 import React from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -7,8 +9,11 @@ interface GlassCardProps {
 }
 
 export function GlassCard({ children, style }: GlassCardProps) {
+    const colorScheme = useColorScheme();
+    const theme = Colors[colorScheme ?? 'light'];
+
     return (
-        <View style={[styles.card, style]}>
+        <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }, style]}>
             {children}
         </View>
     );

@@ -1,6 +1,5 @@
 import { BalanceCard } from '@/components/cards/BalanceCard';
 import { StatCard } from '@/components/cards/StatCard';
-import { DonutChart } from '@/components/charts/DonutChart';
 import { Container } from '@/components/Container';
 import { GlassCard } from '@/components/GlassCard';
 import { TransactionItem } from '@/components/TransactionItem';
@@ -9,7 +8,6 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { Period, TransactionTypeFilter } from '@/types/home.types';
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -96,10 +94,10 @@ export default function HomeScreen() {
                     {/* Identity & Period Section - Renamed to Overview as per design request implicitly via 'vision general' */}
                     <View style={styles.identitySection}>
                         <View>
-                            <Text style={styles.pageTitle}>{t('home.overview')}</Text>
-                            <Text style={styles.userGreeting}>{getGreeting()}, {summary.userName || 'User'}</Text>
+                            <Text style={[styles.pageTitle, { color: theme.text }]}>{t('home.overview')}</Text>
+                            <Text style={[styles.userGreeting, { color: theme.muted }]}>{getGreeting()}, {summary.userName || 'User'}</Text>
                         </View>
-                        <View style={styles.periodSwitcherMobile}>
+                        <View style={[styles.periodSwitcherMobile, { backgroundColor: theme.card, borderColor: theme.border }]}>
                             {['week', 'month'].map((p) => (
                                 <TouchableOpacity
                                     key={p}
@@ -162,7 +160,7 @@ export default function HomeScreen() {
                             {/* Recent Activity */}
                             <View style={styles.historySection}>
                                 <View style={styles.sectionHeaderCompact}>
-                                    <Text style={styles.sectionTitlePremium}>{t('home.recentTransactions')}</Text>
+                                    <Text style={[styles.sectionTitlePremium, { color: theme.text }]}>{t('home.recentTransactions')}</Text>
                                     <TouchableOpacity onPress={() => router.push('/expenses')}>
                                         <Text style={styles.viewAllPremium}>{t('home.viewAll')}</Text>
                                     </TouchableOpacity>
@@ -185,17 +183,7 @@ export default function HomeScreen() {
                             </View>
 
                             {/* Category Distribution */}
-                            {categoryData.length > 0 && (
-                                <GlassCard style={[styles.chartSectionCard, { marginTop: 24 }]}>
-                                    <View style={styles.sectionHeaderCompact}>
-                                        <Text style={styles.sectionTitlePremium}>{t('home.categoryChart')}</Text>
-                                        <Ionicons name="pie-chart" size={18} color="#6366F1" />
-                                    </View>
-                                    <View style={styles.chartContainerNative}>
-                                        <DonutChart data={categoryData} size={150} />
-                                    </View>
-                                </GlassCard>
-                            )}
+
                         </View>
                     )}
                 </View>
@@ -270,7 +258,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     pageTitle: {
-        fontSize: 32,
+        fontSize: 36,
         fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,

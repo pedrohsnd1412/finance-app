@@ -35,18 +35,18 @@ export default function ExpensesScreen() {
     const renderHeader = () => (
         <View style={styles.headerArea}>
             <View style={styles.titleSection}>
-                <Text style={styles.pageTitle}>{t('tabs.expenses')}</Text>
+                <Text style={[styles.pageTitle, { color: theme.text }]}>{t('tabs.expenses')}</Text>
                 <Text style={styles.pageSubtitle}>Histórico e análise de gastos</Text>
             </View>
 
-            <View style={styles.periodSwitcher}>
+            <View style={[styles.periodSwitcher, { backgroundColor: theme.card, borderColor: theme.border }]}>
                 {['week', 'month', 'all'].map((p) => (
                     <TouchableOpacity
                         key={p}
                         onPress={() => setPeriod(p as Period)}
                         style={[
                             styles.periodBtn,
-                            period === p && styles.periodBtnActive
+                            period === p && [styles.periodBtnActive, { backgroundColor: theme.text }]
                         ]}
                     >
                         <Text style={[
@@ -66,7 +66,7 @@ export default function ExpensesScreen() {
                     </View>
                     <Text style={styles.summaryLabel}>Total Gasto</Text>
                 </View>
-                <Text style={styles.summaryValue}>
+                <Text style={[styles.summaryValue, { color: theme.text }]}>
                     R$ {summary.expenseTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </Text>
             </GlassCard>
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         marginBottom: 28,
     },
     pageTitle: {
-        fontSize: 32,
+        fontSize: 36,
         fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,

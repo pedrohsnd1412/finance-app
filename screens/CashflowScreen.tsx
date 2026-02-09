@@ -23,7 +23,7 @@ export default function CashflowScreen() {
             <View style={styles.header}>
                 {!isDesktop ? (
                     <View>
-                        <Text style={styles.mobileTitle}>{t('cashflow.title')}</Text>
+                        <Text style={[styles.mobileTitle, { color: theme.text }]}>{t('cashflow.title')}</Text>
                         <Text style={styles.mobileSubtitle}>{t('cashflow.subtitle')}</Text>
                     </View>
                 ) : (
@@ -73,11 +73,11 @@ const styles = StyleSheet.create({
     header: {
         paddingHorizontal: 16,
         marginBottom: 28,
-        marginTop: 8,
+        marginTop: 40,
     },
     mobileTitle: {
-        fontSize: 32,
-        fontWeight: '900',
+        fontSize: 36,
+        fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,
     },

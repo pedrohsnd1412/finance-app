@@ -1,5 +1,6 @@
 import { useColorScheme } from '@/components/useColorScheme';
 import { useResponsive } from '@/components/useResponsive';
+import { Colors } from '@/constants/Colors';
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 
@@ -15,7 +16,7 @@ export function Container({ children, style, useSafeArea = true, maxWidth = 1400
     const colorScheme = useColorScheme();
     const theme = colorScheme ?? 'light';
     const { isDesktop } = useResponsive();
-    const backgroundColor = '#0d0d12'; // Force dark background across all platforms for consistent branding
+    const backgroundColor = Colors[theme].background;
 
     const Wrapper = useSafeArea ? SafeAreaView : View;
 

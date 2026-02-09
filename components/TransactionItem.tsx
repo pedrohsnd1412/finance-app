@@ -43,7 +43,7 @@ export function TransactionItem({ transaction, style, hideBorder = false }: Tran
 
     return (
         <View style={StyleSheet.flatten([styles.container, style])}>
-            <View style={[styles.iconBox, { backgroundColor: 'rgba(255, 255, 255, 0.05)' }]}>
+            <View style={[styles.iconBox, { backgroundColor: theme.border }]}>
                 <Ionicons
                     name={getIcon() as any}
                     size={22}
@@ -51,21 +51,21 @@ export function TransactionItem({ transaction, style, hideBorder = false }: Tran
                 />
             </View>
             <View style={styles.info}>
-                <Text style={[styles.desc, { color: '#FFFFFF' }]} numberOfLines={1}>
+                <Text style={[styles.desc, { color: theme.text }]} numberOfLines={1}>
                     {transaction.description}
                 </Text>
-                <Text style={[styles.subText, { color: '#94A3B8' }]}>
+                <Text style={[styles.subText, { color: theme.muted }]}>
                     {transaction.category || t('common.categories.other')}
                 </Text>
             </View>
             <View style={styles.right}>
                 <Text style={[
                     styles.val,
-                    { color: isIncome ? '#10B981' : '#FFFFFF' }
+                    { color: isIncome ? '#10B981' : theme.text }
                 ]}>
                     {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
                 </Text>
-                <Text style={[styles.subText, { textAlign: 'right', color: '#64748B' }]}>
+                <Text style={[styles.subText, { textAlign: 'right', color: theme.muted }]}>
                     {formatDate(transaction.date)}
                 </Text>
             </View>

@@ -93,19 +93,19 @@ export default function MoreScreen() {
                             key={tab.key}
                             style={[
                                 styles.tab,
-                                isActive && styles.tabActive
+                                isActive && { backgroundColor: theme.card }
                             ]}
                             onPress={() => setActiveTab(tab.key)}
                         >
                             <Ionicons
                                 name={tab.icon}
                                 size={18}
-                                color={isActive ? '#FFFFFF' : '#94A3B8'}
+                                color={isActive ? theme.text : theme.muted}
                             />
                             <Text
                                 style={[
                                     styles.tabLabel,
-                                    { color: isActive ? '#FFFFFF' : '#94A3B8' },
+                                    { color: isActive ? theme.text : theme.muted },
                                 ]}
                             >
                                 {t(tab.label)}
@@ -126,7 +126,7 @@ export default function MoreScreen() {
                         <Ionicons name="person" size={28} color="#fff" />
                     </View>
                     <View style={styles.userInfo}>
-                        <Text style={styles.userEmail}>
+                        <Text style={[styles.userEmail, { color: theme.text }]}>
                             {user.email}
                         </Text>
                         <Text style={styles.userIdText}>
@@ -153,13 +153,13 @@ export default function MoreScreen() {
                 ].map((item, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={styles.settingsItem}
+                        style={[styles.settingsItem, { backgroundColor: theme.card, borderColor: theme.border }]}
                         onPress={item.action}
                     >
                         <View style={styles.settingsIconBox}>
                             <Ionicons name={item.icon as any} size={20} color="#6366F1" />
                         </View>
-                        <Text style={styles.settingsLabel}>
+                        <Text style={[styles.settingsLabel, { color: theme.text }]}>
                             {item.label}
                         </Text>
                         <Text style={styles.settingsValue}>
@@ -182,13 +182,13 @@ export default function MoreScreen() {
                 ].map((item, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={styles.settingsItem}
+                        style={[styles.settingsItem, { backgroundColor: theme.card, borderColor: theme.border }]}
                         onPress={item.action}
                     >
                         <View style={styles.settingsIconBox}>
                             <Ionicons name={item.icon as any} size={20} color="#6366F1" />
                         </View>
-                        <Text style={styles.settingsLabel}>
+                        <Text style={[styles.settingsLabel, { color: theme.text }]}>
                             {item.label}
                         </Text>
                         <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
@@ -228,10 +228,10 @@ export default function MoreScreen() {
                         <Ionicons name="add" size={28} color="#fff" />
                     </View>
                     <View style={styles.addCardText}>
-                        <Text style={styles.addCardTitle}>
+                        <Text style={[styles.addCardTitle, { color: theme.text }]}>
                             {t('more.connectNew')}
                         </Text>
-                        <Text style={styles.addCardSubtitle}>
+                        <Text style={[styles.addCardSubtitle, { color: theme.muted }]}>
                             {t('more.connectNewSubtitle')}
                         </Text>
                     </View>
@@ -257,12 +257,12 @@ export default function MoreScreen() {
                 ].map((item, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={styles.settingsItem}
+                        style={[styles.settingsItem, { backgroundColor: theme.card, borderColor: theme.border }]}
                     >
                         <View style={styles.settingsIconBox}>
                             <Ionicons name={item.icon as any} size={20} color="#6366F1" />
                         </View>
-                        <Text style={styles.settingsLabel}>
+                        <Text style={[styles.settingsLabel, { color: theme.text }]}>
                             {item.label}
                         </Text>
                         <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
@@ -283,7 +283,7 @@ export default function MoreScreen() {
             <View style={styles.header}>
                 {!isDesktop ? (
                     <View>
-                        <Text style={styles.mobileTitle}>{t('tabs.more')}</Text>
+                        <Text style={[styles.mobileTitle, { color: theme.text }]}>{t('tabs.more')}</Text>
                         <Text style={styles.mobileSubtitle}>{t('more.subtitle')}</Text>
                     </View>
                 ) : (
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
         marginTop: 40, // increased from 8
     },
     mobileTitle: {
-        fontSize: 32,
+        fontSize: 36,
         fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,
@@ -549,3 +549,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
 });
+
+

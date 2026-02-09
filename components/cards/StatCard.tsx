@@ -1,3 +1,5 @@
+import { useColorScheme } from '@/components/useColorScheme';
+import { Colors } from '@/constants/Colors';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View, ViewStyle } from 'react-native';
@@ -14,6 +16,8 @@ interface StatCardProps {
 export function StatCard({ title, amount, change, trend, chartData, style }: StatCardProps) {
     const { t, i18n } = useTranslation();
     const isPositive = trend === 'up';
+    const colorScheme = useColorScheme();
+    const theme = Colors[colorScheme ?? 'light'];
 
     const formattedAmount = amount.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
         style: 'currency',
@@ -23,31 +27,33 @@ export function StatCard({ title, amount, change, trend, chartData, style }: Sta
     });
 
     return (
-        <View style={StyleSheet.flatten([styles.card, style])}>
+        <View style={StyleSheet.flatten([styles.card, { backgroundColor: theme.card, borderColor: theme.border }, style])}>
             <View>
                 <View style={styles.header}>
-                    <Text style={styles.title}>{title}</Text>
-                    <Text style={styles.subtitle}>{t('home.stats.monthlyFlow')}</Text>
+                    <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
+                    <Text style={[styles.subtitle, { color: theme.muted }]}>{t('home.stats.monthlyFlow')}</Text>
                 </View>
 
                 <View style={styles.valueRow}>
-                    <Text style={styles.amount}>{formattedAmount}</Text>
+                    <Text style={[styles.amount, { color: theme.text }]}>{formattedAmount}</Text>
                 </View>
             </View>
 
-            <View style={styles.chartContainer}>
-                {chartData.map((val, i) => (
-                    <View key={i} style={styles.barColumn}>
-                        <View
-                            style={[
-                                styles.bar,
-                                { height: `${val.value}%` },
-                                val.active ? styles.barActive : styles.barInactive
-                            ]}
-                        />
-                    </View>
-                ))}
-            </View>
+            {chartData.length > 0 && (
+                <View style={styles.chartContainer}>
+                    {chartData.map((val, i) => (
+                        <View key={i} style={styles.barColumn}>
+                            <View
+                                style={[
+                                    styles.bar,
+                                    { height: `${val.value}%` },
+                                    val.active ? { backgroundColor: theme.text } : styles.barInactive
+                                ]}
+                            />
+                        </View>
+                    ))}
+                </View>
+            )}
         </View>
     );
 }
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#1a1b23',
         borderRadius: 32,
         padding: 20,
-        minHeight: 180,
+        minHeight: 110,
         justifyContent: 'space-between',
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.05)',

@@ -52,7 +52,7 @@ export function BalanceOverviewChart() {
     }, [summary.transactions, i18n.language]);
 
     const maxVal = Math.max(...chartData.map(d => Math.max(d.income, d.expenses))) || 100;
-    const chartHeight = 200;
+    const chartHeight = 240;
 
     const formatCurrency = (val: number) => {
         return val.toLocaleString(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 16,
-        marginBottom: 20,
+        marginBottom: 56,
     },
     legendItem: {
         flexDirection: 'row',

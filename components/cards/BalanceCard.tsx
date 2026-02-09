@@ -24,7 +24,7 @@ export function BalanceCard({ debit, credit, style }: BalanceCardProps) {
     };
 
     return (
-        <View style={StyleSheet.flatten([styles.card, { backgroundColor: '#1a1b23' }, style])}>
+        <View style={StyleSheet.flatten([styles.card, { backgroundColor: '#4338CA' }, style])}>
             {/* Glossy overlay effect simulation */}
             <View style={styles.glossyOverlay} />
 
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.05)',
         position: 'relative',
-        backgroundColor: '#1a1b23',
+        backgroundColor: '#4338CA',
     },
     glossyOverlay: {
         position: 'absolute',
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         width: 256,
         height: 256,
         borderRadius: 128,
-        backgroundColor: '#6366f1',
+        backgroundColor: '#818CF8',
         opacity: 0.2,
         transform: [{ scale: 1.5 }],
         // blurRadius not directly supported in View, relying on opacity overlap
