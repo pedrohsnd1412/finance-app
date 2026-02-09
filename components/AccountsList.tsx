@@ -3,8 +3,9 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { getBankLogo } from '@/constants/Banks';
 import { Colors } from '@/constants/Colors';
 import { supabase } from '@/lib/supabase';
+import { TransactionTypeFilter } from '@/types/home.types';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, Image, RefreshControl, StyleSheet, Text, View } from 'react-native';
 
@@ -20,7 +21,10 @@ interface Account {
     }
 }
 
-import { TransactionTypeFilter } from '@/types/home.types';
+interface BankGroup {
+    name: string;
+    accounts: Account[];
+}
 
 interface AccountsListProps {
     filter?: TransactionTypeFilter;
@@ -71,47 +75,72 @@ export default function AccountsList({ filter = 'all', hideHeader = false }: Acc
         fetchAccounts();
     };
 
-    const filteredAccounts = accounts.filter(acc => {
-        if (filter === 'all') return true;
-        if (filter === 'credit') return acc.type === 'CREDIT_CARD';
-        if (filter === 'debit') return acc.type !== 'CREDIT_CARD';
-        return true;
-    });
+    const filteredAccounts = useMemo(() => {
+        return accounts.filter(acc => {
+            if (filter === 'all') return true;
+            if (filter === 'credit') return acc.type === 'CREDIT_CARD';
+            if (filter === 'debit') return acc.type !== 'CREDIT_CARD';
+            return true;
+        });
+    }, [accounts, filter]);
 
-    const renderItem = ({ item }: { item: Account }) => (
-        <GlassCard style={styles.card}>
-            <View style={styles.cardHeader}>
-                <View style={styles.bankInfo}>
-                    <View style={styles.logoWrapper}>
-                        <Image
-                            source={{ uri: getBankLogo(item.connection?.connector_name) }}
-                            style={styles.bankLogo}
-                            resizeMode="contain"
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.bankName}>{item.connection?.connector_name || t('banks.bankFallback')}</Text>
-                        <Text style={styles.accountName}>{item.name}</Text>
-                    </View>
+    const groupedAccounts = useMemo(() => {
+        const groups: Record<string, Account[]> = {};
+        filteredAccounts.forEach(acc => {
+            const bankName = acc.connection?.connector_name || t('banks.bankFallback');
+            if (!groups[bankName]) groups[bankName] = [];
+            groups[bankName].push(acc);
+        });
+
+        // Convert to array and maybe sort by bank name or total balance?
+        // Sorting by name for now, or keep insertion order? Object keys iteration order is tricky.
+        // Let's sort alphabetically or by balance.
+        return Object.entries(groups).map(([name, accounts]) => ({
+            name,
+            accounts
+        })).sort((a, b) => a.name.localeCompare(b.name));
+    }, [filteredAccounts, t]);
+
+    const renderGroup = ({ item }: { item: BankGroup }) => (
+        <GlassCard style={styles.bankCard}>
+            <View style={styles.bankHeader}>
+                <View style={styles.logoWrapper}>
+                    <Image
+                        source={{ uri: getBankLogo(item.name) }}
+                        style={styles.bankLogo}
+                        resizeMode="contain"
+                    />
                 </View>
-                <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+                <Text style={styles.bankName}>{item.name}</Text>
             </View>
 
-            <View style={styles.cardFooter}>
-                <View>
-                    <Text style={styles.typeLabel}>{item.type === 'CREDIT_CARD' ? t('banks.creditCard') : t('banks.checkingAccount')}</Text>
-                    <Text style={styles.balance}>
-                        {new Intl.NumberFormat(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
-                            style: 'currency',
-                            currency: item.currency || (i18n.language === 'pt' ? 'BRL' : 'USD')
-                        }).format(item.balance)}
-                    </Text>
-                </View>
-                {item.type === 'CREDIT_CARD' && (
-                    <View style={styles.tag}>
-                        <Text style={styles.tagText}>MASTER</Text>
+            <View style={styles.accountsContainer}>
+                {item.accounts.map((account, index) => (
+                    <View key={account.id} style={[
+                        styles.accountRow,
+                        index === item.accounts.length - 1 && styles.lastAccountRow
+                    ]}>
+                        <View style={{ flex: 1, gap: 4 }}>
+                            <Text style={styles.accountName}>{account.name}</Text>
+                            <Text style={styles.typeLabel}>
+                                {account.type === 'CREDIT_CARD' ? t('banks.creditCard') : t('banks.checkingAccount')}
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                            <Text style={styles.balance}>
+                                {new Intl.NumberFormat(i18n.language === 'pt' ? 'pt-BR' : 'en-US', {
+                                    style: 'currency',
+                                    currency: account.currency || (i18n.language === 'pt' ? 'BRL' : 'USD')
+                                }).format(account.balance)}
+                            </Text>
+                            {account.type === 'CREDIT_CARD' && (
+                                <View style={styles.tag}>
+                                    <Text style={styles.tagText}>MASTER</Text>
+                                </View>
+                            )}
+                        </View>
                     </View>
-                )}
+                ))}
             </View>
         </GlassCard>
     );
@@ -133,9 +162,9 @@ export default function AccountsList({ filter = 'all', hideHeader = false }: Acc
                 </View>
             )}
             <FlatList
-                data={filteredAccounts}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
+                data={groupedAccounts}
+                keyExtractor={(item) => item.name}
+                renderItem={renderGroup}
                 scrollEnabled={false}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366F1" />}
                 ListEmptyComponent={
@@ -184,20 +213,15 @@ const styles = StyleSheet.create({
     listContent: {
         paddingBottom: 20,
     },
-    card: {
+    bankCard: {
         padding: 20,
-        marginBottom: 12,
+        marginBottom: 24,
     },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    bankInfo: {
+    bankHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
+        marginBottom: 20,
     },
     logoWrapper: {
         width: 44,
@@ -214,44 +238,52 @@ const styles = StyleSheet.create({
         height: 24,
     },
     bankName: {
-        fontSize: 13,
-        color: '#94A3B8',
-        fontWeight: '600',
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#FFFFFF',
+    },
+    accountsContainer: {
+        gap: 0,
+    },
+    accountRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    },
+    lastAccountRow: {
+        borderBottomWidth: 0,
+        paddingBottom: 0,
     },
     accountName: {
         fontSize: 16,
         fontWeight: '700',
         color: '#FFFFFF',
     },
-    cardFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-    },
     typeLabel: {
         fontSize: 11,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#94A3B8',
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
-        marginBottom: 2,
     },
     balance: {
-        fontSize: 22,
-        fontWeight: '800',
+        fontSize: 16,
+        fontWeight: '700',
         color: '#FFFFFF',
     },
     tag: {
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 6,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.08)',
     },
     tagText: {
-        fontSize: 10,
-        fontWeight: '800',
+        fontSize: 9,
+        fontWeight: '700',
         color: '#94A3B8',
     },
     emptyContainer: {

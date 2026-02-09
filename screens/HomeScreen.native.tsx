@@ -267,10 +267,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         marginBottom: 32,
+        marginTop: 40,
     },
     pageTitle: {
-        fontSize: 28,
-        fontWeight: '900',
+        fontSize: 32,
+        fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,
     },
