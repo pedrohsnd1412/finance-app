@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     titleSection: {
-        marginTop: 8,
+        marginTop: 40, // Increased from 8
         marginBottom: 28,
     },
     pageTitle: {
         fontSize: 32,
-        fontWeight: '900',
+        fontWeight: '800',
         color: '#FFFFFF',
         letterSpacing: -1,
     },
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 12,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#94A3B8',
         textTransform: 'uppercase',
         letterSpacing: 1,

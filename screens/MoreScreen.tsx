@@ -22,7 +22,7 @@ import {
     View
 } from 'react-native';
 
-type TabKey = 'settings' | 'help';
+type TabKey = 'settings' | 'accounts' | 'help';
 
 interface TabItem {
     key: TabKey;
@@ -32,6 +32,7 @@ interface TabItem {
 
 const TABS: TabItem[] = [
     { key: 'settings', label: 'tabs.settings', icon: 'settings-outline' },
+    { key: 'accounts', label: 'tabs.banks', icon: 'wallet-outline' },
     { key: 'help', label: 'tabs.help', icon: 'help-circle-outline' },
 ];
 
@@ -138,31 +139,6 @@ export default function MoreScreen() {
                 </GlassCard>
             )}
 
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>
-                    {t('more.connectedAccounts')}
-                </Text>
-
-                {/* Connect Account Button */}
-                <TouchableOpacity
-                    style={styles.addCard}
-                    onPress={() => setShowConnectModal(true)}
-                >
-                    <View style={styles.addIconContainer}>
-                        <Ionicons name="add" size={28} color="#fff" />
-                    </View>
-                    <View style={styles.addCardText}>
-                        <Text style={styles.addCardTitle}>
-                            {t('more.connectNew')}
-                        </Text>
-                        <Text style={styles.addCardSubtitle}>
-                            {t('more.connectNewSubtitle')}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-
-                <AccountsList />
-            </View>
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>
@@ -233,6 +209,36 @@ export default function MoreScreen() {
                     <Ionicons name="chevron-forward" size={18} color="#F43F5E" style={{ opacity: 0.3 }} />
                 </TouchableOpacity>
             </View>
+        </ScrollView >
+    );
+
+    const renderAccounts = () => (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+            <View style={styles.section}>
+                <Text style={styles.sectionTitle}>
+                    {t('more.connectedAccounts')}
+                </Text>
+
+                {/* Connect Account Button */}
+                <TouchableOpacity
+                    style={styles.addCard}
+                    onPress={() => setShowConnectModal(true)}
+                >
+                    <View style={styles.addIconContainer}>
+                        <Ionicons name="add" size={28} color="#fff" />
+                    </View>
+                    <View style={styles.addCardText}>
+                        <Text style={styles.addCardTitle}>
+                            {t('more.connectNew')}
+                        </Text>
+                        <Text style={styles.addCardSubtitle}>
+                            {t('more.connectNewSubtitle')}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+
+                <AccountsList />
+            </View>
         </ScrollView>
     );
 
@@ -290,6 +296,7 @@ export default function MoreScreen() {
             <View style={{ paddingHorizontal: 16, flex: 1 }}>
                 {renderTabBar()}
                 {activeTab === 'settings' && renderSettings()}
+                {activeTab === 'accounts' && renderAccounts()}
                 {activeTab === 'help' && renderHelp()}
             </View>
 
@@ -326,7 +333,7 @@ const styles = StyleSheet.create({
     header: {
         paddingHorizontal: 16,
         marginBottom: 32,
-        marginTop: 8,
+        marginTop: 40, // increased from 8
     },
     mobileTitle: {
         fontSize: 32,
