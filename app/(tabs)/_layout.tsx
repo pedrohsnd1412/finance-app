@@ -107,6 +107,14 @@ export default function TabLayout() {
               }}
             />
             <Tabs.Screen
+              name="agent"
+              options={{
+                title: 'Agent',
+                tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
+                href: isDesktop ? undefined : null,
+              }}
+            />
+            <Tabs.Screen
               name="chat"
               options={{
                 title: 'Chat IA',
@@ -213,6 +221,12 @@ export default function TabLayout() {
         options={{
           title: 'Mais',
           tabBarIcon: ({ color }) => <TabBarIcon name="menu-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="agent"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen

@@ -37,6 +37,7 @@ export function Sidebar() {
 
     const menuItems = [
         { icon: LayoutDashboard, label: t('home.overview'), route: "/" },
+        { icon: Bot, label: "Agent", route: "/agent" },
         { icon: ArrowLeftRight, label: t('tabs.incomes'), route: "/incomes" },
         { icon: Receipt, label: t('tabs.expenses'), route: "/expenses" },
         { icon: BarChart3, label: t('cashflow.title'), route: "/cashflow" },
@@ -86,16 +87,6 @@ export function Sidebar() {
                         <LogOut size={20} />
                         <span className="text-sm font-medium">{t('more.signOut')}</span>
                     </div>
-                </div>
-
-                {/* AI Chat */}
-                <div
-                    onClick={() => router.push('/chat' as any)}
-                    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all rounded-xl mt-4 ${pathname === '/chat' ? 'bg-indigo-600 text-white' : 'text-indigo-400 hover:bg-indigo-500/10'} border border-indigo-500/20`}
-                >
-                    <Bot size={20} />
-                    <span className="text-sm font-medium">{t('more.aiAssistant')}</span>
-                    <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse ml-auto"></span>
                 </div>
             </nav>
 

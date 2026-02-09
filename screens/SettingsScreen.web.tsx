@@ -1,12 +1,14 @@
 import { GlassCard } from '@/components/web/GlassCard';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Bell, ChevronRight, Globe, LogOut, Moon, Shield } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 export default function SettingsScreen() {
     const { t, i18n } = useTranslation();
-    const { signOut } = useAuth();
+    const { user, signOut } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const currentLanguage = i18n.language;
 
     const changeLanguage = (lng: string) => {
@@ -20,7 +22,12 @@ export default function SettingsScreen() {
             desc: currentLanguage === 'pt' ? 'Português' : 'English',
             onClick: () => changeLanguage(currentLanguage === 'pt' ? 'en' : 'pt')
         },
-        { title: t('more.appearance'), icon: Moon, desc: t('more.dark') },
+        {
+            title: t('more.appearance'),
+            icon: Moon,
+            desc: theme === 'dark' ? t('more.dark') : t('more.light'),
+            onClick: toggleTheme
+        },
         { title: t('more.notifications'), icon: Bell, desc: t('more.statusActive') },
         { title: t('more.security'), icon: Shield, desc: t('more.bankSecurity') },
     ];
@@ -33,6 +40,24 @@ export default function SettingsScreen() {
             </div>
 
             <div className="max-w-4xl space-y-8">
+                {/* User Info */}
+                {user && (
+                    <GlassCard className="flex items-center gap-6 p-8 mb-8">
+                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-xl shadow-indigo-600/20">
+                            <span className="text-2xl font-bold text-white uppercase">
+                                {(user.email || 'U').substring(0, 2)}
+                            </span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-xl font-bold">{user.user_metadata?.full_name || user.email?.split('@')[0]}</h3>
+                            <p className="text-sm text-gray-500">
+                                {user.email}
+                            </p>
+                            <p className="text-xs font-bold text-green-400 mt-1">{t('more.accountActive')}</p>
+                        </div>
+                    </GlassCard>
+                )}
+
                 <section>
                     <h2 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">{t('more.preferences')}</h2>
                     <div className="space-y-3">
@@ -77,14 +102,8 @@ export default function SettingsScreen() {
                         </div>
                     </div>
                 </section>
-
-                <GlassCard className="mt-12 text-center p-12">
-                    <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center italic font-bold text-3xl mx-auto mb-6 shadow-2xl shadow-indigo-600/20">D</div>
-                    <h3 className="text-xl font-bold mb-2">{t('more.upgradeTitle')}</h3>
-                    <p className="text-gray-500 mb-8 max-w-sm mx-auto">{t('more.upgradeDesc')}</p>
-                    <button className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold transition-all shadow-xl shadow-indigo-600/20">{t('more.upgradeButton')}</button>
-                </GlassCard>
             </div>
         </div>
     );
 }
+

@@ -1,2 +1,2 @@
-import MoreScreen from '@/screens/MoreScreen';
-export default MoreScreen;
+import SettingsScreen from '@/screens/SettingsScreen';
+export default SettingsScreen;
