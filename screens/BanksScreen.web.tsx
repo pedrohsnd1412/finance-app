@@ -118,7 +118,7 @@ export default function BanksScreen() {
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="flex-1 bg-gray-50">
+                        <div className="flex-1 bg-gray-50 flex flex-col relative w-full h-full">
                             <PluggyConnect
                                 onSuccess={handleConnectSuccess}
                                 onError={handleConnectError}
