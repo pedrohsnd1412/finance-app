@@ -39,7 +39,7 @@ export default function MoreScreen() {
         { title: t('more.faq'), icon: HelpCircle, desc: '' },
         { title: t('more.contact'), icon: MessageCircle, desc: '' },
         { title: t('more.tutorial'), icon: BookOpen, desc: '' },
-        { title: t('more.about'), icon: FileText, desc: 'Dignos AI v1.0.0' },
+        { title: t('more.about'), icon: FileText, desc: 'DignusAI v1.0.0' },
     ];
 
     const renderItem = (item: any, i: number, variant: 'default' | 'danger' = 'default') => (
@@ -47,14 +47,14 @@ export default function MoreScreen() {
             key={i}
             onClick={item.onClick}
             className={`group flex items-center justify-between p-6 backdrop-blur-md rounded-[24px] transition-all cursor-pointer ${variant === 'danger'
-                    ? 'bg-rose-500/5 border border-rose-500/10 hover:bg-rose-500/10'
-                    : 'bg-[#1a1b23]/60 border border-white/5 hover:bg-white/5 hover:border-white/10'
+                ? 'bg-rose-500/5 border border-rose-500/10 hover:bg-rose-500/10'
+                : 'bg-[#1a1b23]/60 border border-white/5 hover:bg-white/5 hover:border-white/10'
                 }`}
         >
             <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-colors ${variant === 'danger'
-                        ? 'bg-rose-500/10'
-                        : 'bg-white/5 group-hover:bg-indigo-500/10'
+                    ? 'bg-rose-500/10'
+                    : 'bg-white/5 group-hover:bg-indigo-500/10'
                     }`}>
                     <item.icon size={22} className={
                         variant === 'danger'
@@ -159,7 +159,7 @@ export default function MoreScreen() {
 
                 {/* Version */}
                 <div className="text-center py-8">
-                    <p className="text-xs font-bold text-gray-600 uppercase tracking-widest">Dignos AI v1.0.0</p>
+                    <p className="text-xs font-bold text-gray-600 uppercase tracking-widest">DignusAI v1.0.0</p>
                 </div>
             </div>
         </div>

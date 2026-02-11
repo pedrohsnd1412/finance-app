@@ -25,9 +25,9 @@ export default function ExpensesScreen() {
         }));
 
     const periodOptions: { key: Period; label: string }[] = [
-        { key: 'today', label: 'Hoje' },
-        { key: 'week', label: '7 dias' },
-        { key: 'month', label: 'Mês' }
+        { key: 'today', label: t('common.period.today') },
+        { key: 'week', label: t('common.period.7days') },
+        { key: 'month', label: t('common.period.month') }
     ];
 
     return (
@@ -63,7 +63,7 @@ export default function ExpensesScreen() {
                         </button>
                         <button className="flex items-center gap-2 px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold transition-all shadow-lg shadow-rose-600/20 active:scale-95">
                             <Filter size={18} />
-                            <span>Exportar</span>
+                            <span>Export</span>
                         </button>
                     </div>
                 </div>
@@ -72,7 +72,7 @@ export default function ExpensesScreen() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
                 <StatCard
-                    title="Gastos Totais"
+                    title="Total Expenses"
                     amount={summary.expenseTotal.toFixed(2)}
                     change="5"
                     trend="down"
@@ -87,7 +87,7 @@ export default function ExpensesScreen() {
                 />
 
                 <StatCard
-                    title="Média por Transação"
+                    title="Average per Transaction"
                     amount={(summary.expenseTotal / Math.max(transactions.length, 1)).toFixed(2)}
                     change="2"
                     trend="down"
@@ -107,9 +107,9 @@ export default function ExpensesScreen() {
                     </div>
 
                     <div className="relative z-10">
-                        <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">Orçamento</span>
-                        <h3 className="text-2xl font-semibold mt-2 text-white">Limite Utilizado</h3>
-                        <p className="text-sm text-gray-400 mt-1">Cuidado com os gastos extras!</p>
+                        <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">Budget</span>
+                        <h3 className="text-2xl font-semibold mt-2 text-white">Limit Used</h3>
+                        <p className="text-sm text-gray-400 mt-1">Watch out for extra expenses!</p>
                     </div>
 
                     <div className="mt-8 relative z-10">
@@ -126,12 +126,12 @@ export default function ExpensesScreen() {
 
             {/* Search and List Header */}
             <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-6 mb-8">
-                <h2 className="text-xl font-bold text-white uppercase tracking-tight opacity-50">Histórico de Movimentações</h2>
+                <h2 className="text-xl font-bold text-white uppercase tracking-tight opacity-50">Transaction History</h2>
                 <div className="relative flex-1 lg:max-w-md">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
                     <input
                         type="text"
-                        placeholder="Buscar despesa ou estabelecimento..."
+                        placeholder="Search expense or merchant..."
                         className="w-full bg-[#1a1b23]/60 backdrop-blur-md border border-white/5 rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all placeholder:text-gray-600"
                     />
                 </div>
@@ -143,10 +143,10 @@ export default function ExpensesScreen() {
                     {isLoading ? (
                         <div className="py-20 flex flex-col items-center justify-center gap-4">
                             <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-                            <p className="text-gray-500 font-bold animate-pulse">Sincronizando despesas...</p>
+                            <p className="text-gray-500 font-bold animate-pulse">Syncing expenses...</p>
                         </div>
                     ) : (
-                        <TransactionList transactions={transactions} title="Relatório de Gastos" />
+                        <TransactionList transactions={transactions} title="Expense Report" />
                     )}
                 </div>
             </GlassCard>

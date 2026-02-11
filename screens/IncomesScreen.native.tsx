@@ -36,7 +36,7 @@ export default function IncomesScreen() {
         <View style={styles.headerArea}>
             <View style={styles.titleSection}>
                 <Text style={[styles.pageTitle, { color: theme.text }]}>{t('tabs.incomes')}</Text>
-                <Text style={styles.pageSubtitle}>Acompanhe suas entradas financeiras</Text>
+                <Text style={styles.pageSubtitle}>Track your financial income</Text>
             </View>
 
             <View style={[styles.periodSwitcher, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -53,7 +53,7 @@ export default function IncomesScreen() {
                             styles.periodBtnText,
                             period === p && styles.periodBtnTextActive
                         ]}>
-                            {p === 'week' ? '7D' : p === 'month' ? 'Mês' : 'Total'}
+                            {p === 'week' ? '7D' : p === 'month' ? t('common.period.month') : t('common.period.total')}
                         </Text>
                     </TouchableOpacity>
                 ))}
@@ -64,7 +64,7 @@ export default function IncomesScreen() {
                     <View style={styles.iconCircle}>
                         <Ionicons name="arrow-down" size={20} color="#4ADE80" />
                     </View>
-                    <Text style={styles.summaryLabel}>Total Recebido</Text>
+                    <Text style={styles.summaryLabel}>Total Received</Text>
                 </View>
                 <Text style={[styles.summaryValue, { color: theme.text }]}>
                     R$ {summary.incomeTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -72,7 +72,7 @@ export default function IncomesScreen() {
             </GlassCard>
 
             <View style={styles.listHeaderSection}>
-                <Text style={styles.sectionTitle}>Histórico de Transações</Text>
+                <Text style={styles.sectionTitle}>Transaction History</Text>
                 <TouchableOpacity style={styles.iconButton}>
                     <Ionicons name="search-outline" size={18} color="#94A3B8" />
                 </TouchableOpacity>
@@ -85,7 +85,7 @@ export default function IncomesScreen() {
             {isLoading && incomesList.length === 0 ? (
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#6366F1" />
-                    <Text style={styles.loadingText}>Buscando dados...</Text>
+                    <Text style={styles.loadingText}>Fetching data...</Text>
                 </View>
             ) : (
                 <FlatList
@@ -105,7 +105,7 @@ export default function IncomesScreen() {
                     ListEmptyComponent={
                         <View style={styles.emptyState}>
                             <Ionicons name="receipt-outline" size={48} color="rgba(255,255,255,0.05)" />
-                            <Text style={styles.emptyText}>Nenhuma entrada encontrada.</Text>
+                            <Text style={styles.emptyText}>No income found.</Text>
                         </View>
                     }
                 />

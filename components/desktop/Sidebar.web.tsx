@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinanceData } from '@/hooks/useFinanceData';
 import { usePathname, useRouter } from 'expo-router';
-import { ArrowLeftRight, BarChart3, Bot, ChevronDown, LayoutDashboard, LogOut, Menu, Receipt, Settings, Wallet } from 'lucide-react';
+import { ArrowLeftRight, BarChart3, Bot, ChevronDown, LayoutDashboard, LogOut, Receipt, Settings, Wallet } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -37,7 +37,7 @@ export function Sidebar() {
 
     const menuItems = [
         { icon: LayoutDashboard, label: t('home.overview'), route: "/" },
-        { icon: Bot, label: "Agent", route: "/agent" },
+        { icon: Bot, label: "Agent (Beta)", route: "/agent" },
         { icon: ArrowLeftRight, label: t('tabs.incomes'), route: "/incomes" },
         { icon: Receipt, label: t('tabs.expenses'), route: "/expenses" },
         { icon: BarChart3, label: t('cashflow.title'), route: "/cashflow" },
@@ -46,18 +46,17 @@ export function Sidebar() {
 
     const secondaryItems = [
         { icon: Settings, label: t('more.preferences'), route: "/settings" },
-        { icon: Menu, label: t('tabs.more'), route: "/more" },
     ];
 
     return (
         <aside className="w-64 border-r border-white/5 flex flex-col pt-[72px] pb-8 px-6 shrink-0 bg-[#0d0d12] bg-gradient-to-b from-transparent via-transparent to-purple-900/10 min-h-screen h-full">
             <div className="flex items-center gap-3 mb-12 px-2">
                 <div className="w-9 h-9 bg-indigo-600 rounded-xl flex items-center justify-center italic font-bold text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]">D</div>
-                <span className="text-xl font-bold tracking-tight text-white">Dignos AI</span>
+                <span className="text-xl font-bold tracking-tight text-white">DignusAI</span>
             </div>
 
             <nav className="flex-1 space-y-1">
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 px-4">Menu Principal</p>
+                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 px-4">{t('sidebar.mainMenu')}</p>
                 {menuItems.map((item) => (
                     <SidebarItem
                         key={item.label}
@@ -69,7 +68,7 @@ export function Sidebar() {
                 ))}
 
                 <div className="mt-16 pt-8 border-t border-white/5">
-                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 px-4">Configurações</p>
+                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4 px-4">{t('sidebar.settingsMenu')}</p>
                     {secondaryItems.map((item) => (
                         <SidebarItem
                             key={item.label}

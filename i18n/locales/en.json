@@ -26,8 +26,11 @@
             "sat": "Sat"
         },
         "period": {
+            "today": "Today",
             "week": "7D",
-            "month": "Month"
+            "7days": "7 days",
+            "month": "Month",
+            "total": "Total"
         }
     },
     "auth": {
@@ -159,7 +162,8 @@
     "sidebar": {
         "collapse": "Collapse",
         "mainMenu": "Main Menu",
-        "settings": "Settings"
+        "settings": "Settings",
+        "settingsMenu": "Settings"
     },
     "header": {
         "searchPlaceholder": "Quick search",

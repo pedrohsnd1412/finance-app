@@ -78,7 +78,7 @@ export default function LoginScreen() {
                             <Text style={styles.logoText}>D</Text>
                         </View>
                         <Text style={StyleSheet.flatten([styles.title, { color: theme.text }])}>
-                            Dignos AI
+                            DignusAI
                         </Text>
                         <Text style={StyleSheet.flatten([styles.subtitle, { color: theme.text, opacity: 0.6 }])}>
                             {t('auth.enterToAccess')}

@@ -26,8 +26,11 @@
             "sat": "Sáb"
         },
         "period": {
+            "today": "Hoje",
             "week": "7D",
-            "month": "Mês"
+            "7days": "7 dias",
+            "month": "Mês",
+            "total": "Total"
         }
     },
     "auth": {
@@ -159,7 +162,8 @@
     "sidebar": {
         "collapse": "Recolher",
         "mainMenu": "Menu Principal",
-        "settings": "Configurações"
+        "settings": "Configurações",
+        "settingsMenu": "Configurações"
     },
     "header": {
         "searchPlaceholder": "Busca rápida",
