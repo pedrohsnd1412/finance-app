@@ -7,11 +7,14 @@ import { useResponsive } from '@/components/useResponsive';
 import { Colors } from '@/constants/Colors';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useConnections } from '@/hooks/useConnections';
+import { useDeleteUserData } from '@/hooks/useDeleteUserData';
 import i18n from '@/i18n';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+    ActivityIndicator,
     Alert,
     Modal,
     Platform,
@@ -19,6 +22,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
@@ -46,6 +50,40 @@ export default function MoreScreen() {
     const { isDesktop } = useResponsive();
     const { user, signOut } = useAuth();
     const [showConnectModal, setShowConnectModal] = useState(false);
+
+    // Data Deletion State
+    const { connections, isLoading: isLoadingConnections } = useConnections();
+    const { deleteAllData, isDeleting } = useDeleteUserData();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [confirmText, setConfirmText] = useState('');
+
+    const handleDeleteData = async () => {
+        const deleteWord = i18n.language === 'pt' ? 'EXCLUIR' : 'DELETE';
+
+        if (confirmText !== deleteWord) {
+            Alert.alert(
+                t('common.error'),
+                t('settings.typeDeleteToConfirm')
+            );
+            return;
+        }
+
+        const result = await deleteAllData();
+
+        if (result.success) {
+            setShowDeleteModal(false);
+            setConfirmText('');
+            Alert.alert(
+                t('common.success'),
+                t('settings.dataDeleted')
+            );
+        } else {
+            Alert.alert(
+                t('common.error'),
+                t('settings.deleteError')
+            );
+        }
+    };
 
     const handleConnectSuccess = (itemData: any) => {
         setShowConnectModal(false);
@@ -197,6 +235,52 @@ export default function MoreScreen() {
                     </TouchableOpacity>
                 ))}
 
+                {/* Data & Privacy Section */}
+                <View style={[styles.section, { marginTop: 32, marginBottom: 0 }]}>
+                    <Text style={styles.sectionTitle}>
+                        {t('settings.dataPrivacy')}
+                    </Text>
+
+                    {/* Connected Banks Info */}
+                    <View style={[styles.settingsItem, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                        <View style={styles.settingsIconBox}>
+                            <Ionicons name="business-outline" size={20} color="#6366F1" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.settingsLabel, { color: theme.text }]}>
+                                {t('settings.connectedBanks')}
+                            </Text>
+                            <Text style={[styles.settingsValue, { marginTop: 2 }]}>
+                                {isLoadingConnections ? (
+                                    '...'
+                                ) : (
+                                    connections.length > 0
+                                        ? `${connections.length} ${connections.length === 1 ? 'banco' : 'bancos'}`
+                                        : t('settings.noBanksConnected')
+                                )}
+                            </Text>
+                        </View>
+                    </View>
+
+                    {/* Delete Account Button */}
+                    <TouchableOpacity
+                        style={[styles.settingsItem, { backgroundColor: 'rgba(239, 68, 68, 0.05)', borderColor: 'rgba(239, 68, 68, 0.2)' }]}
+                        onPress={() => setShowDeleteModal(true)}
+                    >
+                        <View style={[styles.settingsIconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+                            <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.settingsLabel, { color: '#EF4444' }]}>
+                                {t('settings.deleteAllData')}
+                            </Text>
+                            <Text style={{ fontSize: 12, color: '#EF4444', opacity: 0.8, marginTop: 2 }}>
+                                {t('settings.deleteDataDesc')}
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
                 {/* Logout Button */}
                 <TouchableOpacity
                     style={[styles.settingsItem, styles.logoutButton]}
@@ -321,6 +405,76 @@ export default function MoreScreen() {
                             onError={handleConnectError}
                             onClose={() => setShowConnectModal(false)}
                         />
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                visible={showDeleteModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowDeleteModal(false)}
+            >
+                <View style={styles.deleteModalOverlay}>
+                    <View style={[styles.deleteModalContent, { backgroundColor: theme.card }]}>
+                        <View style={styles.deleteModalHeader}>
+                            <Ionicons name="warning" size={48} color="#ef4444" />
+                            <Text style={[styles.deleteModalTitle, { color: theme.text }]}>
+                                {t('settings.confirmDeleteTitle')}
+                            </Text>
+                        </View>
+
+                        <Text style={[styles.deleteModalMessage, { color: theme.muted }]}>
+                            {t('settings.confirmDeleteMessage')}
+                        </Text>
+
+                        <View style={styles.confirmInputContainer}>
+                            <Text style={[styles.confirmLabel, { color: theme.text }]}>
+                                {t('settings.typeDeleteToConfirm')}
+                            </Text>
+                            <TextInput
+                                style={[styles.confirmInput, {
+                                    backgroundColor: theme.background,
+                                    borderColor: theme.border,
+                                    color: theme.text
+                                }]}
+                                value={confirmText}
+                                onChangeText={setConfirmText}
+                                placeholder={i18n.language === 'pt' ? 'EXCLUIR' : 'DELETE'}
+                                placeholderTextColor={theme.muted}
+                                autoCapitalize="characters"
+                            />
+                        </View>
+
+                        <View style={styles.deleteModalActions}>
+                            <TouchableOpacity
+                                style={[styles.deleteModalButton, styles.cancelDeleteButton, { borderColor: theme.border }]}
+                                onPress={() => {
+                                    setShowDeleteModal(false);
+                                    setConfirmText('');
+                                }}
+                                disabled={isDeleting}
+                            >
+                                <Text style={[styles.cancelDeleteButtonText, { color: theme.text }]}>
+                                    {t('common.cancel')}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={[styles.deleteModalButton, styles.confirmDeleteButton]}
+                                onPress={handleDeleteData}
+                                disabled={isDeleting}
+                            >
+                                {isDeleting ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.confirmDeleteButtonText}>
+                                        {t('settings.confirmDelete')}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
             </Modal>
@@ -549,6 +703,76 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.05)',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    deleteModalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    deleteModalContent: {
+        width: '100%',
+        maxWidth: 500,
+        borderRadius: 24,
+        padding: 32,
+        gap: 24,
+    },
+    deleteModalHeader: {
+        alignItems: 'center',
+        gap: 16,
+    },
+    deleteModalTitle: {
+        fontSize: 24,
+        fontWeight: '800',
+        textAlign: 'center',
+    },
+    deleteModalMessage: {
+        fontSize: 15,
+        lineHeight: 22,
+        textAlign: 'center',
+    },
+    confirmInputContainer: {
+        gap: 8,
+    },
+    confirmLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    confirmInput: {
+        borderRadius: 12,
+        borderWidth: 1,
+        padding: 16,
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    deleteModalActions: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 8,
+    },
+    deleteModalButton: {
+        flex: 1,
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 52,
+    },
+    cancelDeleteButton: {
+        borderWidth: 1,
+    },
+    cancelDeleteButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    confirmDeleteButton: {
+        backgroundColor: '#ef4444',
+    },
+    confirmDeleteButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#fff',
     },
 });
 
