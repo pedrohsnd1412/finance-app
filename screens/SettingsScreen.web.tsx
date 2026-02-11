@@ -39,7 +39,7 @@ export default function SettingsScreen() {
                 setConfirmText('');
                 alert(t('settings.dataDeleted'));
             } else {
-                alert(t('settings.deleteError'));
+                alert(`${t('settings.deleteError')}\n${result.error || ''}`);
             }
         }
     };

@@ -1,184 +1,97 @@
 # Implementação de Exclusão de Dados do Usuário
 
 ## Visão Geral
-Esta implementação permite que os usuários excluam permanentemente todos os seus dados financeiros consentidos, incluindo:
-- Desconexão de todas as contas bancárias conectadas via Pluggy
-- Exclusão de todos os dados financeiros do Supabase (contas, transações, etc.)
+Esta implementação permite que os usuários excluam permanentemente todos os seus dados financeiros consentidos, atendendo aos requisitos de LGPD/GDPR e boas práticas de privacidade. O recurso está disponível tanto na versão Mobile quanto na versão Desktop/Web.
+
+A exclusão abrange:
+- Desconexão e exclusão de todos os itens (bancos) conectados via Pluggy API.
+- Exclusão de todos os dados financeiros do banco de dados Supabase (contas, transações, saldos, etc.) via *Cascade Delete*.
 
 ## Arquivos Criados/Modificados
 
-### 1. Edge Function - Supabase
+### 1. Edge Function - Supabase (Backend)
 **Arquivo**: `supabase/functions/delete-user-data/index.ts`
-- Função serverless que gerencia a exclusão completa dos dados
-- Desconecta itens do Pluggy via API
-- Remove dados do banco de dados com cascade
+- **Função**: Gerencia a exclusão segura e completa dos dados.
+- **Melhorias**:
+    - Validação robusta de tokens de autenticação (JWT).
+    - Verificação explícita de variáveis de ambiente (`PLUGGY_CLIENT_ID`, `PLUGGY_CLIENT_SECRET`).
+    - Logs detalhados para debugging no Dashboard do Supabase.
+    - Retorno de erros estruturados para o frontend.
+    - Continuidade da operação: tenta excluir do Supabase mesmo se a API da Pluggy falhar.
 
-### 2. Hook Personalizado
+### 2. Frontend - Mobile (React Native)
+**Arquivo**: `screens/MoreScreen.tsx`
+- Adicionada seção "DADOS E PRIVACIDADE" na aba de Ajustes.
+- Exibe contador de bancos conectados.
+- Botão "Excluir Todos os Dados" com estilo de alerta (vermelho).
+- Modal de confirmação nativo exigindo a digitação da palavra "EXCLUIR" (ou "DELETE").
+- Feedback visual de carregamento e sucesso/erro via `Alert`.
+
+### 3. Frontend - Desktop/Web (React DOM)
+**Arquivo**: `screens/SettingsScreen.web.tsx`
+- Interface adaptada para desktop com *Glassmorphism*.
+- Nova seção "Data & Privacy" integrada ao layout.
+- Cards visuais para bancos conectados e ação de exclusão.
+- Modal web (backdrop blur) para confirmação de segurança.
+
+**Arquivo**: `screens/BanksScreen.web.tsx`
+- Implementação da funcionalidade de **Conectar Nova Conta** no Desktop.
+- Modal com `PluggyConnect` integrado para permitir reconexão após exclusão.
+- Feedback visual de status da conexão.
+
+### 4. Hook Personalizado
 **Arquivo**: `hooks/useDeleteUserData.ts`
-- Hook React para gerenciar o estado da exclusão
-- Fornece loading states e tratamento de erros
-- Interface simples para componentes
+- Hook centralizado para gerenciar a chamada à Edge Function.
+- Trata estados de `loading`, `error` e `success`.
 
-### 3. Tela de Configurações Atualizada
-**Arquivo**: `screens/SettingsScreen.tsx`
-- Nova seção "Dados e Privacidade"
-- Exibição de bancos conectados
-- Botão de exclusão com confirmação
-- Modal de confirmação com validação de texto
+### 5. Traduções (i18n)
+**Arquivos**: `i18n/locales/pt.json`, `i18n/locales/en.json`
+- Adicionadas todas as strings necessárias para modal, botões, títulos e mensagens de erro/sucesso.
 
-### 4. Traduções
-**Arquivos**: 
-- `i18n/locales/pt.json`
-- `i18n/locales/en.json`
+## Fluxo de Usuário
 
-Novas chaves adicionadas:
-- `settings.dataPrivacy`
-- `settings.deleteAllData`
-- `settings.deleteDataDesc`
-- `settings.deleteDataWarning`
-- `settings.confirmDelete`
-- `settings.confirmDeleteTitle`
-- `settings.confirmDeleteMessage`
-- `settings.typeDeleteToConfirm`
-- `settings.deleting`
-- `settings.dataDeleted`
-- `settings.deleteError`
-- `settings.connectedBanks`
-- `settings.noBanksConnected`
+1.  **Acesso**: O usuário acessa **Configurações > Preferências** (Desktop) ou **Mais > Configurações** (Mobile).
+2.  **Visualização**: Vê a seção de Privacidade com o número de bancos conectados.
+3.  **Ação**: Clica em "Excluir Todos os Dados".
+4.  **Segurança**:
+    - Um modal explica as consequências (irreversibilidade).
+    - O usuário deve digitar "EXCLUIR" para habilitar o botão de confirmação.
+5.  **Processamento**:
+    - O app chama a Edge Function `delete-user-data`.
+    - A função valida o usuário e remove os dados no Pluggy e Supabase.
+6.  **Conclusão**:
+    - **Sucesso**: Mensagem de confirmação e atualização da tela (zero bancos).
+    - **Erro**: Mensagem detalhada com a causa do erro (ex: falha na API, credenciais inválidas).
+7.  **Reconexão (Opcional)**:
+    - O usuário pode ir à tela "Bancos" e usar o botão "Conectar Nova Conta" para reiniciar o processo do zero.
 
-## Fluxo de Exclusão
+## Guia de Deploy e Configuração
 
-### 1. Usuário Inicia Exclusão
-- Navega para Settings (Ajustes)
-- Vê a seção "Dados e Privacidade"
-- Clica em "Excluir Todos os Dados"
+### 1. Variáveis de Ambiente (Obrigatório)
+Para que a exclusão funcione, as seguintes variáveis **DEVEM** ser configuradas nos *Secrets* da Edge Function no Dashboard do Supabase:
 
-### 2. Modal de Confirmação
-- Modal aparece com aviso claro
-- Lista todos os bancos conectados
-- Requer que o usuário digite "EXCLUIR" (ou "DELETE" em inglês)
-- Botões de cancelar e confirmar
-
-### 3. Processamento
-- Hook `useDeleteUserData` invoca a edge function
-- Edge function:
-  1. Autentica o usuário
-  2. Busca todos os connection_items do usuário
-  3. Para cada item, chama Pluggy API para deletar
-  4. Remove todos os connection_items do Supabase
-  5. Cascade deleta accounts e transactions automaticamente
-
-### 4. Feedback ao Usuário
-- Loading indicator durante o processo
-- Alert de sucesso ou erro
-- Modal fecha automaticamente em caso de sucesso
-
-## Segurança
-
-### Autenticação
-- Edge function valida o token de autenticação
-- Apenas o próprio usuário pode deletar seus dados
-
-### Row Level Security (RLS)
-- Políticas RLS garantem isolamento de dados
-- Usuário só pode deletar seus próprios registros
-
-### Confirmação Dupla
-- Modal de confirmação visual
-- Validação de texto digitado ("EXCLUIR"/"DELETE")
-- Previne exclusões acidentais
-
-## Deploy da Edge Function
-
-### Pré-requisitos
 ```bash
-# Instalar Supabase CLI se necessário
-npm install -g supabase
-
-# Login no Supabase
-supabase login
+npx supabase secrets set PLUGGY_CLIENT_ID="seu_client_id"
+npx supabase secrets set PLUGGY_CLIENT_SECRET="seu_client_secret"
+# SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY geralmente são injetados automaticamente, mas verifique se necessário.
 ```
 
-### Configurar Variáveis de Ambiente
-No dashboard do Supabase, configure:
-- `PLUGGY_CLIENT_ID`
-- `PLUGGY_CLIENT_SECRET`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
+### 2. Deploy da Função
+Se houver atualizações na função, faça o deploy novamente:
 
-### Deploy
 ```bash
-# Na raiz do projeto
-cd /Users/eupedrohie/Library/Mobile\ Documents/com~apple~CloudDocs/finance-app/finance-app
-
-# Deploy da função
-supabase functions deploy delete-user-data
+npx supabase functions deploy delete-user-data --no-verify-jwt
 ```
+*(Nota: A flag `--no-verify-jwt` é usada porque nós fazemos a verificação manual do token JWT dentro da função para maior controle e segurança).*
 
-## Teste
+## Solução de Problemas Comuns
 
-### Teste Manual
-1. Conecte uma conta bancária de teste
-2. Vá para Settings
-3. Verifique que o banco aparece na lista
-4. Clique em "Excluir Todos os Dados"
-5. Digite "EXCLUIR" no campo de confirmação
-6. Confirme a exclusão
-7. Verifique que os dados foram removidos
+-   **Erro "Pluggy credentials not configured"**: Você esqueceu de definir os Secrets no Supabase. Rode o comando de secrets acima.
+-   **Erro "Unauthorized"**: O token do usuário expirou ou não foi enviado corretamente. O usuário deve fazer logout e login novamente.
+-   **Botão "Conectar" não funciona no Desktop**: Certifique-se de estar usando a versão mais recente do arquivo `screens/BanksScreen.web.tsx` que contém o modal de conexão.
 
-### Verificação no Banco de Dados
-```sql
--- Verificar que não há mais dados do usuário
-SELECT * FROM connection_items WHERE user_id = 'USER_ID';
-SELECT * FROM accounts WHERE connection_item_id IN (
-  SELECT id FROM connection_items WHERE user_id = 'USER_ID'
-);
-SELECT * FROM transactions WHERE account_id IN (
-  SELECT id FROM accounts WHERE connection_item_id IN (
-    SELECT id FROM connection_items WHERE user_id = 'USER_ID'
-  )
-);
-```
+## Considerações de Segurança
 
-## Considerações Importantes
-
-### Irreversibilidade
-- A exclusão é permanente e não pode ser desfeita
-- Avisos claros são mostrados ao usuário
-- Confirmação de texto previne ações acidentais
-
-### Cascade Deletion
-- O schema do banco usa `ON DELETE CASCADE`
-- Quando um `connection_item` é deletado:
-  - Todos os `accounts` relacionados são deletados
-  - Todas as `transactions` relacionadas são deletadas
-- Isso garante que não ficam dados órfãos
-
-### Tratamento de Erros
-- Se a API do Pluggy falhar, a função continua
-- Dados são removidos do Supabase mesmo se Pluggy falhar
-- Logs de erro são registrados para debugging
-
-## Próximos Passos (Opcional)
-
-### Melhorias Futuras
-1. **Soft Delete**: Implementar exclusão suave com período de recuperação
-2. **Export de Dados**: Permitir download dos dados antes da exclusão
-3. **Logs de Auditoria**: Registrar exclusões para compliance
-4. **Email de Confirmação**: Enviar email após exclusão bem-sucedida
-5. **Exclusão Parcial**: Permitir deletar apenas bancos específicos
-
-### Compliance LGPD/GDPR
-Esta implementação atende aos requisitos de:
-- ✅ Direito ao esquecimento
-- ✅ Exclusão de dados sob demanda
-- ✅ Transparência sobre dados armazenados
-- ✅ Controle do usuário sobre seus dados
-
-## Suporte
-
-Para problemas ou dúvidas:
-1. Verifique os logs da edge function no dashboard Supabase
-2. Verifique os logs do console do navegador
-3. Confirme que as variáveis de ambiente estão configuradas
-4. Teste a conexão com a API do Pluggy separadamente
+-   **Autenticação Obrigatória**: A função rejeita qualquer requisição sem um Header `Authorization` válido de um usuário logado.
+-   **Isolamento**: A função opera apenas nos dados do `user_id` extraído do token JWT.
+-   **Confirmação Ativa**: A exigência de digitação previne cliques acidentais.

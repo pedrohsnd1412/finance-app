@@ -80,7 +80,7 @@ export default function MoreScreen() {
         } else {
             Alert.alert(
                 t('common.error'),
-                t('settings.deleteError')
+                `${t('settings.deleteError')}\n${result.error || ''}`
             );
         }
     };
