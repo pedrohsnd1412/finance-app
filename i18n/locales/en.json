@@ -8,6 +8,7 @@
         "version": "Version",
         "back": "Back",
         "success": "Success",
+        "error": "Error",
         "connectSuccess": "Account connected successfully!",
         "categories": {
             "housing": "Housing",
@@ -157,7 +158,20 @@
     "settings": {
         "langSubtitle": "System default language",
         "themeSubtitle": "Dark mode is synced with system settings",
-        "personalizeSubtitle": "Personalize your app experience"
+        "personalizeSubtitle": "Personalize your app experience",
+        "dataPrivacy": "Data & Privacy",
+        "deleteAllData": "Delete All Data",
+        "deleteDataDesc": "Permanently remove all your connected accounts and financial data",
+        "deleteDataWarning": "This action cannot be undone",
+        "confirmDelete": "Confirm Deletion",
+        "confirmDeleteTitle": "Delete All Data?",
+        "confirmDeleteMessage": "This will disconnect all your bank accounts and permanently delete all your financial data from our system. This action cannot be undone.",
+        "typeDeleteToConfirm": "Type 'DELETE' to confirm",
+        "deleting": "Deleting data...",
+        "dataDeleted": "Data deleted successfully",
+        "deleteError": "Error deleting data. Please try again.",
+        "connectedBanks": "Connected Banks",
+        "noBanksConnected": "No banks connected"
     },
     "sidebar": {
         "collapse": "Collapse",

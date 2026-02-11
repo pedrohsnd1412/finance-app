@@ -8,6 +8,7 @@
         "version": "Versão",
         "back": "Voltar",
         "success": "Sucesso",
+        "error": "Erro",
         "connectSuccess": "Conta conectada com sucesso!",
         "categories": {
             "housing": "Moradia",
@@ -157,7 +158,20 @@
     "settings": {
         "langSubtitle": "Idioma padrão do sistema",
         "themeSubtitle": "O modo escuro é sincronizado com as configurações do sistema",
-        "personalizeSubtitle": "Personalize sua experiência no aplicativo"
+        "personalizeSubtitle": "Personalize sua experiência no aplicativo",
+        "dataPrivacy": "Dados e Privacidade",
+        "deleteAllData": "Excluir Todos os Dados",
+        "deleteDataDesc": "Remover permanentemente todas as suas contas conectadas e dados financeiros",
+        "deleteDataWarning": "Esta ação não pode ser desfeita",
+        "confirmDelete": "Confirmar Exclusão",
+        "confirmDeleteTitle": "Excluir Todos os Dados?",
+        "confirmDeleteMessage": "Isso irá desconectar todas as suas contas bancárias e excluir permanentemente todos os seus dados financeiros do nosso sistema. Esta ação não pode ser desfeita.",
+        "typeDeleteToConfirm": "Digite 'EXCLUIR' para confirmar",
+        "deleting": "Excluindo dados...",
+        "dataDeleted": "Dados excluídos com sucesso",
+        "deleteError": "Erro ao excluir dados. Tente novamente.",
+        "connectedBanks": "Bancos Conectados",
+        "noBanksConnected": "Nenhum banco conectado"
     },
     "sidebar": {
         "collapse": "Recolher",
